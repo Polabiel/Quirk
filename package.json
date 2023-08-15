@@ -1,0 +1,23 @@
+{
+  "name": "zanoni-bot",
+  "version": "1.0.0",
+  "description": "Zanoni-Bot, desenvolvido nas aulas da saga: desenvolvendo um bot de WhatsApp do zero.",
+  "main": "./src/start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node-dev ./src/start.ts",
+    "start": "node ./dist/start.js",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.4.0"
+  },
+  "devDependencies": {
+    "qrcode-terminal": "^0.12.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
+  }
+}
