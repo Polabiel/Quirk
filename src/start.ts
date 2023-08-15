@@ -1,11 +1,9 @@
-import { connect } from "./connection";
-import { load } from "./loader";
+import onMessagesUpsert from "./middlewares/onMessagesUpsert"
 
-async function start() {
-  const bot = await connect();
+async function start(): Promise<void> {
   console.clear();
   console.log("🤖 Bot Conectado!\n");
-  load(bot);
+  await onMessagesUpsert();
   console.log("💻 Eventos Carregados!\n");
 }
 

@@ -17,7 +17,7 @@ export const extractDataFromWebMessage = (message: proto.IWebMessageInfo) => {
   let isReply: false | proto.IMessage | null | undefined = false;
 
   let replyJid: string | null = null;
-  let replytext
+  let replytext;
 
   const {
     key: { remoteJid: jid, participant: tempUserJid },
@@ -59,7 +59,8 @@ export const extractDataFromWebMessage = (message: proto.IWebMessageInfo) => {
 
   const userJid = tempUserJid?.replace(/:[0-9][0-9]|:[0-9]/g, "");
 
-  const tempMessage: proto.IWebMessageInfo | proto.IMessage | null | undefined = message?.message;
+  const tempMessage: proto.IWebMessageInfo | proto.IMessage | null | undefined =
+    message?.message;
 
   const isImage: boolean =
     !!tempMessage?.imageMessage ||
@@ -157,26 +158,28 @@ export const baileysIs = (
   context: IBaileysContext | string
 ) => {
   return (
-    !!baileysMessage.message?.[`${context}Message` as keyof typeof baileysMessage.message] ||
+    !!baileysMessage.message?.[
+      `${context}Message` as keyof typeof baileysMessage.message
+    ] ||
     !!baileysMessage.message?.extendedTextMessage?.contextInfo?.quotedMessage?.[
-    `${context}Message` as keyof typeof baileysMessage.message
+      `${context}Message` as keyof typeof baileysMessage.message
     ]
   );
 };
-
 
 export const getContent = (
   baileysMessage: WAMessage,
   type: IBaileysContext | string
 ) => {
   return (
-    baileysMessage.message?.[`${type}Message` as keyof typeof baileysMessage.message] ||
+    baileysMessage.message?.[
+      `${type}Message` as keyof typeof baileysMessage.message
+    ] ||
     baileysMessage.message?.extendedTextMessage?.contextInfo?.quotedMessage?.[
-    `${type}Message` as keyof typeof baileysMessage.message
+      `${type}Message` as keyof typeof baileysMessage.message
     ]
   );
 };
-
 
 export const getRandomName = (extension?: string) => {
   const fileName = Math.floor(Math.random() * 10000);

@@ -22,7 +22,6 @@ export const general: GeneralConfig = {
   TIMEOUT_IN_MILLISECONDS_BY_EVENT: 700,
   NUMBERS_HOSTS: [
     "5519981022857@s.whatsapp.net",
-    "5516988767410@s.whatsapp.net",
   ],
   NUMBER_BOT: "5516988265334@s.whatsapp.net",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
