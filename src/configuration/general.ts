@@ -11,6 +11,7 @@ interface GeneralConfig {
   NUMBERS_HOSTS: string[];
   NUMBER_BOT: string;
   OPENAI_API_KEY: string | undefined;
+  GROUP_SECURE: string[];
 }
 
 export const general: GeneralConfig = {
@@ -25,4 +26,5 @@ export const general: GeneralConfig = {
   ],
   NUMBER_BOT: "5516988265334@s.whatsapp.net",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  GROUP_SECURE: ['any']
 };

@@ -1,8 +1,8 @@
 import { MessageUpsertType, proto } from "@whiskeysockets/baileys";
 import { connect } from "../connection";
-import { getBotData } from "../utils/functions";
-import { isCommand } from "../utils";
 import { general } from "../configuration/general";
+import loadCommomFunctions from "../utils/loadCommomFunctions";
+import InstanceCommand from "../utils/InstanceCommand";
 
 export default async () => {
   const bot = await connect();
@@ -17,25 +17,14 @@ export default async () => {
 
       if (
         !baileysMessage.key.fromMe &&
-        baileysMessage.key.remoteJid !== general.NUMBERS_HOSTS[0]
+        baileysMessage.key.remoteJid !== general.NUMBERS_HOSTS[0] &&
+        baileysMessage.key.remoteJid !== "120363145100078035@g.us"
       )
         return;
 
-      const { command: targetCommand, ...data } = getBotData(
-        bot,
-        baileysMessage
-      );
+      const commonFunctions = loadCommomFunctions(bot, baileysMessage);
 
-      if (!isCommand(targetCommand)) return;
-
-      try {
-        console.log(
-          `Command: ${targetCommand} | Args: ${data.args}`
-        );
-      } catch (error: any) {
-        console.error(error);
-        await data.sendReply(`❌ ${error.message}`);
-      }
+      await InstanceCommand(commonFunctions);
     }
   );
 };

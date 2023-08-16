@@ -1,130 +1,52 @@
 import {
-  WAMessage,
+  DownloadableMessage,
   downloadContentFromMessage,
   MediaType,
   proto,
-  DownloadableMessage,
+  WASocket,
 } from "@whiskeysockets/baileys";
-import path from "path";
 import { general } from "../configuration/general";
+import fs from "fs";
+import path from "path";
 import { IBaileysContext } from "../interfaces/IBaileysContext";
-const { writeFile } = require("fs/promises");
+import { ICommandImports } from "../interfaces/ICommandImports";
 
-export const extractDataFromWebMessage = (message: proto.IWebMessageInfo) => {
-  let remoteJid!: string;
-  let messageText: proto.IMessage | null | undefined | string = null;
+export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
+  const textMessage = baileysMessage.message?.conversation;
+  const extendedTextMessage = baileysMessage.message?.extendedTextMessage?.text;
+  const imageTextMessage = baileysMessage.message?.imageMessage?.caption;
+  const videoTextMessage = baileysMessage.message?.videoMessage?.caption;
 
-  let isReply: false | proto.IMessage | null | undefined = false;
+  const fullMessage =
+    textMessage || extendedTextMessage || imageTextMessage || videoTextMessage;
 
-  let replyJid: string | null = null;
-  let replytext;
+  const [command, ...args] = fullMessage!.split(" ");
+  const prefix = command.charAt(0);
+  const arg = args.reduce((acc, arg) => acc + " " + arg, "").trim();
 
-  const {
-    key: { remoteJid: jid, participant: tempUserJid },
-  } = message;
-
-  if (jid) {
-    remoteJid = jid;
-  }
-
-  if (message) {
-    const extendedTextMessage = message.message?.extendedTextMessage;
-    const buttonTextMessage = message.message?.buttonsResponseMessage;
-    const listTextMessage = message.message?.listResponseMessage;
-
-    const type1 = message.message?.conversation;
-
-    const type2 = extendedTextMessage?.text;
-
-    const type3 = message.message?.imageMessage?.caption;
-
-    const type4 = buttonTextMessage?.selectedButtonId;
-
-    const type5 = listTextMessage?.singleSelectReply?.selectedRowId;
-
-    const type6 = message?.message?.videoMessage?.caption;
-
-    messageText = type1! || type2! || type3! || type4! || type5! || type6!;
-
-    isReply =
-      !!extendedTextMessage && extendedTextMessage.contextInfo?.quotedMessage;
-
-    replyJid =
-      extendedTextMessage && extendedTextMessage.contextInfo?.participant
-        ? extendedTextMessage.contextInfo.participant
-        : null;
-
-    replytext = extendedTextMessage?.contextInfo?.quotedMessage?.conversation;
-  }
-
-  const userJid = tempUserJid?.replace(/:[0-9][0-9]|:[0-9]/g, "");
-
-  const tempMessage: proto.IWebMessageInfo | proto.IMessage | null | undefined =
-    message?.message;
-
-  const isImage: boolean =
-    !!tempMessage?.imageMessage ||
-    !!tempMessage?.extendedTextMessage?.contextInfo?.quotedMessage
-      ?.imageMessage;
-
-  const isVideo: boolean =
-    !!tempMessage?.videoMessage ||
-    !!tempMessage?.extendedTextMessage?.contextInfo?.quotedMessage
-      ?.videoMessage;
-
-  const isSticker: boolean =
-    !!tempMessage?.stickerMessage ||
-    !!tempMessage?.extendedTextMessage?.contextInfo?.quotedMessage
-      ?.stickerMessage;
-
-  const isAudio: boolean =
-    !!tempMessage?.audioMessage ||
-    !!tempMessage?.extendedTextMessage?.contextInfo?.quotedMessage
-      ?.audioMessage;
-
-  const isDocument: boolean =
-    !!tempMessage?.documentMessage ||
-    !!tempMessage?.extendedTextMessage?.contextInfo?.quotedMessage
-      ?.documentMessage;
-
-  let mentionedJid: string = "";
-
-  let mentionedJidObject =
-    tempMessage?.extendedTextMessage?.contextInfo?.mentionedJid;
-
-  if (mentionedJidObject) {
-    mentionedJid = mentionedJidObject[0];
-  }
+  const commandWithoutPrefix = command.replace(
+    new RegExp(`^[${general.PREFIX}]+`),
+    ""
+  );
 
   return {
-    remoteJid,
-    isReply,
-    replayJid: replyJid,
-    replytext,
-    userJid,
-    messageText,
-    isImage,
-    isVideo,
-    isSticker,
-    isAudio,
-    isDocument,
-    mentionedJid,
-    baileysMessage: message,
+    remoteJid: baileysMessage?.key?.remoteJid,
+    prefix,
+    isGroup: baileysMessage?.key?.remoteJid?.endsWith("@g.us"),
+    nickName: baileysMessage?.pushName,
+    fromMe: baileysMessage?.key?.fromMe,
+    commandName: formatCommand(commandWithoutPrefix),
+    idMessage: baileysMessage?.key?.id,
+    participant: baileysMessage?.key?.participant,
+    args: splitByCharacters(args.join(" "), ["\\", "|", "/"]),
+    argsJoined: arg,
   };
-};
-
-export const extractCommandAndArgs = (message: string) => {
-  if (!message) return { command: "", args: "" };
-
-  const [command, ...tempArgs] = message.trim().split(" ");
-
-  const args = tempArgs.reduce((acc, arg) => acc + " " + arg, "").trim();
-
-  return { command, args };
-};
+}
 
 export const splitByCharacters = (str: string, characters: string[]) => {
-  characters = characters.map((char) => (char === "\\" ? "\\\\" : char));
+  characters = characters.map((char: string) =>
+    char === "\\" ? "\\\\" : char
+  );
   const regex = new RegExp(`[${characters.join("")}]`);
 
   return str
@@ -143,10 +65,6 @@ export const onlyLettersAndNumbers = (text: string) => {
   return text.replace(/[^a-zA-Z0-9]/g, "");
 };
 
-export const isCommand = (message: string): boolean => {
-  return message.length > 1 && message.startsWith(general.PREFIX);
-};
-
 export const removeAccentsAndSpecialCharacters = (text: string) => {
   if (!text) return "";
 
@@ -154,7 +72,7 @@ export const removeAccentsAndSpecialCharacters = (text: string) => {
 };
 
 export const baileysIs = (
-  baileysMessage: WAMessage,
+  baileysMessage: proto.IWebMessageInfo,
   context: IBaileysContext | string
 ) => {
   return (
@@ -168,7 +86,7 @@ export const baileysIs = (
 };
 
 export const getContent = (
-  baileysMessage: WAMessage,
+  baileysMessage: proto.IWebMessageInfo,
   type: IBaileysContext | string
 ) => {
   return (
@@ -181,19 +99,11 @@ export const getContent = (
   );
 };
 
-export const getRandomName = (extension?: string) => {
-  const fileName = Math.floor(Math.random() * 10000);
-
-  if (!extension) return fileName.toString();
-
-  return `${fileName}.${extension}`;
-};
-
-export const download = async (
-  baileysMessage: WAMessage,
+export const Download = async (
+  baileysMessage: proto.IWebMessageInfo,
   fileName: string,
   context: MediaType,
-  extension: any
+  extension: string
 ) => {
   const content = getContent(baileysMessage, context) as DownloadableMessage;
 
@@ -211,7 +121,143 @@ export const download = async (
 
   const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
 
-  await writeFile(filePath, buffer);
+  fs.writeFileSync(filePath, buffer);
 
   return filePath;
+};
+
+export const findCommandImport: (commandName: string) => {
+  type: string;
+  command: any;
+} = (commandName: string) => {
+  const command = readCommandImports();
+
+  let typeReturn = "";
+  let targetCommandReturn = null;
+
+  for (const [type, commands] of Object.entries(command)) {
+    if (!commands.length) {
+      continue;
+    }
+
+    const targetCommand = commands.find((cmd: { commands: any[] }) =>
+      cmd.commands
+        .map((cmd: string) => formatCommand(cmd))
+        .includes(commandName)
+    );
+
+    if (targetCommand) {
+      typeReturn = type;
+      targetCommandReturn = targetCommand;
+    }
+  }
+
+  return {
+    type: typeReturn,
+    command: targetCommandReturn,
+  };
+};
+
+export const readCommandImports: () => Promise<ICommandImports> = async () => {
+  const subdirectories: string[] = fs
+    .readdirSync(general.COMMANDS_DIR, { withFileTypes: true })
+    .filter((directory: { isDirectory: () => unknown }) =>
+      directory.isDirectory()
+    )
+    .map((directory: { name: any }) => directory.name);
+
+  console.log(subdirectories);
+
+  const commandImports: ICommandImports = {};
+
+  for (const subdir of subdirectories) {
+    const subdirectoryPath: string = path.join(general.COMMANDS_DIR, subdir);
+    const files: string[] = fs
+      .readdirSync(subdirectoryPath)
+      .filter(
+        (file: string) =>
+          !file.startsWith("_") &&
+          (file.endsWith(".js") || file.endsWith(".ts"))
+      )
+      .map((file: string) => require(path.join(subdirectoryPath, file)));
+
+    commandImports[subdir] = files;
+  }
+
+  return commandImports;
+};
+
+export const isAdminGroup: (
+  bot: WASocket,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
+  bot: WASocket,
+  baileysMessage: proto.IWebMessageInfo
+) => {
+  if (extractDataFromMessage(baileysMessage).isGroup) {
+    const metadata = await bot.groupMetadata(
+      extractDataFromMessage(baileysMessage).remoteJid!
+    );
+    const admins = metadata.participants.filter(
+      (participant) =>
+        participant?.admin != null && participant?.admin != undefined
+    );
+    const adminsIds = admins.map((admin) => admin.id);
+    const isAdmin = adminsIds.includes(
+      extractDataFromMessage(baileysMessage).participant!
+    );
+    return isAdmin;
+  }
+  return false;
+};
+
+export const verifyIfIsAdmin: (
+  type: string,
+  bot: WASocket,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
+  type: string,
+  bot: WASocket,
+  baileysMessage: proto.IWebMessageInfo
+) => {
+  if (type === "admin") {
+    const isAdmin = await isAdminGroup(bot, baileysMessage);
+    return !!isAdmin;
+  }
+  return true;
+};
+
+export const VerifyIfIsOwner: (
+  type: string,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
+  type: string,
+  baileysMessage: proto.IWebMessageInfo
+) => {
+  if (type === "owner") {
+    if (extractDataFromMessage(baileysMessage).isGroup) {
+      return general.NUMBERS_HOSTS.includes(
+        extractDataFromMessage(baileysMessage).participant!
+      );
+    }
+    return general.NUMBERS_HOSTS.includes(
+      extractDataFromMessage(baileysMessage).remoteJid!
+    );
+  }
+  return true;
+};
+
+export const verifyIfIsGroupSecure: (
+  type: string,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
+  type: string,
+  baileysMessage: proto.IWebMessageInfo
+) => {
+  if (type === "secure" && extractDataFromMessage(baileysMessage).isGroup) {
+    return general.GROUP_SECURE.includes(
+      extractDataFromMessage(baileysMessage).remoteJid!
+    );
+  }
+  return true;
 };
