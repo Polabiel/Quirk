@@ -1,4 +1,4 @@
-import onMessagesUpsert from "./middlewares/onMessagesUpsert"
+import onMessagesUpsert from "./middlewares/onMessagesUpsert";
 
 async function start(): Promise<void> {
   console.clear();

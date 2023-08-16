@@ -1,7 +1,8 @@
 import { MessageUpsertType, proto } from "@whiskeysockets/baileys";
 import { connect } from "../connection";
 import { getBotData } from "../utils/functions";
-import { isCommand } from "../utils";
+import { findCommandImport, isCommand } from "../utils";
+import fs from "fs";
 import { general } from "../configuration/general";
 
 export default async () => {
@@ -26,12 +27,12 @@ export default async () => {
         baileysMessage
       );
 
-      if (!isCommand(targetCommand)) return;
+      if (!isCommand(targetCommand) || !targetCommand) return;
+
+      const { type, command } = await findCommandImport(targetCommand);
 
       try {
-        console.log(
-          `Command: ${targetCommand} | Args: ${data.args}`
-        );
+        console.log(`Command: ${targetCommand} | Args: ${data.args}`);
       } catch (error: any) {
         console.error(error);
         await data.sendReply(`❌ ${error.message}`);

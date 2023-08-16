@@ -8,7 +8,9 @@ import {
 import path from "path";
 import { general } from "../configuration/general";
 import { IBaileysContext } from "../interfaces/IBaileysContext";
-const { writeFile } = require("fs/promises");
+import { writeFile } from "fs/promises";
+import fs from "fs";
+import { ICommandImports } from "../interfaces/ICommandImports";
 
 export const extractDataFromWebMessage = (message: proto.IWebMessageInfo) => {
   let remoteJid!: string;
@@ -214,4 +216,65 @@ export const download = async (
   await writeFile(filePath, buffer);
 
   return filePath;
+};
+
+export const findCommandImport: (commandName: string) => Promise<{
+  type: string | null;
+  command: string | null;
+}> = async (commandName: string) => {
+  const command = await readCommandImports();
+
+  let typeReturn = "";
+  let targetCommandReturn = null;
+
+  for (const [type, commands] of Object.entries(command!)) {
+    if (!commands.length) {
+      continue;
+    }
+
+    const targetCommand: string = commands.find(
+      (cmd: { commands: any }) =>
+        cmd.commands &&
+        cmd.commands.map((cmd: any) => formatCommand(cmd)).includes(commandName)
+    );
+
+    if (targetCommand) {
+      typeReturn = type;
+      targetCommandReturn = targetCommand;
+    }
+  }
+
+  return {
+    type: typeReturn,
+    command: targetCommandReturn,
+  };
+};
+
+export const readCommandImports: () => Promise<ICommandImports> = async () => {
+  const subdirectories: string[] = fs
+    .readdirSync(general.COMMANDS_DIR, { withFileTypes: true })
+    .filter((directory: { isDirectory: () => unknown }) =>
+      directory.isDirectory()
+    )
+    .map((directory: { name: any }) => directory.name);
+
+  console.log(subdirectories);
+
+  const commandImports: ICommandImports = {};
+
+  for (const subdir of subdirectories) {
+    const subdirectoryPath = path.join(general.COMMANDS_DIR, subdir);
+    const files = fs
+      .readdirSync(subdirectoryPath)
+      .filter(
+        (file: string) =>
+          !file.startsWith("_") &&
+          (file.endsWith(".js") || file.endsWith(".ts"))
+      )
+      .map((file: string) => require(path.join(subdirectoryPath, file)));
+
+    commandImports[subdir] = files;
+  }
+
+  return commandImports;
 };
