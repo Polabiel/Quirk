@@ -215,7 +215,7 @@ export const findCommandImport: (commandName: string) => Promise<{
   };
 };
 
-export const RandomfindCommandImport: () => Promise<{
+export const choiceRandomCommand: () => Promise<{
   type: string;
   command: ICommand | null;
 }> = async () => {
