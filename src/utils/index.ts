@@ -8,9 +8,7 @@ import {
 import { general } from "../configuration/general";
 import fs from "fs";
 import path from "path";
-import { IBaileysContext } from "../interfaces/IBaileysContext";
-import { ICommandImports } from "../interfaces/ICommandImports";
-import { ICommand } from "../interfaces/ICommand";
+import { IDefaultCommand, ICommandImports } from "../interfaces/ICommand";
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   const textMessage: string = baileysMessage.message?.conversation!;
@@ -93,7 +91,7 @@ export const removeAccentsAndSpecialCharacters = (text: string) => {
 
 export const baileysIs = (
   baileysMessage: proto.IWebMessageInfo,
-  context: IBaileysContext | string
+  context: string
 ) => {
   return (
     !!baileysMessage.message?.[
@@ -107,19 +105,27 @@ export const baileysIs = (
 
 export const getContent = (
   baileysMessage: proto.IWebMessageInfo,
-  type: IBaileysContext | string
+  type: string
 ) => {
   return (
     baileysMessage.message?.[
       `${type}Message` as keyof typeof baileysMessage.message
-    ] ||
+    ] ??
     baileysMessage.message?.extendedTextMessage?.contextInfo?.quotedMessage?.[
       `${type}Message` as keyof typeof baileysMessage.message
     ]
   );
 };
 
-export const Download = async (
+export const downloadVideo = async (baileysMessage: proto.IWebMessageInfo) => {
+  return await downloadContent(baileysMessage, "input", "video", "mp4")!;
+};
+
+export const downloadImage = async (baileysMessage: proto.IWebMessageInfo) => {
+  return await downloadContent(baileysMessage, "input", "image", "png")!;
+};
+
+export const downloadContent = async (
   baileysMessage: proto.IWebMessageInfo,
   fileName: string,
   context: MediaType,
@@ -170,19 +176,19 @@ export const getRandomName = (extension?: string) => {
 
 export const findCommandImport: (commandName: string) => Promise<{
   type: string;
-  command: any;
+  command: IDefaultCommand | null;
 }> = async (commandName: string) => {
   const command = await readCommandImports();
 
   let typeReturn = "";
-  let targetCommandReturn = null;
+  let targetCommandReturn: IDefaultCommand | null = null;
 
-  for (const [type, commands] of Object.entries(command!)) {
+  for (const [type, commands] of Object.entries(command)) {
     if (!commands.length) {
       continue;
     }
 
-    const targetCommand: string = commands.find((cmd: { default: ICommand }) =>
+    const targetCommand: IDefaultCommand | undefined = commands.find((cmd) =>
       cmd?.default?.commands
         .map((cmd: string) => formatCommand(cmd))
         .includes(commandName)
@@ -228,11 +234,14 @@ export const readCommandImports: () => Promise<ICommandImports> = async () => {
   return commandImports;
 };
 
-export const isAdminGroup = async (
+export const isAdminGroup: (
+  bot: WASocket,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
   bot: WASocket,
   baileysMessage: proto.IWebMessageInfo
 ) => {
-  if (extractDataFromMessage(baileysMessage).isGroup) {
+  if (extractDataFromMessage(baileysMessage).isGroup!) {
     const metadata = await bot.groupMetadata(
       extractDataFromMessage(baileysMessage).remoteJid!
     );
@@ -248,7 +257,11 @@ export const isAdminGroup = async (
   return false;
 };
 
-export const verifyIfIsAdmin = async (
+export const verifyIfIsAdmin: (
+  type: string,
+  bot: WASocket,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
   type: string,
   bot: WASocket,
   baileysMessage: proto.IWebMessageInfo
@@ -260,12 +273,15 @@ export const verifyIfIsAdmin = async (
   return true;
 };
 
-export const VerifyIfIsOwner = async (
+export const verifyIfIsOwner: (
+  type: string,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
   type: string,
   baileysMessage: proto.IWebMessageInfo
 ) => {
   if (type === "owner") {
-    if (extractDataFromMessage(baileysMessage).isGroup) {
+    if (extractDataFromMessage(baileysMessage).isGroup!) {
       return general.NUMBERS_HOSTS.includes(
         extractDataFromMessage(baileysMessage).participant!
       );
@@ -277,11 +293,14 @@ export const VerifyIfIsOwner = async (
   return true;
 };
 
-export const verifyIfIsGroupSecure = async (
+export const verifyIfIsGroupSecure: (
+  type: string,
+  baileysMessage: proto.IWebMessageInfo
+) => Promise<boolean> = async (
   type: string,
   baileysMessage: proto.IWebMessageInfo
 ) => {
-  if (type === "secure" && extractDataFromMessage(baileysMessage).isGroup) {
+  if (type === "secure" && extractDataFromMessage(baileysMessage).isGroup!) {
     return general.GROUP_SECURE.includes(
       extractDataFromMessage(baileysMessage).remoteJid!
     );

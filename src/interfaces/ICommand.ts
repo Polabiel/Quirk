@@ -7,3 +7,11 @@ export interface ICommand {
   usage: string;
   handle: (data: IBotData) => Promise<void>;
 }
+
+export interface IDefaultCommand {
+  default: ICommand;
+}
+
+export interface ICommandImports {
+  [subdir: string]: IDefaultCommand[];
+}

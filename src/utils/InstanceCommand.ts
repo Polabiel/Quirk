@@ -3,7 +3,7 @@ import {
   findCommandImport,
   verifyIfIsAdmin,
   verifyIfIsGroupSecure,
-  VerifyIfIsOwner,
+  verifyIfIsOwner,
 } from ".";
 import { logCreate } from "../errors/createLog";
 import { DangerError } from "../errors/DangerError";
@@ -20,11 +20,16 @@ export default async function (
   const { ...data } = loadCommomFunctions(bot, baileysMessage);
   const { type, command } = await findCommandImport(data.commandName!);
 
-  if (!verifyPrefix(data.prefix!) || !hasTypeOrCommand(type, command)) {
+  if (
+    !verifyPrefix(data.prefix!) ||
+    !hasTypeOrCommand(type, command?.default.name!)
+  ) {
     return;
   }
 
   const valueAdmin = await verifyIfIsAdmin(type, bot, baileysMessage);
+  const valueOwner = await verifyIfIsOwner(type, baileysMessage);
+  const groupSecure = await verifyIfIsGroupSecure(type, baileysMessage);
 
   if (!valueAdmin) {
     if (!data.isGroup) {
@@ -37,24 +42,15 @@ export default async function (
     );
   }
 
-  const valueOwner = await VerifyIfIsOwner(type, baileysMessage);
-
   if (!valueOwner) {
     return;
   }
 
-  const groupSecure = await verifyIfIsGroupSecure(type, baileysMessage);
-
-  if (!groupSecure) {
-    return await data.sendWarningReply(
-      "Este grupo não está na lista de grupos permitidos!"
-    );
-  }
+  if (!groupSecure) return;
 
   try {
-    await command.default.handle({
+    await command?.default.handle({
       ...data,
-      type,
     });
   } catch (error: any) {
     console.error(error.message);
@@ -75,10 +71,10 @@ export default async function (
     } else {
       logCreate(error);
       await data.sendErrorReply(
-        `Ocorreu um erro ao executar o comando ${command.name}! O desenvolvedor foi notificado!\n\n📄 *Detalhes*: ${error.message}`
+        `Ocorreu um erro ao executar o comando ${command?.default.name}! O desenvolvedor foi notificado!\n\n📄 *Detalhes*: ${error.message}`
       );
       await data.sendLogOwner(
-        `Ocorreu um erro ao executar o comando ${command.name}!\n\n📄 *Detalhes*: ${error.message}`
+        `Ocorreu um erro ao executar o comando ${command?.default.name}!\n\n📄 *Detalhes*: ${error.message}`
       );
     }
   }
