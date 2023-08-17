@@ -23,9 +23,7 @@ export default async function (paramsHandler: IBotData) {
     sendLogOwner,
     isGroup,
   } = paramsHandler;
-  const { type, command } = findCommandImport(commandName!);
-
-  if (baileysMessage?.key?.fromMe) return;
+  const { type, command } = await findCommandImport(commandName!);
 
   if (!verifyPrefix(prefix!) || !hasTypeOrCommand(type, command)) {
     return;
@@ -59,13 +57,12 @@ export default async function (paramsHandler: IBotData) {
   }
 
   try {
-    await command.handle({
+    await command.default.handle({
       ...paramsHandler,
       type,
     });
   } catch (error: any) {
     console.error(error.message);
-
     if (error instanceof InvalidParameterError) {
       await sendWarningReply(`Parâmetros inválidos! ${error.message}`);
     } else if (error instanceof WarningError) {

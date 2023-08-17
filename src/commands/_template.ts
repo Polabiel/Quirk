@@ -1,11 +1,14 @@
 import { general } from "../configuration/general";
+import { ICommand } from "../interfaces/ICommand";
 
-module.exports = {
+const command: ICommand = {
   name: "comando",
   description: "Descrição do comando",
   commands: ["comando1", "comando2"],
   usage: `${general.PREFIX}comando`,
-  handle: async ({}) => {
-    // código do comando
-  },
+  handle: async () => {
+    console.log("Comando executado!");
+  }
 };
+
+export default command;

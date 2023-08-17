@@ -1,11 +1,12 @@
 import { Boom } from "@hapi/boom";
 import makeWASocket, {
   DisconnectReason,
+  WASocket,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
 import pino from "pino";
 
-export const connect = async () => {
+export const connect: () => Promise<WASocket> = async () => {
   const { state, saveCreds } = await useMultiFileAuthState(
     "./assets/auth/baileys"
   );
