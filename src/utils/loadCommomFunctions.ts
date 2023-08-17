@@ -25,40 +25,79 @@ export default function (
   const isVideo = baileysIs(baileysMessage, "video");
   const isSticker = baileysIs(baileysMessage, "sticker");
 
-  const sendText = async (text: string) =>
-    await bot.sendMessage(remoteJid!, {
-      text: `${general.PREFIX_EMOJI} ${text}`,
-    });
+  const sendText = async (text: string, emoji?: boolean) => {
+    if (emoji) {
+      return await bot.sendMessage(remoteJid!, {
+        text: `${general.PREFIX_EMOJI} ${text}`,
+      });
+    }
+    return await bot.sendMessage(remoteJid!, { text: `${text}` });
+  };
 
-  const sendTextOwner = async (text: string) => {
+  const sendTextOwner = async (text: string, emoji?: boolean) => {
     for (const host of general.NUMBERS_HOSTS) {
-      await bot.sendMessage(host, { text: `${general.PREFIX_EMOJI} ${text}` });
+      if (emoji) {
+        return await bot.sendMessage(
+          host,
+          { text: `${general.PREFIX_EMOJI} ${text}` },
+          { quoted: baileysMessage }
+        );
+      }
+      return await bot.sendMessage(host, { text: `${text}` });
     }
   };
 
-  const sendReply = async (text: string) => {
-    await bot.sendMessage(
+  const sendReply = async (text: string, emoji?: boolean) => {
+    if (emoji) {
+      return await bot.sendMessage(
+        remoteJid!,
+        { text: `${general.PREFIX_EMOJI} ${text}` },
+        { quoted: baileysMessage }
+      );
+    }
+    return await bot.sendMessage(
       remoteJid!,
-      { text: `${general.PREFIX_EMOJI} ${text}` },
+      { text: `${text}` },
       { quoted: baileysMessage }
     );
   };
 
-  const sendReplyWithMentions = async (text: string, mentions: string[]) => {
-    await bot.sendMessage(
+  const sendReplyWithMentions = async (
+    text: string,
+    mentions: string[],
+    emoji?: boolean
+  ) => {
+    if (emoji) {
+      return await bot.sendMessage(
+        remoteJid!,
+        {
+          text: `${general.PREFIX_EMOJI}
+              ${text}`,
+          mentions,
+        },
+        { quoted: baileysMessage }
+      );
+    }
+    return await bot.sendMessage(
       remoteJid!,
       {
-        text: `${general.PREFIX_EMOJI}
-            ${text}`,
+        text: `${text}`,
         mentions,
       },
       { quoted: baileysMessage }
     );
   };
 
-  const sendReplyOwner = async (text: string) => {
+  const sendReplyOwner = async (text: string, emoji?: boolean) => {
     for (let host of general.NUMBERS_HOSTS) {
-      await bot.sendMessage(
+      if (emoji) {
+        return await bot.sendMessage(
+          host,
+          { text: `${general.PREFIX_EMOJI} ${text}` },
+          { quoted: baileysMessage }
+        );
+      }
+      return await bot.sendMessage(
         host,
         { text: `${text}` },
         { quoted: baileysMessage }
@@ -79,13 +118,27 @@ export default function (
   const sendWarningReact = async () => await sendReact("⚠️");
   const sendErrorReact = async () => await sendReact("❌");
 
-  const sendSuccessReply = async (text: string) => {
+  const sendSuccessReply = async (text: string, emoji?: boolean) => {
+    if (emoji) {
+      await sendSuccessReact();
+      return await sendReply(`${text}`);
+    }
     await sendSuccessReact();
     return await sendReply(`${text}`);
   };
 
-  const sendMentionReply = async (text: string, mentions: string[]) => {
+  const sendMentionReply = async (
+    text: string,
+    mentions: string[],
+    emoji?: boolean
+  ) => {
     await sendSuccessReact();
+    if (emoji) {
+      return await sendReplyWithMentions(
+        `${general.PREFIX_EMOJI} ${text}`,
+        mentions
+      );
+    }
     return await sendReplyWithMentions(`${text}`, mentions);
   };
 
