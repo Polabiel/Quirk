@@ -81,32 +81,27 @@ export default function (
 
   const sendSuccessReply = async (text: string) => {
     await sendSuccessReact();
-    return await sendReply(`${general.PREFIX_EMOJI} ${text}`);
+    return await sendReply(`${text}`);
   };
 
   const sendMentionReply = async (text: string, mentions: string[]) => {
     await sendSuccessReact();
-    return await sendReplyWithMentions(
-      `${general.PREFIX_EMOJI} ${text}`,
-      mentions
-    );
+    return await sendReplyWithMentions(`${text}`, mentions);
   };
 
   const sendWaitReply = async (text: string) => {
     await sendWaitReact();
-    return await sendReply(
-      `${general.PREFIX_EMOJI}⏳ Aguarde! ${text || waitMessage}`
-    );
+    return await sendReply(`⏳ Aguarde! ${text || waitMessage}`);
   };
 
   const sendWarningReply = async (text: string) => {
     await sendWarningReact();
-    return await sendReply(`${general.PREFIX_EMOJI}⚠️ Atenção! ${text}`);
+    return await sendReply(`⚠️ Atenção! ${text}`);
   };
 
   const sendErrorReply = async (text: string) => {
     await sendErrorReact();
-    return await sendReply(`${general.PREFIX_EMOJI}❌ Erro! ${text}`);
+    return await sendReply(`❌ Erro! ${text}`);
   };
 
   const sendLogOwner = async (text: string) => {

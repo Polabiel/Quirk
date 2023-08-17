@@ -6,8 +6,8 @@ const command: ICommand = {
   description: "Converse com o Bot",
   commands: ["bot"],
   usage: `${general.PREFIX}bot`,
-  handle: async () => {
-    console.log("Comando executado!");
+  handle: async (data) => {
+    await data.sendSuccessReply("Olá, eu sou o bot!");
   }
 };
 
