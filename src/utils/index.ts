@@ -9,7 +9,7 @@ import { general } from "../configuration/general";
 import fs from "fs";
 import path from "path";
 import { IBaileysContext } from "../interfaces/IBaileysContext";
-import { ICommandImports } from "../interfaces/ICommandImports";
+const { writeFile } = require("fs/promises");
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   const textMessage = baileysMessage.message?.conversation;
@@ -41,7 +41,6 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
     args: splitByCharacters(args.join(" "), ["\\", "|", "/"]),
     argsJoined: arg,
   };
-}
 
 export const splitByCharacters = (str: string, characters: string[]) => {
   characters = characters.map((char: string) =>
@@ -124,140 +123,4 @@ export const Download = async (
   fs.writeFileSync(filePath, buffer);
 
   return filePath;
-};
-
-export const findCommandImport: (commandName: string) => {
-  type: string;
-  command: any;
-} = (commandName: string) => {
-  const command = readCommandImports();
-
-  let typeReturn = "";
-  let targetCommandReturn = null;
-
-  for (const [type, commands] of Object.entries(command)) {
-    if (!commands.length) {
-      continue;
-    }
-
-    const targetCommand = commands.find((cmd: { commands: any[] }) =>
-      cmd.commands
-        .map((cmd: string) => formatCommand(cmd))
-        .includes(commandName)
-    );
-
-    if (targetCommand) {
-      typeReturn = type;
-      targetCommandReturn = targetCommand;
-    }
-  }
-
-  return {
-    type: typeReturn,
-    command: targetCommandReturn,
-  };
-};
-
-export const readCommandImports: () => Promise<ICommandImports> = async () => {
-  const subdirectories: string[] = fs
-    .readdirSync(general.COMMANDS_DIR, { withFileTypes: true })
-    .filter((directory: { isDirectory: () => unknown }) =>
-      directory.isDirectory()
-    )
-    .map((directory: { name: any }) => directory.name);
-
-  console.log(subdirectories);
-
-  const commandImports: ICommandImports = {};
-
-  for (const subdir of subdirectories) {
-    const subdirectoryPath: string = path.join(general.COMMANDS_DIR, subdir);
-    const files: string[] = fs
-      .readdirSync(subdirectoryPath)
-      .filter(
-        (file: string) =>
-          !file.startsWith("_") &&
-          (file.endsWith(".js") || file.endsWith(".ts"))
-      )
-      .map((file: string) => require(path.join(subdirectoryPath, file)));
-
-    commandImports[subdir] = files;
-  }
-
-  return commandImports;
-};
-
-export const isAdminGroup: (
-  bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
-) => Promise<boolean> = async (
-  bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
-) => {
-  if (extractDataFromMessage(baileysMessage).isGroup) {
-    const metadata = await bot.groupMetadata(
-      extractDataFromMessage(baileysMessage).remoteJid!
-    );
-    const admins = metadata.participants.filter(
-      (participant) =>
-        participant?.admin != null && participant?.admin != undefined
-    );
-    const adminsIds = admins.map((admin) => admin.id);
-    const isAdmin = adminsIds.includes(
-      extractDataFromMessage(baileysMessage).participant!
-    );
-    return isAdmin;
-  }
-  return false;
-};
-
-export const verifyIfIsAdmin: (
-  type: string,
-  bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
-) => Promise<boolean> = async (
-  type: string,
-  bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
-) => {
-  if (type === "admin") {
-    const isAdmin = await isAdminGroup(bot, baileysMessage);
-    return !!isAdmin;
-  }
-  return true;
-};
-
-export const VerifyIfIsOwner: (
-  type: string,
-  baileysMessage: proto.IWebMessageInfo
-) => Promise<boolean> = async (
-  type: string,
-  baileysMessage: proto.IWebMessageInfo
-) => {
-  if (type === "owner") {
-    if (extractDataFromMessage(baileysMessage).isGroup) {
-      return general.NUMBERS_HOSTS.includes(
-        extractDataFromMessage(baileysMessage).participant!
-      );
-    }
-    return general.NUMBERS_HOSTS.includes(
-      extractDataFromMessage(baileysMessage).remoteJid!
-    );
-  }
-  return true;
-};
-
-export const verifyIfIsGroupSecure: (
-  type: string,
-  baileysMessage: proto.IWebMessageInfo
-) => Promise<boolean> = async (
-  type: string,
-  baileysMessage: proto.IWebMessageInfo
-) => {
-  if (type === "secure" && extractDataFromMessage(baileysMessage).isGroup) {
-    return general.GROUP_SECURE.includes(
-      extractDataFromMessage(baileysMessage).remoteJid!
-    );
-  }
-  return true;
 };
