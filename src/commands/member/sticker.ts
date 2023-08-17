@@ -10,7 +10,7 @@ const command: ICommand = {
   name: "Sticker",
   description: "Comando para criar figurinhas",
   commands: ["sticker", "figurinha", "f", "s"],
-  usage: `${general.PREFIX}sticker`,
+  usage: `${general.PREFIX}sticker <envie a imagem ou marque ela>`,
   handle: async (data) => {
     await data.sendWaitReact();
 

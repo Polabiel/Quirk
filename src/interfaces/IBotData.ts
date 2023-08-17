@@ -1,6 +1,7 @@
 import { proto } from "@whiskeysockets/baileys";
 
 export interface IBotData {
+  fullMessage: string | undefined;
   sendText: (text: string, emoji?: boolean) => Promise<any>;
   sendReply: (text: string, emoji?: boolean) => Promise<any>;
   sendReplyWithMentions: (

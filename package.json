@@ -14,7 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.1.1",
-    "@whiskeysockets/baileys": "^6.4.0"
+    "@whiskeysockets/baileys": "^6.4.0",
+    "axios": "^1.4.0"
   },
   "devDependencies": {
     "prisma": "^5.1.1",

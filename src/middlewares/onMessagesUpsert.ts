@@ -1,6 +1,7 @@
 import { MessageUpsertType, proto } from "@whiskeysockets/baileys";
 import { connect } from "../connection";
 import InstanceCommand from "../utils/InstanceCommand";
+import autoCommand from "../utils/autoCommand";
 
 export default async () => {
   const bot = await connect();
@@ -16,6 +17,7 @@ export default async () => {
 
       if (baileysMessage.key.fromMe) return;
 
+      await autoCommand(bot, baileysMessage);
       await InstanceCommand(bot, baileysMessage);
     }
   );

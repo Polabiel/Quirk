@@ -8,7 +8,11 @@ import {
 import { general } from "../configuration/general";
 import fs from "fs";
 import path from "path";
-import { IDefaultCommand, ICommandImports } from "../interfaces/ICommand";
+import {
+  IDefaultCommand,
+  ICommandImports,
+  ICommand,
+} from "../interfaces/ICommand";
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   const textMessage: string = baileysMessage.message?.conversation!;
@@ -20,7 +24,10 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
     baileysMessage.message?.videoMessage?.caption!;
 
   const fullMessage: string =
-    textMessage || extendedTextMessage || imageTextMessage || videoTextMessage;
+    textMessage! ||
+    extendedTextMessage! ||
+    imageTextMessage! ||
+    videoTextMessage!;
 
   if (!fullMessage) {
     return {
@@ -48,14 +55,15 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   );
 
   return {
-    remoteJid: baileysMessage?.key?.remoteJid,
+    fullMessage,
+    remoteJid: baileysMessage?.key?.remoteJid!,
     prefix,
-    isGroup: baileysMessage?.key?.remoteJid?.endsWith("@g.us"),
-    nickName: baileysMessage?.pushName,
-    fromMe: baileysMessage?.key?.fromMe,
+    isGroup: baileysMessage?.key?.remoteJid?.endsWith("@g.us")!,
+    nickName: baileysMessage?.pushName!,
+    fromMe: baileysMessage?.key?.fromMe!,
     commandName: formatCommand(commandWithoutPrefix),
-    idMessage: baileysMessage?.key?.id,
-    participant: baileysMessage?.key?.participant,
+    idMessage: baileysMessage?.key?.id!,
+    participant: baileysMessage?.key?.participant!,
     args: splitByCharacters(args.join(" "), ["\\", "|", "/"]),
     argsJoined: arg,
   };
@@ -184,7 +192,7 @@ export const findCommandImport: (commandName: string) => Promise<{
   let targetCommandReturn: IDefaultCommand | null = null;
 
   for (const [type, commands] of Object.entries(command)) {
-    if (!commands.length) {
+    if (!commands.length || type == "auto") {
       continue;
     }
 
@@ -205,6 +213,32 @@ export const findCommandImport: (commandName: string) => Promise<{
     type: typeReturn,
     command: targetCommandReturn,
   };
+};
+
+export const RandomfindCommandImport: () => Promise<{
+  type: string;
+  command: ICommand | null;
+}> = async () => {
+  const command = await readCommandImports();
+
+  let typeReturn = "auto";
+
+  const autoCommands = command[typeReturn];
+
+  if (autoCommands && autoCommands.length > 0) {
+    const randomIndex = Math.floor(Math.random() * autoCommands.length);
+    const randomAutoCommand: ICommand = autoCommands[randomIndex].default;
+
+    return {
+      type: typeReturn,
+      command: randomAutoCommand,
+    };
+  } else {
+    return {
+      type: typeReturn,
+      command: null,
+    };
+  }
 };
 
 export const readCommandImports: () => Promise<ICommandImports> = async () => {

@@ -53,9 +53,11 @@ export default async function (
       ...data,
     });
   } catch (error: any) {
-    console.error(error.message);
+    console.error("[ERROR]", error.message, error.stack);
     if (error instanceof InvalidParameterError) {
-      await data.sendWarningReply(`Parâmetros inválidos! ${error.message}`);
+      await data.sendWarningReply(
+        `Parâmetros inválidos!\nUse o comando assim ${command?.default.usage!}`
+      );
     } else if (error instanceof WarningError) {
       logCreate(error);
       await data.sendWarningReply(error.message);

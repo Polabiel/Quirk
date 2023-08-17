@@ -5,11 +5,16 @@ import { menuMessage } from "../../utils/messages";
 const command: ICommand = {
   name: "menu",
   description: "Menu do bot",
-  commands: ["menu","cmd","comandos","commands","ajuda","help",],
+  commands: ["menu", "cmd", "comandos", "commands", "ajuda", "help"],
   usage: `${general.PREFIX}menu`,
   handle: async (data) => {
-    return await data.sendSuccessReply(await menuMessage());
-  }
+    for (const host of general.GROUP_SECURE) {
+      if (data.remoteJid?.includes(host)) {
+        return await data.sendSuccessReply(await menuMessage(true));
+      }
+    }
+    return await data.sendSuccessReply(await menuMessage(false));
+  },
 };
 
 export default command;

@@ -6,8 +6,9 @@ export const logCreate = (erro: any) => {
   const nomeArquivo = `${dataAtual}_${erro.message.replace(/\s/g, "_")}.log`;
   const caminhoPastaLogs = path.join(__dirname, "..", "logs");
   const caminhoArquivo = path.join(caminhoPastaLogs, nomeArquivo);
-  const mensagem = `[${new Date().toISOString()}] Ocorreu um erro: ${erro.stack
-    }\n Erro completo: ${erro}`;
+  const mensagem = `[${new Date().toISOString()}] Ocorreu um erro: ${
+    erro.stack
+  }\n Erro completo: ${erro}`;
 
   if (!fs.existsSync(caminhoPastaLogs)) {
     fs.mkdirSync(caminhoPastaLogs, { recursive: true });

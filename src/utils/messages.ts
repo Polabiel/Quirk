@@ -10,7 +10,7 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
       "https://raw.githubusercontent.com/Polabiel/zanoni-bot-js/main/package.json"
     );
     const json = await response.json();
-    const version = json.version;
+    const version: number = json.version;
 
     const date = new Date();
     const capitalizedBotName =
@@ -48,6 +48,17 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
   } catch (error: any) {
     throw new error("Erro ao carregar menu!");
   }
+};
+
+export const ownerMessage = async () => {
+  return `╭━━─「」─━━
+  ▢ • *INFORMAÇÕES DO DONO*
+  ▢
+  ▢ • Criado pelo: *wa.me/${general.NUMBERS_HOSTS[0].slice(0, 13)}*
+  ▢ • Instagram: *instagram.com/polabiel*
+  ▢ • Github: *github.com/polabiel*
+  ▢
+  ╰━━─「」─━━`;
 };
 
 //•ㅤㅤ•.ㅤ.🪐    .  •      🌖ㅤㅤ  •.•ㅤㅤ. •

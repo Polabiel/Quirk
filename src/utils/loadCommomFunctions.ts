@@ -19,6 +19,7 @@ export default function (
     isGroup,
     nickName,
     argsJoined,
+    fullMessage
   } = extractDataFromMessage(baileysMessage);
 
   const isImage = baileysIs(baileysMessage, "image");
@@ -181,6 +182,7 @@ export default function (
 
   return {
     bot,
+    fullMessage,
     remoteJid,
     prefix,
     commandName,
