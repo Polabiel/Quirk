@@ -57,9 +57,7 @@ const command: ICommand = {
       if (!haveSecondsRule) {
         fs.unlinkSync(inputPath!);
 
-        await data.sendErrorReply(`O vídeo que você enviou tem mais de ${sizeInSeconds} segundos!
-
-Envie um vídeo menor!`);
+        await data.sendErrorReply(`O vídeo que você enviou tem mais de ${sizeInSeconds} segundos! Envie um vídeo menor!`);
 
         return;
       }
