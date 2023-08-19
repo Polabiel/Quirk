@@ -1,11 +1,11 @@
 import axios from "axios";
 
-export default async function (args: string) {
-  const text = args;
-  const simsimiUrl: string = "https://api.simsimi.vn/v2/simtalk"
+export default async function (content: string): Promise<string> {
+  if (!content || content.length < 1) throw new Error("Invalid text");
+  const simsimiUrl: string = "https://api.simsimi.vn/v2/simtalk";
 
   const requestBody = new URLSearchParams({
-    text: text,
+    text: content,
     lc: "pt",
     cf: false as unknown as string,
   }).toString();
@@ -20,10 +20,13 @@ export default async function (args: string) {
       },
     });
 
+    if (!response?.data?.message) {
+      throw new Error("Invalid response");
+    }
     return response?.data?.message;
   } catch (error: any) {
-    if (error.response && error.response.status === 411) {
-      return error?.response?.data?.message;
+    if (error?.response?.data?.message!) {
+      return error?.response?.data?.message as string;
     }
     console.error(error);
     throw new Error(error);

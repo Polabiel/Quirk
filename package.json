@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev ./src/start.ts",
     "start": "node ./dist/start.js",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,12 @@
     "axios": "^1.4.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "eslint": "^8.47.0",
+    "eslint-config-standard-with-typescript": "^37.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-plugin-n": "^16.0.1",
+    "eslint-plugin-promise": "^6.1.1",
     "prisma": "^5.1.1",
     "qrcode-terminal": "^0.12.0",
     "ts-node-dev": "^2.0.0",

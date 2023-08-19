@@ -24,10 +24,10 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
     baileysMessage.message?.videoMessage?.caption!;
 
   const fullMessage: string =
-    textMessage! ||
-    extendedTextMessage! ||
-    imageTextMessage! ||
-    videoTextMessage!;
+    textMessage ||
+    extendedTextMessage ||
+    imageTextMessage ||
+    videoTextMessage;
 
   if (!fullMessage) {
     return {

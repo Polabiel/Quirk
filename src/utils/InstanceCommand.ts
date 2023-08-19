@@ -55,6 +55,7 @@ export default async function (
   } catch (error: any) {
     console.error("[ERROR]", error.message, error.stack);
     if (error instanceof InvalidParameterError) {
+      console.log(command?.default.usage!);
       await data.sendWarningReply(
         `Parâmetros inválidos!\nUse o comando assim ${command?.default.usage!}`
       );
