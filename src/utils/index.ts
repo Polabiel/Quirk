@@ -130,6 +130,14 @@ export const downloadImage = async (baileysMessage: proto.IWebMessageInfo) => {
   return await downloadContent(baileysMessage, "input", "image", "png")!;
 };
 
+export const downloadSticker = async (baileysIs: proto.IWebMessageInfo) => {
+  return await downloadContent(baileysIs, "input", "sticker", "webp")!;
+}
+
+export const downloadAudio = async (baileysIs: proto.IWebMessageInfo) => {
+  return await downloadContent(baileysIs, "input", "audio", "mp3")!;
+}
+
 export const downloadContent = async (
   baileysMessage: proto.IWebMessageInfo,
   fileName: string,

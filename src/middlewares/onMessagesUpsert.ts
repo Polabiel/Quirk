@@ -12,8 +12,8 @@ export default async () => {
       messages: proto.IWebMessageInfo[];
       type: MessageUpsertType;
     }) => {
-      await bot.readMessages(message.messages);
       const baileysMessage = message.messages[0];
+      await bot.readMessages([baileysMessage.key]);
 
       if (baileysMessage.key.fromMe) return;
 

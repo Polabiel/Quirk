@@ -57,10 +57,8 @@ function default_1(bot, baileysMessage) {
             yield (command === null || command === void 0 ? void 0 : command.default.handle(Object.assign({}, data)));
         }
         catch (error) {
-            console.error("[ERROR]", error.message, error.stack);
             if (error instanceof InvalidParameterError_1.InvalidParameterError) {
-                console.log(command === null || command === void 0 ? void 0 : command.default.usage);
-                yield data.sendWarningReply(`Parâmetros inválidos!\nUse o comando assim ${command === null || command === void 0 ? void 0 : command.default.usage}`);
+                yield data.sendWarningReply(`Parâmetros inválidos!\n\n${error.message} Use o comando assim \n*${command === null || command === void 0 ? void 0 : command.default.usage}*`);
             }
             else if (error instanceof WarningError_1.WarningError) {
                 (0, createLog_1.logCreate)(error);
@@ -69,12 +67,6 @@ function default_1(bot, baileysMessage) {
             else if (error instanceof DangerError_1.DangerError) {
                 (0, createLog_1.logCreate)(error);
                 yield data.sendErrorReply(error.message);
-            }
-            else if (error.message == "not-authorized") {
-                yield data.sendWarningReply("Eu não sou administrador do grupo!");
-            }
-            else if (error.message == "Request failed with status code 429") {
-                yield data.sendWarningReply("A OpenAI Bloqueiou o Zanoni-bot temporariamente\nEstamos resolvendo isso");
             }
             else {
                 (0, createLog_1.logCreate)(error);

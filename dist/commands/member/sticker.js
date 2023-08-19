@@ -18,6 +18,7 @@ const path_1 = __importDefault(require("path"));
 const InvalidParameterError_1 = require("../../errors/InvalidParameterError");
 const utils_1 = require("../../utils");
 const child_process_1 = require("child_process");
+const WarningError_1 = require("../../errors/WarningError");
 const command = {
     name: "Sticker",
     description: "Comando para criar figurinhas",
@@ -27,9 +28,6 @@ const command = {
         yield data.sendWaitReact();
         if (!data.isImage) {
             throw new InvalidParameterError_1.InvalidParameterError("Você precisa marcar uma imagem ou responder a uma imagem");
-        }
-        if (data.isVideo) {
-            return yield data.sendWarningReply("Ainda não é possível criar figurinhas com vídeos");
         }
         const outputPath = path_1.default.resolve(general_1.general.TEMP_DIR, "output.webp");
         if (data.isImage) {
@@ -46,8 +44,8 @@ const command = {
                 fs_1.default.unlinkSync(outputPath);
             }));
         }
-        else {
-            yield data.sendWarningReply("Ainda não é possível criar figurinhas com vídeos");
+        else if (data.isVideo) {
+            throw new WarningError_1.WarningError("Não é possível criar figurinha com vídeo!\n\nO Desenvolvedor é pobre e não consegue manter um serviço gratuito😼👍");
         }
     }),
 };

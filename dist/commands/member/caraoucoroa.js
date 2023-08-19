@@ -10,23 +10,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const general_1 = require("../../configuration/general");
-const InvalidParameterError_1 = require("../../errors/InvalidParameterError");
-const gpt_1 = require("../../services/gpt");
 const command = {
-    name: "GPT-3",
-    description: "Comando para perguntar algo para o GPT-3",
-    commands: ["gpt", general_1.general.BOT_NAME],
-    usage: `${general_1.general.PREFIX}gpt ${general_1.general.BOT_NAME} o que é a vida?`,
+    name: "caraoucoroa",
+    description: "Jogar cara ou coroa",
+    commands: ["cara", "caraoucoroa", "coroa", "coinflip", "flip"],
+    usage: `${general_1.general.PREFIX}caraoucoroa`,
     handle: (data) => __awaiter(void 0, void 0, void 0, function* () {
-        if (data.isGroup) {
-            yield data.sendWaitReact();
-            if (!data.args[0]) {
-                throw new InvalidParameterError_1.InvalidParameterError("Você precisa me perguntar algo!");
-            }
-            const responseText = yield (0, gpt_1.gpt2)(data.args[0]);
-            yield data.sendSuccessReply(responseText);
+        const numeroRandom = Math.floor(Math.random() * 2);
+        let resultado;
+        if (numeroRandom === 0) {
+            resultado = "Cara";
+            yield data.sendReact("🌕");
         }
-        yield data.sendWarningReply("Este comando só pode ser executado em grupos!");
+        else {
+            resultado = "Coroa";
+            yield data.sendReact("🌑");
+        }
+        yield data.sendReply(`Resultado: ${resultado}`);
     }),
 };
 exports.default = command;

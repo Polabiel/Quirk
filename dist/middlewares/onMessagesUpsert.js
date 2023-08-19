@@ -18,8 +18,8 @@ const autoCommand_1 = __importDefault(require("../utils/autoCommand"));
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     const bot = yield (0, connection_1.connect)();
     bot.ev.on("messages.upsert", (message) => __awaiter(void 0, void 0, void 0, function* () {
-        yield bot.readMessages(message.messages);
         const baileysMessage = message.messages[0];
+        yield bot.readMessages([baileysMessage.key]);
         if (baileysMessage.key.fromMe)
             return;
         yield (0, autoCommand_1.default)(bot, baileysMessage);

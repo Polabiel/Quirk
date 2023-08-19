@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ownerMessage = exports.menuMessage = exports.waitMessage = void 0;
+exports.ownerMessage = exports.menuAdminMessage = exports.menuMessage = exports.waitMessage = void 0;
 const general_1 = require("../configuration/general");
 exports.waitMessage = "Carregando dados...";
 const menuMessage = (secure) => __awaiter(void 0, void 0, void 0, function* () {
@@ -41,7 +41,7 @@ const menuMessage = (secure) => __awaiter(void 0, void 0, void 0, function* () {
 ▢ • /gpt - Envie uma pergunta para a AI (Desativado)
 ▢ • /cep - Consultar CEP (Desativado)
 ▢ • /ping - Verificar latência
-▢ • /sticker - Converter img/vídeo em sticker (Desativado)
+▢ • /sticker - Converter img/vídeo em sticker
 ▢ • /to-image - Converter sticker em imagem (Desativado) 
 ▢ • /dado - Jogar dado de 6 lados (Desativado)
 ▢ • /coinflip - Jogar cara ou coroa (Desativado)
@@ -53,6 +53,21 @@ ${secure ? commandSecure : "▢"}
     }
 });
 exports.menuMessage = menuMessage;
+const menuAdminMessage = () => __awaiter(void 0, void 0, void 0, function* () {
+    return `╭━━─「🔐」─━━
+╭━━⪩ *MENU DE ADMINISTRADORES* ⪨━━
+▢
+▢ • /banir - Banir um ou mais usuários
+▢ • /promover - Promover um ou mais usuários
+▢ • /rebaixar - Rebaixar um ou mais usuários
+▢ • /add - Adicionar um ou mais usuários
+▢ • /fechar - Fechar grupo (apenas admins podem falar)
+▢ • /abrir - Abrir grupo (todos podem falar)
+▢ • /everyone <messagem> - Marcar todos os usuários
+▢
+╰━━─「🚀」─━━`;
+});
+exports.menuAdminMessage = menuAdminMessage;
 const ownerMessage = () => __awaiter(void 0, void 0, void 0, function* () {
     return `╭━━─「」─━━
 ▢ • *INFORMAÇÕES DO DONO*

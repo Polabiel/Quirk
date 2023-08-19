@@ -21,7 +21,7 @@ export const general: GeneralConfig = {
   TEMP_DIR: path.resolve(__dirname, "..", "..", "assets", "temp"),
   TIMEOUT_IN_MILLISECONDS_BY_EVENT: 700,
   NUMBERS_HOSTS: ["5519981022857@s.whatsapp.net"],
-  NUMBER_BOT: "5516988265334@s.whatsapp.net",
+  NUMBER_BOT: "556186063515@s.whatsapp.net",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   GROUP_SECURE: [
     "5519987529732-1625550643@g.us",

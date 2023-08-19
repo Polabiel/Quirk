@@ -19,7 +19,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyIfIsGroupSecure = exports.verifyIfIsOwner = exports.verifyIfIsAdmin = exports.isAdminGroup = exports.readCommandImports = exports.choiceRandomCommand = exports.findCommandImport = exports.getRandomName = exports.isCommand = exports.extractCommandAndArgs = exports.downloadContent = exports.downloadImage = exports.downloadVideo = exports.getContent = exports.baileysIs = exports.removeAccentsAndSpecialCharacters = exports.onlyLettersAndNumbers = exports.formatCommand = exports.splitByCharacters = exports.extractDataFromMessage = void 0;
+exports.verifyIfIsGroupSecure = exports.verifyIfIsOwner = exports.verifyIfIsAdmin = exports.isAdminGroup = exports.readCommandImports = exports.choiceRandomCommand = exports.findCommandImport = exports.getRandomName = exports.isCommand = exports.extractCommandAndArgs = exports.downloadContent = exports.downloadAudio = exports.downloadSticker = exports.downloadImage = exports.downloadVideo = exports.getContent = exports.baileysIs = exports.removeAccentsAndSpecialCharacters = exports.onlyLettersAndNumbers = exports.formatCommand = exports.splitByCharacters = exports.extractDataFromMessage = void 0;
 const baileys_1 = require("@whiskeysockets/baileys");
 const general_1 = require("../configuration/general");
 const path_1 = __importDefault(require("path"));
@@ -106,6 +106,14 @@ const downloadImage = (baileysMessage) => __awaiter(void 0, void 0, void 0, func
     return yield (0, exports.downloadContent)(baileysMessage, "input", "image", "png");
 });
 exports.downloadImage = downloadImage;
+const downloadSticker = (baileysIs) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield (0, exports.downloadContent)(baileysIs, "input", "sticker", "webp");
+});
+exports.downloadSticker = downloadSticker;
+const downloadAudio = (baileysIs) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield (0, exports.downloadContent)(baileysIs, "input", "audio", "mp3");
+});
+exports.downloadAudio = downloadAudio;
 const downloadContent = (baileysMessage, fileName, context, extension) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, e_1, _b, _c;
     const content = (0, exports.getContent)(baileysMessage, context);

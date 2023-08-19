@@ -20,9 +20,10 @@ model user {
 }
 
 model group {
-  number    String  @id @unique
-  enable    Boolean @default(false)
-  blacklist Boolean @default(false)
+  number        String  @id @unique
+  enable        Boolean @default(false)
+  blacklist     Boolean @default(false)
+  TOKEN_OPEANAI String? @unique
 }
 
 model links {

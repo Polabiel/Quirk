@@ -11,12 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const general_1 = require("../../configuration/general");
 const InvalidParameterError_1 = require("../../errors/InvalidParameterError");
-const WarningError_1 = require("../../errors/WarningError");
 const command = {
-    name: "Banimento",
-    description: "Bani um usuário ou mais usuários do grupo",
-    commands: ["ban", "banir", "banimento", "kick", "kickar", "expulsar"],
-    usage: `${general_1.general.PREFIX}ban @numero1 | @numero2`,
+    name: "Promote",
+    description: "promover um usuário ou mais usuários do grupo",
+    commands: ["promote", "promover"],
+    usage: `${general_1.general.PREFIX}promover @numero1 | @numero2`,
     handle: (data) => __awaiter(void 0, void 0, void 0, function* () {
         if (!data.args[0]) {
             throw new InvalidParameterError_1.InvalidParameterError("Você precisa mencionar um usuário!");
@@ -31,19 +30,13 @@ const command = {
         });
         try {
             for (const element of userList) {
-                if (element.id.startsWith(general_1.general.NUMBER_BOT)) {
-                    throw new InvalidParameterError_1.InvalidParameterError("Não posso me banir!");
-                }
-                yield data.bot.groupParticipantsUpdate(data.remoteJid, [element.id], "remove");
+                yield data.bot.groupParticipantsUpdate(data.remoteJid, [element.id], "promote");
             }
         }
         catch (error) {
-            if (error.message === "not-authorized") {
-                throw new WarningError_1.WarningError("Não tenho permissão para banir!");
-            }
-            throw new WarningError_1.WarningError("Não foi possível banir o(s) usuário(s)!");
+            return yield data.sendWarningReply(`Não foi possível promover o(s) usuário(s)!\n Você deve usar o comando assim *${general_1.general.PREFIX}promover @numero1 | @numero2*`);
         }
-        return data.sendSuccessReply("Usuário(s) banido(s) com sucesso!");
+        return data.sendSuccessReply("Usuário(s) promovido(s) com sucesso!");
     }),
 };
 exports.default = command;

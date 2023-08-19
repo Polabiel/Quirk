@@ -1,4 +1,4 @@
-import { proto } from "@whiskeysockets/baileys";
+import { WASocket, proto } from "@whiskeysockets/baileys";
 
 export interface IBotData {
   fullMessage: string | undefined;
@@ -37,7 +37,7 @@ export interface IBotData {
   sendWarningReact: () => Promise<proto.WebMessageInfo | undefined>;
   sendErrorReact: () => Promise<proto.WebMessageInfo | undefined>;
   participant: string | null | undefined;
-  bot?: any;
+  bot?: WASocket;
   prefix?: string | null;
   remoteJid: string | null | undefined;
   isImage: boolean;

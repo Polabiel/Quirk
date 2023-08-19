@@ -10,23 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const general_1 = require("../../configuration/general");
-const InvalidParameterError_1 = require("../../errors/InvalidParameterError");
-const gpt_1 = require("../../services/gpt");
 const command = {
-    name: "GPT-3",
-    description: "Comando para perguntar algo para o GPT-3",
-    commands: ["gpt", general_1.general.BOT_NAME],
-    usage: `${general_1.general.PREFIX}gpt ${general_1.general.BOT_NAME} o que é a vida?`,
+    name: "fechar grupo",
+    description: "fechar um grupo",
+    commands: ["fechar", "lock", "locked"],
+    usage: `${general_1.general.PREFIX}fechar`,
     handle: (data) => __awaiter(void 0, void 0, void 0, function* () {
-        if (data.isGroup) {
-            yield data.sendWaitReact();
-            if (!data.args[0]) {
-                throw new InvalidParameterError_1.InvalidParameterError("Você precisa me perguntar algo!");
-            }
-            const responseText = yield (0, gpt_1.gpt2)(data.args[0]);
-            yield data.sendSuccessReply(responseText);
-        }
-        yield data.sendWarningReply("Este comando só pode ser executado em grupos!");
+        yield data.bot.groupSettingUpdate(data.remoteJid, "announcement");
+        return data.sendSuccessReply("Grupo fechado com sucesso!");
     }),
 };
 exports.default = command;

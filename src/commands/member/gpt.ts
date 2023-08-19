@@ -1,23 +1,28 @@
 import { general } from "../../configuration/general";
 import { InvalidParameterError } from "../../errors/InvalidParameterError";
 import { ICommand } from "../../interfaces/ICommand";
-import gpt from "../../services/gpt";
+import { gpt2 } from "../../services/gpt";
 
 const command: ICommand = {
-  name: "Informações do dono",
-  description: "Esse comando mostra as informações do criador do bot",
-  commands: ["dono", "info", "owner", "criador", "desenvolvedor"],
-  usage: `${general.PREFIX}dono`,
+  name: "GPT-3",
+  description: "Comando para perguntar algo para o GPT-3",
+  commands: ["gpt", general.BOT_NAME],
+  usage: `${general.PREFIX}gpt ${general.BOT_NAME} o que é a vida?`,
   handle: async (data) => {
-    await data.sendWaitReact();
+    if (data.isGroup) {
+      await data.sendWaitReact();
 
-    if (!data.args[0]) {
-      throw new InvalidParameterError("Você precisa me perguntar algo!");
+      if (!data.args[0]) {
+        throw new InvalidParameterError("Você precisa me perguntar algo!");
+      }
+
+      const responseText = await gpt2(data.args[0]);
+
+      await data.sendSuccessReply(responseText);
     }
-
-    const responseText = await gpt(data.args[0]);
-
-    await data.sendSuccessReply(responseText);
+    await data.sendWarningReply(
+      "Este comando só pode ser executado em grupos!"
+    );
   },
 };
 

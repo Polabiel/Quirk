@@ -36,18 +36,33 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
 ▢ • /menu - Mostrar menu de usuário
 ▢ • /dono - Mostrar informações do bot
 ▢ • /bot - Converse com o simsimi
-▢ • /gpt - Envie uma pergunta para a AI (Desativado)
-▢ • /cep - Consultar CEP (Desativado)
+▢ • /gpt - Envie uma pergunta para a AI
+▢ • /cep - Consultar CEP
 ▢ • /ping - Verificar latência
-▢ • /sticker - Converter img/vídeo em sticker (Desativado)
-▢ • /to-image - Converter sticker em imagem (Desativado) 
-▢ • /dado - Jogar dado de 6 lados (Desativado)
-▢ • /coinflip - Jogar cara ou coroa (Desativado)
+▢ • /sticker - Converter img/vídeo em sticker
+▢ • /to-image - Converter sticker em imagem
+▢ • /dado - Jogar dado de 6 lados
+▢ • /coinflip - Jogar cara ou coroa 
 ${secure ? commandSecure : "▢"}
 ╰━━─「🚀」─━━`;
   } catch (error: any) {
     throw new error("Erro ao carregar menu!");
   }
+};
+
+export const menuAdminMessage = async () => {
+  return `╭━━─「🔐」─━━
+╭━━⪩ *MENU DE ADMINISTRADORES* ⪨━━
+▢
+▢ • /banir - Banir um ou mais usuários
+▢ • /promover - Promover um ou mais usuários
+▢ • /rebaixar - Rebaixar um ou mais usuários
+▢ • /add - Adicionar um ou mais usuários
+▢ • /fechar - Fechar grupo (apenas admins podem falar)
+▢ • /abrir - Abrir grupo (todos podem falar)
+▢ • /everyone <messagem> - Marcar todos os usuários
+▢
+╰━━─「🚀」─━━`;
 };
 
 export const ownerMessage = async () => {

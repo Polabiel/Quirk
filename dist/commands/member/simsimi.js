@@ -18,7 +18,7 @@ const simsimi_1 = __importDefault(require("../../services/simsimi"));
 const command = {
     name: "Simsimi",
     description: "Comando para conversar com o bot",
-    commands: ["simsimi", "bot", `${general_1.general.BOT_NAME}`],
+    commands: ["simsimi", "bot"],
     usage: `${general_1.general.PREFIX}bot eae ${general_1.general.BOT_NAME} tudo bem?`,
     handle: (data) => __awaiter(void 0, void 0, void 0, function* () {
         if (!data.args[0]) {

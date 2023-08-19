@@ -52,11 +52,11 @@ export default async function (
       ...data,
     });
   } catch (error: any) {
-    console.error("[ERROR]", error.message, error.stack);
     if (error instanceof InvalidParameterError) {
-      console.log(command?.default.usage!);
       await data.sendWarningReply(
-        `Parâmetros inválidos!\nUse o comando assim ${command?.default.usage!}`
+        `Parâmetros inválidos!\n\n${
+          error.message
+        } Use o comando assim \n*${command?.default.usage!}*`
       );
     } else if (error instanceof WarningError) {
       logCreate(error);
@@ -64,12 +64,6 @@ export default async function (
     } else if (error instanceof DangerError) {
       logCreate(error);
       await data.sendErrorReply(error.message);
-    } else if (error.message == "not-authorized") {
-      await data.sendWarningReply("Eu não sou administrador do grupo!");
-    } else if (error.message == "Request failed with status code 429") {
-      await data.sendWarningReply(
-        "A OpenAI Bloqueiou o Zanoni-bot temporariamente\nEstamos resolvendo isso"
-      );
     } else {
       logCreate(error);
       await data.sendErrorReply(

@@ -1,13 +1,12 @@
 import { general } from "../../configuration/general";
 import { InvalidParameterError } from "../../errors/InvalidParameterError";
-import { WarningError } from "../../errors/WarningError";
 import { ICommand } from "../../interfaces/ICommand";
 
 const command: ICommand = {
-  name: "Banimento",
-  description: "Bani um usuário ou mais usuários do grupo",
-  commands: ["ban", "banir", "banimento", "kick", "kickar", "expulsar"],
-  usage: `${general.PREFIX}ban @numero1 | @numero2`,
+  name: "Demitir",
+  description: "Demitir um usuário ou mais usuários do grupo",
+  commands: ["demitir", "demote", "demitido", "rebaixar"],
+  usage: `${general.PREFIX}demitir @numero1 | @numero2`,
   handle: async (data) => {
     if (!data.args[0]) {
       throw new InvalidParameterError("Você precisa mencionar um usuário!");
@@ -24,22 +23,18 @@ const command: ICommand = {
 
     try {
       for (const element of userList) {
-        if (element.id.startsWith(general.NUMBER_BOT)) {
-          throw new InvalidParameterError("Não posso me banir!");
-        }
         await data.bot!.groupParticipantsUpdate(
           data.remoteJid!,
           [element.id],
-          "remove"
+          "demote"
         );
       }
-    } catch (error: any) {
-      if (error.message === "not-authorized") {
-        throw new WarningError("Não tenho permissão para banir!");
-      }
-      throw new WarningError("Não foi possível banir o(s) usuário(s)!");
+    } catch (error) {
+      return await data.sendWarningReply(
+        `Não foi possível rebaixar o(s) usuário(s)!\n Você deve usar o comando assim *${general.PREFIX}demitir @numero1 | @numero2*`
+      );
     }
-    return data.sendSuccessReply("Usuário(s) banido(s) com sucesso!");
+    return data.sendSuccessReply("Usuário(s) promovido(s) com sucesso!");
   },
 };
 
