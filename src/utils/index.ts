@@ -150,10 +150,7 @@ export const downloadContent = async (
     buffer = Buffer.concat([buffer, chunk]);
   }
 
-  const tempDir = path.resolve(general.TEMP_DIR);
-  fs.mkdirSync(tempDir, { recursive: true });
-
-  const filePath = path.resolve(tempDir, `${fileName}.${extension}`);
+  const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
   fs.writeFileSync(filePath, buffer, { encoding: "binary" });
 
   return filePath;
@@ -170,6 +167,7 @@ export const extractCommandAndArgs = (message: string) => {
 };
 
 export const isCommand = (message: string): boolean => {
+  if (typeof message !== "string") return false;
   return message.length > 1 && message.startsWith(general.PREFIX);
 };
 

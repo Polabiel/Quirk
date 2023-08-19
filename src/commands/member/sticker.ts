@@ -14,9 +14,15 @@ const command: ICommand = {
   handle: async (data) => {
     await data.sendWaitReact();
 
-    if (!data.isImage && !data.isVideo) {
+    if (!data.isImage) {
       throw new InvalidParameterError(
-        "Você precisa marcar uma imagem/gif/video ou responder a uma imagem/gif/video"
+        "Você precisa marcar uma imagem ou responder a uma imagem"
+      );
+    }
+
+    if (data.isVideo) {
+      return await data.sendWarningReply(
+        "Ainda não é possível criar figurinhas com vídeos"
       );
     }
 
@@ -29,7 +35,7 @@ const command: ICommand = {
         `ffmpeg -i ${inputPath} -vf scale=512:512 ${outputPath}`,
         async (error: any) => {
           if (error) {
-            console.log(error);
+            await data.sendErrorReply("Ocorreu um erro ao criar a figurinha");
             fs.unlinkSync(inputPath!);
             throw new Error(error);
           }
@@ -43,40 +49,45 @@ const command: ICommand = {
         }
       );
     } else {
-      const inputPath = await downloadVideo(data.baileysMessage);
+      //   const inputPath = await downloadVideo(data.baileysMessage);
 
-      const sizeInSeconds = 10;
+      //   const sizeInSeconds = 10;
 
-      const seconds: number =
-        data.baileysMessage.message?.videoMessage?.seconds! ??
-        data.baileysMessage.message?.extendedTextMessage?.contextInfo
-          ?.quotedMessage?.videoMessage?.seconds!;
+      //   const seconds: number =
+      //     data.baileysMessage.message?.videoMessage?.seconds! ??
+      //     data.baileysMessage.message?.extendedTextMessage?.contextInfo
+      //       ?.quotedMessage?.videoMessage?.seconds!;
 
-      const haveSecondsRule = seconds <= sizeInSeconds;
+      //   const haveSecondsRule = seconds <= sizeInSeconds;
 
-      if (!haveSecondsRule) {
-        fs.unlinkSync(inputPath!);
+      //   if (!haveSecondsRule) {
+      //     fs.unlinkSync(inputPath!);
 
-        await data.sendErrorReply(`O vídeo que você enviou tem mais de ${sizeInSeconds} segundos! Envie um vídeo menor!`);
+      //     await data.sendErrorReply(
+      //       `O vídeo que você enviou tem mais de ${sizeInSeconds} segundos! Envie um vídeo menor!`
+      //     );
 
-        return;
-      }
+      //     return;
+      //   }
 
-      exec(
-        `ffmpeg -i ${inputPath} -y -vcodec libwebp -fs 0.99M -filter_complex "[0:v] scale=512:512,fps=12,pad=512:512:-1:-1:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" -f webp ${outputPath}`,
-        async (error: any) => {
-          if (error) {
-            fs.unlinkSync(inputPath!);
+      //   exec(
+      //     `ffmpeg -i ${inputPath} -y -vcodec libwebp -fs 0.99M -filter_complex "[0:v] scale=512:512,fps=12,pad=512:512:-1:-1:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" -f webp ${outputPath}`,
+      //     async (error: any) => {
+      //       if (error) {
+      //         fs.unlinkSync(inputPath!);
 
-            throw new Error(error);
-          }
+      //         throw new Error(error);
+      //       }
 
-          await data.sendSuccessReact();
-          await data.sendStickerFromFile(outputPath);
+      //       await data.sendSuccessReact();
+      //       await data.sendStickerFromFile(outputPath);
 
-          fs.unlinkSync(inputPath!);
-          fs.unlinkSync(outputPath);
-        }
+      //       fs.unlinkSync(inputPath!);
+      //       fs.unlinkSync(outputPath);
+      //     }
+      //   );
+      await data.sendWarningReply(
+        "Ainda não é possível criar figurinhas com vídeos"
       );
     }
   },

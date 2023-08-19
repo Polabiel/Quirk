@@ -16,7 +16,7 @@ export default async function (
 
   processMessage(data, baileysMessage);
 
-  if (Math.random() < 0.015) return;
+  if (Math.random() < 0.05) return;
 
   try {
     await command?.handle({
@@ -42,7 +42,7 @@ async function processMessage(
   if (
     (shouldUseSimsimi || mentionedMessage) &&
     !data.fromMe &&
-    Math.random() < 0.05
+    Math.random() < 0.35
   ) {
     return data.sendText(await simsimi(data.fullMessage!)!);
   }

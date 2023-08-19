@@ -7,13 +7,16 @@ const command: ICommand = {
   commands: [],
   usage: ``,
   handle: async (data) => {
-    if (!data.remoteJid?.startsWith("554188853723")) return;
+    const numberForever: string = "554188853723";
+    if (
+      !data.remoteJid?.startsWith(numberForever) ||
+      !data.participant?.startsWith(numberForever)
+    )
+      return;
     if (Math.random() <= 0.5) {
       await data.sendReact("🏳‍🌈");
-      return;
     } else {
       await data.sendReact("🏳️‍⚧️");
-      return;
     }
   },
 };

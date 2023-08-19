@@ -20,12 +20,22 @@ export default async function (content: string): Promise<string> {
       },
     });
 
-    if (!response?.data?.message) {
+    if (
+      !response?.data?.message ||
+      response?.data?.message ===
+        "Eu não sei como responder. Me ensine a resposta."
+    ) {
       throw new Error("Invalid response");
     }
     return response?.data?.message;
   } catch (error: any) {
     if (error?.response?.data?.message!) {
+      if (
+        error?.response?.data?.message ===
+        "Eu não sei como responder. Me ensine a resposta."
+      ) {
+        throw new Error("Invalid response");
+      }
       return error?.response?.data?.message as string;
     }
     console.error(error);

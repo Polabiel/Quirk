@@ -34,7 +34,7 @@ function default_1(bot, baileysMessage) {
         if ((0, _1.isCommand)(data.fullMessage))
             return;
         processMessage(data, baileysMessage);
-        if (Math.random() < 0.015)
+        if (Math.random() < 0.05)
             return;
         try {
             yield (command === null || command === void 0 ? void 0 : command.handle(Object.assign({}, data)));
@@ -54,7 +54,7 @@ function processMessage(data, baileysMessage) {
             general_1.general.NUMBER_BOT;
         if ((shouldUseSimsimi || mentionedMessage) &&
             !data.fromMe &&
-            Math.random() < 0.05) {
+            Math.random() < 0.35) {
             return data.sendText(yield (0, simsimi_1.default)(data.fullMessage));
         }
     });

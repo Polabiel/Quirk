@@ -129,9 +129,7 @@ const downloadContent = (baileysMessage, fileName, context, extension) => __awai
         }
         finally { if (e_1) throw e_1.error; }
     }
-    const tempDir = path_1.default.resolve(general_1.general.TEMP_DIR);
-    fs_1.default.mkdirSync(tempDir, { recursive: true });
-    const filePath = path_1.default.resolve(tempDir, `${fileName}.${extension}`);
+    const filePath = path_1.default.resolve(general_1.general.TEMP_DIR, `${fileName}.${extension}`);
     fs_1.default.writeFileSync(filePath, buffer, { encoding: "binary" });
     return filePath;
 });
@@ -145,6 +143,8 @@ const extractCommandAndArgs = (message) => {
 };
 exports.extractCommandAndArgs = extractCommandAndArgs;
 const isCommand = (message) => {
+    if (typeof message !== "string")
+        return false;
     return message.length > 1 && message.startsWith(general_1.general.PREFIX);
 };
 exports.isCommand = isCommand;

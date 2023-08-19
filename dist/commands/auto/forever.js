@@ -15,16 +15,16 @@ const command = {
     commands: [],
     usage: ``,
     handle: (data) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
-        if (!((_a = data.remoteJid) === null || _a === void 0 ? void 0 : _a.startsWith("554188853723")))
+        var _a, _b;
+        const numberForever = "554188853723";
+        if (!((_a = data.remoteJid) === null || _a === void 0 ? void 0 : _a.startsWith(numberForever)) ||
+            !((_b = data.participant) === null || _b === void 0 ? void 0 : _b.startsWith(numberForever)))
             return;
         if (Math.random() <= 0.5) {
             yield data.sendReact("🏳‍🌈");
-            return;
         }
         else {
             yield data.sendReact("🏳️‍⚧️");
-            return;
         }
     }),
 };

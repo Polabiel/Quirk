@@ -10,7 +10,7 @@ exports.general = {
     PREFIX: "/",
     PREFIX_EMOJI: "🤖",
     COMMANDS_DIR: path_1.default.join(__dirname, "..", "commands"),
-    TEMP_DIR: path_1.default.resolve(__dirname, "..", "assets", "temp"),
+    TEMP_DIR: path_1.default.resolve(__dirname, "..", "..", "assets", "temp"),
     TIMEOUT_IN_MILLISECONDS_BY_EVENT: 700,
     NUMBERS_HOSTS: ["5519981022857@s.whatsapp.net"],
     NUMBER_BOT: "5516988265334@s.whatsapp.net",

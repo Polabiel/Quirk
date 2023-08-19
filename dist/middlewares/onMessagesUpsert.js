@@ -15,22 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const connection_1 = require("../connection");
 const InstanceCommand_1 = __importDefault(require("../utils/InstanceCommand"));
 const autoCommand_1 = __importDefault(require("../utils/autoCommand"));
-const general_1 = require("../configuration/general");
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     const bot = yield (0, connection_1.connect)();
     bot.ev.on("messages.upsert", (message) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            yield bot.readMessages(message.messages);
-            const baileysMessage = message.messages[0];
-            if (baileysMessage.key.remoteJid !== general_1.general.NUMBERS_HOSTS[0])
-                return;
-            if (baileysMessage.key.fromMe)
-                return;
-            yield (0, autoCommand_1.default)(bot, baileysMessage);
-            yield (0, InstanceCommand_1.default)(bot, baileysMessage);
-        }
-        catch (error) {
-            console.error(error);
-        }
+        yield bot.readMessages(message.messages);
+        const baileysMessage = message.messages[0];
+        if (baileysMessage.key.fromMe)
+            return;
+        yield (0, autoCommand_1.default)(bot, baileysMessage);
+        yield (0, InstanceCommand_1.default)(bot, baileysMessage);
     }));
 });
