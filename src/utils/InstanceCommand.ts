@@ -1,6 +1,7 @@
 import { proto, WASocket } from "@whiskeysockets/baileys";
 import {
   findCommandImport,
+  isCommand,
   verifyIfIsAdmin,
   verifyIfIsGroupSecure,
   verifyIfIsOwner,
@@ -22,7 +23,8 @@ export default async function (
 
   if (
     !verifyPrefix(data.prefix!) ||
-    !hasTypeOrCommand(type, command?.default.name!)
+    !hasTypeOrCommand(type, command?.default.name!) ||
+    !isCommand(data.fullMessage!)
   ) {
     return;
   }
@@ -42,10 +44,7 @@ export default async function (
     );
   }
 
-  if (!valueOwner) {
-    return;
-  }
-
+  if (!valueOwner) return;
   if (!groupSecure) return;
 
   try {
@@ -74,7 +73,7 @@ export default async function (
     } else {
       logCreate(error);
       await data.sendErrorReply(
-        `Ocorreu um erro ao executar o comando ${command?.default.name}! O desenvolvedor foi notificado!\n\n📄 *Detalhes*: ${error.message}`
+        `Ocorreu um erro ao executar o comando ${command?.default.name}!\n\n💻 O desenvolvedor foi notificado!`
       );
       await data.sendLogOwner(
         `Ocorreu um erro ao executar o comando ${command?.default.name}!\n\n📄 *Detalhes*: ${error.message}`

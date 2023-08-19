@@ -12,9 +12,7 @@ export default async function (
   const { ...data } = loadCommomFunctions(bot, baileysMessage);
   const { command } = await choiceRandomCommand();
 
-  if (isCommand(data.fullMessage!)) {
-    return;
-  }
+  if (isCommand(data.fullMessage!)) return;
 
   processMessage(data, baileysMessage);
 

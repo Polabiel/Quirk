@@ -6,13 +6,13 @@ import {
   WASocket,
 } from "@whiskeysockets/baileys";
 import { general } from "../configuration/general";
-import fs from "fs";
 import path from "path";
 import {
   IDefaultCommand,
   ICommandImports,
   ICommand,
 } from "../interfaces/ICommand";
+import fs from "fs";
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   const textMessage: string = baileysMessage.message?.conversation!;
@@ -24,10 +24,7 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
     baileysMessage.message?.videoMessage?.caption!;
 
   const fullMessage: string =
-    textMessage ||
-    extendedTextMessage ||
-    imageTextMessage ||
-    videoTextMessage;
+    textMessage || extendedTextMessage || imageTextMessage || videoTextMessage;
 
   if (!fullMessage) {
     return {
@@ -153,9 +150,11 @@ export const downloadContent = async (
     buffer = Buffer.concat([buffer, chunk]);
   }
 
-  const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
+  const tempDir = path.resolve(general.TEMP_DIR);
+  fs.mkdirSync(tempDir, { recursive: true });
 
-  fs.writeFileSync(filePath, buffer);
+  const filePath = path.resolve(tempDir, `${fileName}.${extension}`);
+  fs.writeFileSync(filePath, buffer, { encoding: "binary" });
 
   return filePath;
 };

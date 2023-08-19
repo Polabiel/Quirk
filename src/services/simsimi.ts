@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default async function (content: string): Promise<string> {
-  if (!content || content.length < 1) throw new Error("Invalid text");
+  if (!content || content.length <= 1) throw new Error("Invalid text");
   const simsimiUrl: string = "https://api.simsimi.vn/v2/simtalk";
 
   const requestBody = new URLSearchParams({

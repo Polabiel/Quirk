@@ -22,8 +22,8 @@ export default async () => {
 
         await autoCommand(bot, baileysMessage);
         await InstanceCommand(bot, baileysMessage);
-      } catch (error) {
-        // console.error(error);
+      } catch (error: any) {
+        console.error(error);
       }
     }
   );
