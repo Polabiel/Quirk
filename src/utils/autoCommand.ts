@@ -14,7 +14,7 @@ export default async function (
 
   if (isCommand(data.fullMessage!)) {
     return;
-  };
+  }
 
   processMessage(data, baileysMessage);
 
@@ -41,7 +41,11 @@ async function processMessage(
     baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
     general.NUMBER_BOT;
 
-  if ((shouldUseSimsimi || mentionedMessage) && !data.fromMe) {
+  if (
+    (shouldUseSimsimi || mentionedMessage) &&
+    !data.fromMe &&
+    Math.random() < 0.05
+  ) {
     return data.sendText(await simsimi(data.fullMessage!)!);
   }
 }
