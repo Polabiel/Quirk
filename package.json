@@ -2,7 +2,7 @@
   "name": "zanoni-bot",
   "version": "1.0.0",
   "description": "Zanoni-Bot, desenvolvido nas aulas da saga: desenvolvendo um bot de WhatsApp do zero.",
-  "main": "./src/start.js",
+  "main": "./src/start.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev ./src/start.ts",
