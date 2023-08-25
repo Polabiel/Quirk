@@ -19,7 +19,7 @@ export const general: GeneralConfig = {
   PREFIX_EMOJI: "🤖",
   COMMANDS_DIR: path.join(__dirname, "..", "commands"),
   TEMP_DIR: path.resolve(__dirname, "..", "..", "assets", "temp"),
-  TIMEOUT_IN_MILLISECONDS_BY_EVENT: 700,
+  TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
   NUMBERS_HOSTS: ["5519981022857@s.whatsapp.net"],
   NUMBER_BOT: "556186063515@s.whatsapp.net",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,

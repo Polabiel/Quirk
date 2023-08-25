@@ -19,13 +19,16 @@ export default function (
     isGroup,
     nickName,
     argsJoined,
-    fullMessage
+    fullMessage,
   } = extractDataFromMessage(baileysMessage);
 
   const isImage = baileysIs(baileysMessage, "image");
   const isVideo = baileysIs(baileysMessage, "video");
   const isSticker = baileysIs(baileysMessage, "sticker");
 
+  const user = isGroup
+    ? baileysMessage.key.participant!
+    : baileysMessage.key.remoteJid!;
   const sendText = async (text: string, emoji?: boolean) => {
     if (emoji) {
       return await bot.sendMessage(remoteJid!, {
@@ -194,6 +197,7 @@ export default function (
     participant,
     fromMe,
     isGroup,
+    user,
     nickName,
     argsJoined,
     baileysMessage,

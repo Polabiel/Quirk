@@ -13,6 +13,7 @@ import { WarningError } from "../errors/WarningError";
 import hasTypeOrCommand from "../middlewares/hasTypeOrCommand";
 import verifyPrefix from "../middlewares/verifyPrefix";
 import loadCommomFunctions from "./loadCommomFunctions";
+import { addFilter } from "../middlewares/antispam";
 
 export default async function (
   bot: WASocket,
@@ -48,6 +49,7 @@ export default async function (
   if (!groupSecure) return;
 
   try {
+    addFilter(data.user!)
     await command?.default.handle({
       ...data,
     });
