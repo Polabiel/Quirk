@@ -10,13 +10,13 @@ const command: ICommand = {
   name: "Sticker",
   description: "Comando para criar figurinhas",
   commands: ["sticker", "figurinha", "f", "s"],
-  usage: `${general.PREFIX}sticker <envie a imagem ou marque ela>`,
+  usage: `${general.PREFIX}sticker <envie a imagem/vídeo/gif ou marque>`,
   handle: async (data) => {
     await data.sendWaitReact();
 
-    if (!data.isImage || !data.isVideo) {
+    if (!data.isImage && !data.isVideo) {
       throw new InvalidParameterError(
-        "Você precisa marcar uma imagem ou responder a uma imagem"
+        "Você precisa marcar uma imagem/vídeo/gif responder a uma imagem/vídeo/gif"
       );
     }
     const outputPath = path.resolve(general.TEMP_DIR, "output.webp");
