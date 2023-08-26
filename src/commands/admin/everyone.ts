@@ -1,4 +1,5 @@
 import { general } from "../../configuration/general";
+import { Forbidden } from "../../errors/Forbidden";
 import { WarningError } from "../../errors/WarningError";
 import { ICommand } from "../../interfaces/ICommand";
 
@@ -31,7 +32,8 @@ const command: ICommand = {
         mentions: mentions.map((m) => `${m.userId}@s.whatsapp.net`),
       };
       await data.sendMentionReply(message.text, message.mentions);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === "not-authorized") throw new Forbidden("Você não tem permissão para banir este usuário!");
       throw new WarningError("Não foi possível marcar todos os usuários!");
     }
   },

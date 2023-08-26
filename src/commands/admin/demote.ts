@@ -1,4 +1,5 @@
 import { general } from "../../configuration/general";
+import { Forbidden } from "../../errors/Forbidden";
 import { InvalidParameterError } from "../../errors/InvalidParameterError";
 import { ICommand } from "../../interfaces/ICommand";
 
@@ -29,7 +30,9 @@ const command: ICommand = {
           "demote"
         );
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === "not-authorized") throw new Forbidden("Você não tem permissão para banir este usuário!");
+
       return await data.sendWarningReply(
         `Não foi possível rebaixar o(s) usuário(s)!\n Você deve usar o comando assim *${general.PREFIX}demitir @numero1 | @numero2*`
       );

@@ -14,6 +14,8 @@ import hasTypeOrCommand from "../middlewares/hasTypeOrCommand";
 import verifyPrefix from "../middlewares/verifyPrefix";
 import loadCommomFunctions from "./loadCommomFunctions";
 import { addFilter } from "../middlewares/antispam";
+import { general } from "../configuration/general";
+import { Forbidden } from "../errors/Forbidden";
 
 export default async function (
   bot: WASocket,
@@ -49,7 +51,7 @@ export default async function (
   if (!groupSecure) return;
 
   try {
-    addFilter(data.user!)
+    addFilter(data.user!);
     await command?.default.handle({
       ...data,
     });
@@ -66,10 +68,19 @@ export default async function (
     } else if (error instanceof DangerError) {
       logCreate(error);
       await data.sendErrorReply(error.message);
+    } else if (
+      error.message === "forbidden" ||
+      error.message === "unathorized" ||
+      error instanceof Forbidden ||
+      error.message === "not-authorized"
+    ) {
+      await data.sendErrorReply(
+        `Eu não tenho permissão para fazer isso!\n\n📄 *Solução*: Colocar o ${general.BOT_NAME} como administrador do grupo`
+      );
     } else {
       logCreate(error);
       await data.sendErrorReply(
-        `Ocorreu um erro ao executar o comando ${command?.default.name}!\n\n💻 O desenvolvedor foi notificado!`
+        `Ocorreu um erro não identificado ao executar o comando ${command?.default.name}!\n\n💻 O desenvolvedor foi notificado!\n\n`
       );
       await data.sendLogOwner(
         `Ocorreu um erro ao executar o comando ${command?.default.name}!\n\n📄 *Detalhes*: ${error.message}`

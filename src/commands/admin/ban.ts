@@ -1,4 +1,5 @@
 import { general } from "../../configuration/general";
+import { Forbidden } from "../../errors/Forbidden";
 import { InvalidParameterError } from "../../errors/InvalidParameterError";
 import { WarningError } from "../../errors/WarningError";
 import { ICommand } from "../../interfaces/ICommand";
@@ -34,9 +35,7 @@ const command: ICommand = {
         );
       }
     } catch (error: any) {
-      if (error.message === "not-authorized") {
-        throw new WarningError("Não tenho permissão para banir!");
-      }
+      if (error.message === "not-authorized") throw new Forbidden("Você não tem permissão para banir este usuário!");
       throw new WarningError("Não foi possível banir o(s) usuário(s)!");
     }
     return data.sendSuccessReply("Usuário(s) banido(s) com sucesso!");
