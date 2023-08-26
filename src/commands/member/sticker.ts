@@ -14,7 +14,7 @@ const command: ICommand = {
   handle: async (data) => {
     await data.sendWaitReact();
 
-    if (!data.isImage) {
+    if (!data.isImage || !data.isVideo) {
       throw new InvalidParameterError(
         "Você precisa marcar uma imagem ou responder a uma imagem"
       );
