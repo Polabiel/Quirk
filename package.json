@@ -11,6 +11,9 @@
     "build": "tsc",
     "lint": "eslint . --ext .ts"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
