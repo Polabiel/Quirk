@@ -16,7 +16,7 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
     const capitalizedBotName =
       general.BOT_NAME.charAt(0).toUpperCase() + general.BOT_NAME.slice(1);
 
-    const commandSecure = `▢ • /fato - Retornar um fato sobre o grupo\n▢ • /joão - Comando do João\n▢ • /CPF - Consulte o CPF de algúem`;
+    const commandSecure = `▢ • /fato - Retornar um fato sobre o grupo\n▢ • /joão - Comando do João`;
 
     return `╭━━─「🤖」─━━ 
 ▢ • *MENU DE USUÁRIO*

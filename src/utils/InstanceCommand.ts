@@ -13,7 +13,7 @@ import { WarningError } from "../errors/WarningError";
 import hasTypeOrCommand from "../middlewares/hasTypeOrCommand";
 import verifyPrefix from "../middlewares/verifyPrefix";
 import loadCommomFunctions from "./loadCommomFunctions";
-import { addFilter, isFiltered } from "../middlewares/antispam";
+import { addFilter, isFiltered } from "../middlewares/onAntiSpam";
 import { general } from "../configuration/general";
 import { Forbidden } from "../errors/Forbidden";
 

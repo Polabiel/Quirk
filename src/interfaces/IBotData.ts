@@ -9,7 +9,7 @@ export interface IBotData {
     mentions: string[],
     emoji?: boolean
   ) => Promise<any>;
-  user: string | null | undefined;
+  user: string
   sendReplyOwner: (text: string, emoji?: boolean) => Promise<any>;
   sendSuccessReply: (text: string, emoji?: boolean) => Promise<any>;
   sendMentionReply: (

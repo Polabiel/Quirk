@@ -4,6 +4,7 @@ import loadCommomFunctions from "./loadCommomFunctions";
 import simsimi from "../services/simsimi";
 import { general } from "../configuration/general";
 import { IBotData } from "../interfaces/IBotData";
+import verifyPrefix from "../middlewares/verifyPrefix";
 
 export default async function (
   bot: WASocket,
@@ -12,7 +13,7 @@ export default async function (
   const { ...data } = loadCommomFunctions(bot, baileysMessage);
   const { command } = await choiceRandomCommand();
 
-  if (isCommand(data.fullMessage!)) return;
+  if (isCommand(data.fullMessage!) || verifyPrefix(data.prefix!)) return;
 
   processMessage(data, baileysMessage);
 
@@ -37,13 +38,15 @@ async function processMessage(
 
   const mentionedMessage =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
-    general.NUMBER_BOT;
+      general.NUMBER_BOT ||
+    baileysMessage.message?.extendedTextMessage?.text === "@556186063515";
 
-  if (
-    (shouldUseSimsimi || mentionedMessage) &&
-    !data.fromMe &&
-    Math.random() < 0.35
-  ) {
+  const mentionedBot =
+    baileysMessage.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(
+      general.NUMBER_BOT
+    );
+
+  if ((shouldUseSimsimi || mentionedMessage || mentionedBot) && !data.fromMe) {
     return data.sendText(await simsimi(data.fullMessage!)!);
   }
 }

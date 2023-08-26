@@ -4,6 +4,7 @@ import InstanceCommand from "../utils/InstanceCommand";
 import autoCommand from "../utils/autoCommand";
 import verifyPrefix from "./verifyPrefix";
 import loadCommomFunctions from "../utils/loadCommomFunctions";
+import repositories from "../repositories";
 
 export default async () => {
   const bot = await connect();
@@ -16,13 +17,10 @@ export default async () => {
     }) => {
       const baileysMessage = message.messages[0];
       await bot.readMessages([baileysMessage.key]);
-      const { prefix } = loadCommomFunctions(bot, baileysMessage);
-
       if (baileysMessage.key.fromMe) return;
-      if (verifyPrefix(prefix!)) {
-        await autoCommand(bot, baileysMessage);
-        await InstanceCommand(bot, baileysMessage);
-      }
+      await repositories(bot, baileysMessage);
+      await InstanceCommand(bot, baileysMessage);
+      await autoCommand(bot, baileysMessage);
     }
   );
 };

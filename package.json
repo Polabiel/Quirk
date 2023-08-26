@@ -1,6 +1,6 @@
 {
   "name": "zanoni-bot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Zanoni-Bot, desenvolvido nas aulas da saga: desenvolvendo um bot de WhatsApp do zero.",
   "main": "./src/start.ts",
   "scripts": {
