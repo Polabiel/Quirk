@@ -5,25 +5,18 @@ export const waitMessage: string = "Carregando dados...";
 export const menuMessage: (secure?: boolean) => Promise<string> = async (
   secure?: boolean
 ) => {
-  try {
-    const response = await fetch(
-      "https://raw.githubusercontent.com/Polabiel/zanoni-bot/main/package.json"
-    );
-    const json = await response.json();
-    const version: number = json.version;
+  const date = new Date();
+  const capitalizedBotName =
+    general.BOT_NAME.charAt(0).toUpperCase() + general.BOT_NAME.slice(1);
 
-    const date = new Date();
-    const capitalizedBotName =
-      general.BOT_NAME.charAt(0).toUpperCase() + general.BOT_NAME.slice(1);
+  const commandSecure = `▢ • /fato - Retornar um fato sobre o grupo\n▢ • /joão - Comando do João`;
 
-    const commandSecure = `▢ • /fato - Retornar um fato sobre o grupo\n▢ • /joão - Comando do João`;
-
-    return `╭━━─「🤖」─━━ 
+  return `╭━━─「🤖」─━━ 
 ▢ • *MENU DE USUÁRIO*
 ▢
 ▢ • ${capitalizedBotName} — Bot para WhatsApp
 ▢ • Criado por: *instagram.com/polabiel*
-▢ • Versão: ${version}
+▢ • Versão: 2.0.0
 ▢
 ▢ • Data: ${date.toLocaleDateString("pt-br")}
 ▢ • Hora: ${date.toLocaleTimeString("pt-br").slice(0, 5)}
@@ -45,9 +38,6 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
 ▢ • /coinflip - Jogar cara ou coroa 
 ${secure ? commandSecure : "▢"}
 ╰━━─「🚀」─━━`;
-  } catch (error: any) {
-    throw new Error("Erro ao carregar menu!");
-  }
 };
 
 export const menuAdminMessage = async () => {
