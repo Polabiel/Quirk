@@ -14,9 +14,11 @@ model fatos {
 }
 
 model user {
-  number    String  @id @unique
+  number    String     @id @unique
   name      String
-  blacklist Boolean @default(false)
+  blacklist Boolean    @default(false)
+  gaming    gaming[]
+  stickers  stickers[]
 }
 
 model group {
@@ -26,10 +28,14 @@ model group {
   TOKEN_OPEANAI String? @unique
 }
 
-model links {
-  id      Int     @id @default(autoincrement())
-  link    String  @unique
-  criador String?
+model gaming {
+  id      Int    @id @default(autoincrement())
+  nome    String
+  xp      Int    @default(0)
+  level   Int    @default(0)
+  rank    String @default("Bronze")
+  criador String
+  user    user   @relation(fields: [criador], references: [number])
 }
 
 model stickers {
@@ -37,4 +43,5 @@ model stickers {
   url_sticker String @db.LongText
   name        String
   criador     String
+  user        user   @relation(fields: [criador], references: [number])
 }
