@@ -49,10 +49,10 @@ export default async function (
 
   if (!valueOwner) return;
   if (!groupSecure) return;
-  if (isFiltered(data.user!)) return;
+  if (isFiltered(data.user)) return;
 
   try {
-    addFilter(data.user!);
+    addFilter(data.user);
     await command?.default.handle({
       ...data,
     });
@@ -81,7 +81,7 @@ export default async function (
     } else {
       logCreate(error);
       await data.sendErrorReply(
-        `Ocorreu um erro não identificado ao executar o comando ${command?.default.name}!\n\n💻 O desenvolvedor foi notificado!\n\n`
+        `Ocorreu um erro não identificado ao executar o comando ${command?.default.name}!\n\n💻 O desenvolvedor foi notificado!`
       );
       await data.sendLogOwner(
         `Ocorreu um erro ao executar o comando ${command?.default.name}!\n\n📄 *Detalhes*: ${error.message}`

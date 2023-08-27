@@ -31,3 +31,10 @@ model links {
   link    String  @unique
   criador String?
 }
+
+model stickers {
+  id          Int    @id @default(autoincrement())
+  url_sticker String @unique
+  name        String
+  criador     String
+}
