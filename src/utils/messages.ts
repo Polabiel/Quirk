@@ -46,7 +46,7 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
 ${secure ? commandSecure : "▢"}
 ╰━━─「🚀」─━━`;
   } catch (error: any) {
-    throw new error("Erro ao carregar menu!");
+    throw new Error("Erro ao carregar menu!");
   }
 };
 
