@@ -57,6 +57,7 @@ export default async function (
       ...data,
     });
   } catch (error: any) {
+    console.error(error);
     if (error instanceof InvalidParameterError) {
       await data.sendWarningReply(
         `Parâmetros inválidos!\n\n${
