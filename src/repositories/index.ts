@@ -1,4 +1,3 @@
-
 import { WASocket, proto } from "@whiskeysockets/baileys";
 import loadCommomFunctions from "../utils/loadCommomFunctions";
 import { PrismaClient } from "@prisma/client";
@@ -8,21 +7,9 @@ export default async function (
   bot: WASocket,
   baileysMessage: proto.IWebMessageInfo
 ) {
-  const { user, nickName, isGroup } = loadCommomFunctions(bot, baileysMessage);
-
-  if (user) {
-    return await prisma.user.upsert({
-      where: { number: user },
-      update: {},
-      create: {
-        number: user,
-        name: nickName!,
-      },
-    });
-  }
+  const { nickName, isGroup } = loadCommomFunctions(bot, baileysMessage);
 
   if (isGroup) {
-    console.log(baileysMessage.key.remoteJid!);
     return await prisma.group.upsert({
       where: { number: baileysMessage.key.remoteJid! },
       update: {},
@@ -30,6 +17,15 @@ export default async function (
         number: baileysMessage.key.remoteJid!,
       },
     });
+  } else if (!isGroup) {
+    return await prisma.user.upsert({
+      where: { number: baileysMessage.key.remoteJid! },
+      update: {},
+      create: {
+        number: baileysMessage.key.remoteJid!,
+        name: nickName!,
+      },
+    });
   }
-
+  return null;
 }

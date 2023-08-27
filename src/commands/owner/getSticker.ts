@@ -1,9 +1,9 @@
 import { general } from "../../configuration/general";
 import { ICommand } from "../../interfaces/ICommand";
-import { PrismaClient } from "@prisma/client";
 import { downloadSticker } from "../../utils";
 import fs from "fs";
 import { InvalidParameterError } from "../../errors/InvalidParameterError";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const command: ICommand = {
