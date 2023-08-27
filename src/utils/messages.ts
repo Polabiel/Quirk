@@ -7,7 +7,7 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
 ) => {
   try {
     const response = await fetch(
-      "https://raw.githubusercontent.com/Polabiel/zanoni-bot-js/main/package.json"
+      "https://raw.githubusercontent.com/Polabiel/zanoni-bot/main/package.json"
     );
     const json = await response.json();
     const version: number = json.version;
