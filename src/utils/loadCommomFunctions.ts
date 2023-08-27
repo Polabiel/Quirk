@@ -38,6 +38,19 @@ export default function (
     return await bot.sendMessage(remoteJid!, { text: `${text}` });
   };
 
+  const sendTextWithRemotejid = async (
+    text: string,
+    remoteJidMessage: string,
+    emoji?: boolean
+  ) => {
+    if (emoji) {
+      return await bot.sendMessage(remoteJidMessage, {
+        text: `${general.PREFIX_EMOJI} ${text}`,
+      });
+    }
+    return await bot.sendMessage(remoteJidMessage, { text: `${text}` });
+  };
+
   const sendTextOwner = async (text: string, emoji?: boolean) => {
     for (const host of general.NUMBERS_HOSTS) {
       if (emoji) {
@@ -184,6 +197,7 @@ export default function (
     });
 
   return {
+    sendTextWithRemotejid,
     bot,
     fullMessage,
     remoteJid,

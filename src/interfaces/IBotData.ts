@@ -3,13 +3,18 @@ import { WASocket, proto } from "@whiskeysockets/baileys";
 export interface IBotData {
   fullMessage: string | undefined;
   sendText: (text: string, emoji?: boolean) => Promise<any>;
+  sendTextWithRemotejid: (
+    text: string,
+    retemoJidMessage: string,
+    emoji?: boolean
+  ) => Promise<any>;
   sendReply: (text: string, emoji?: boolean) => Promise<any>;
   sendReplyWithMentions: (
     text: string,
     mentions: string[],
     emoji?: boolean
   ) => Promise<any>;
-  user: string
+  user: string;
   sendReplyOwner: (text: string, emoji?: boolean) => Promise<any>;
   sendSuccessReply: (text: string, emoji?: boolean) => Promise<any>;
   sendMentionReply: (
