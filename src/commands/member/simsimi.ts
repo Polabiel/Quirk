@@ -14,7 +14,7 @@ const command: ICommand = {
     }
     const responseText = await simsimi(data.fullMessage!);
 
-    await data.sendSuccessReply(responseText);
+    return await data.sendSuccessReply(responseText);
   },
 };
 

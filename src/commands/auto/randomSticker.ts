@@ -25,7 +25,7 @@ const command: ICommand = {
 
       await data.sendStickerFromFile(stickerFilePath);
 
-      fs.unlinkSync(stickerFilePath);
+      return fs.unlinkSync(stickerFilePath);
     } catch (error) {
       console.error("Erro ao enviar sticker:", error);
     }

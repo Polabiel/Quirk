@@ -13,7 +13,8 @@ export default async function (
   const { ...data } = loadCommomFunctions(bot, baileysMessage);
   const { command } = await choiceRandomCommand();
 
-  if (isCommand(data.fullMessage!) || verifyPrefix(data.prefix!)) return;
+  if (isCommand(data.fullMessage!) || verifyPrefix(data.prefix!) || data.fromMe)
+    return;
 
   processMessage(data, baileysMessage);
 
@@ -46,7 +47,7 @@ async function processMessage(
       general.NUMBER_BOT
     );
 
-  if ((shouldUseSimsimi || mentionedMessage || mentionedBot) && !data.fromMe) {
+  if (shouldUseSimsimi || mentionedMessage || mentionedBot) {
     return data.sendText(await simsimi(data.fullMessage!)!);
   }
 }

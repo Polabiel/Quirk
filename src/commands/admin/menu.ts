@@ -15,7 +15,7 @@ const command: ICommand = {
   ],
   usage: `${general.PREFIX}menuadmin`,
   handle: async (data) => {
-    await data.sendReply(await menuAdminMessage());
+    return await data.sendReply(await menuAdminMessage());
   },
 };
 

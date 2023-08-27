@@ -35,6 +35,6 @@ model links {
 model stickers {
   id          Int    @id @default(autoincrement())
   url_sticker String @db.LongText
-  name        String @unique
+  name        String
   criador     String
 }

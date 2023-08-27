@@ -66,7 +66,7 @@ const command: ICommand = {
           await data.sendSuccessReact();
           await data.sendStickerFromFile(outputPath);
           fs.unlinkSync(inputPath!);
-          fs.unlinkSync(outputPath);
+          return fs.unlinkSync(outputPath);
         }
       );
     }

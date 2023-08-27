@@ -35,7 +35,8 @@ const command: ICommand = {
         );
       }
     } catch (error: any) {
-      if (error.message === "not-authorized") throw new Forbidden("Você não tem permissão para banir este usuário!");
+      if (error.message === "not-authorized")
+        throw new Forbidden("Você não tem permissão para banir este usuário!");
       throw new WarningError("Não foi possível banir o(s) usuário(s)!");
     }
     return data.sendSuccessReply("Usuário(s) banido(s) com sucesso!");

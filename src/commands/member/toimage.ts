@@ -39,7 +39,7 @@ const command: ICommand = {
       await data.sendImageFromFile(outputPath);
 
       fs.unlinkSync(inputPath!);
-      fs.unlinkSync(outputPath);
+      return fs.unlinkSync(outputPath);
     });
   },
 };

@@ -9,7 +9,7 @@ const command: ICommand = {
   usage: `${general.PREFIX}dono`,
   handle: async (data) => {
     await data.sendReact("👤");
-    await data.sendText(await ownerMessage());
+    return await data.sendText(await ownerMessage());
   },
 };
 

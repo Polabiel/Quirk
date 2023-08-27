@@ -26,7 +26,7 @@ const command: ICommand = {
         return;
       }
 
-      await functionBot.sendSuccessReply(
+      return await functionBot.sendSuccessReply(
         `*Resultado*\n\n*CEP*: ${data.cep}\n*Logradouro*: ${data.logradouro}\n*Complemento*: ${data.complemento}\n*Bairro*: ${data.bairro}\n*Localidade*: ${data.localidade}\n*UF*: ${data.uf}\n*IBGE*: ${data.ibge}`
       );
     } catch (error: any) {

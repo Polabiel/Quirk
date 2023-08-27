@@ -30,6 +30,7 @@ const command: ICommand = {
         try {
           if (userNumbers.includes(data.participant!)) {
             await data.sendReact(choiceRandom);
+            return;
           }
         } catch (error) {
           console.error(`Erro: ${error}`);

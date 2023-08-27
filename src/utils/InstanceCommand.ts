@@ -65,7 +65,6 @@ export default async function (
         }\n\nUse o comando assim \n*${command?.default.usage!}*`
       );
     } else if (error instanceof WarningError) {
-      logCreate(error);
       await data.sendWarningReply(error.message);
     } else if (error instanceof DangerError) {
       logCreate(error);

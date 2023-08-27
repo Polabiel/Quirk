@@ -18,7 +18,7 @@ const command: ICommand = {
       await data.sendReact("🌑");
     }
 
-    await data.sendReply(`Resultado: ${resultado}`);
+    return await data.sendReply(`Resultado: ${resultado}`);
   },
 };
 

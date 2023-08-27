@@ -22,6 +22,7 @@ export default async function (
   }
 
   if (isGroup) {
+    console.log(baileysMessage.key.remoteJid!);
     return await prisma.group.upsert({
       where: { number: baileysMessage.key.remoteJid! },
       update: {},

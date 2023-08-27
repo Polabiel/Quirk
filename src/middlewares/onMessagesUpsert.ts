@@ -2,8 +2,6 @@ import { MessageUpsertType, proto } from "@whiskeysockets/baileys";
 import { connect } from "../connection";
 import InstanceCommand from "../utils/InstanceCommand";
 import autoCommand from "../utils/autoCommand";
-import verifyPrefix from "./verifyPrefix";
-import loadCommomFunctions from "../utils/loadCommomFunctions";
 import repositories from "../repositories";
 
 export default async () => {

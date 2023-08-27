@@ -15,9 +15,9 @@ const command: ICommand = {
     const latency = end - start;
 
     if (latency > 0) {
-      await data.sendReply(`🏓 Pong!\nTempo de resposta: ${latency}ms`);
+      return await data.sendReply(`🏓 Pong!\nTempo de resposta: ${latency}ms`);
     } else {
-      await data.sendReply(`🏓 Pong!\nTempo de resposta indisponível.`);
+      return await data.sendReply(`🏓 Pong!\nTempo de resposta indisponível.`);
     }
   },
 };

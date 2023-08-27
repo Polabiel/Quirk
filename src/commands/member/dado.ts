@@ -9,7 +9,7 @@ const command: ICommand = {
   handle: async (data) => {
     const numeroRandom = Math.floor(Math.random() * 6) + 1;
     await data.sendReact("🎲");
-    await data.sendReply(`🎲 Caiu em: ${numeroRandom}`);
+    return await data.sendReply(`🎲 Caiu em: ${numeroRandom}`);
   },
 };
 

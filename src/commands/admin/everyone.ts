@@ -31,7 +31,7 @@ const command: ICommand = {
         text: data.args.join(" "),
         mentions: mentions.map((m) => `${m.userId}@s.whatsapp.net`),
       };
-      await data.sendMentionReply(message.text, message.mentions);
+      return await data.sendMentionReply(message.text, message.mentions);
     } catch (error: any) {
       if (error.message === "not-authorized") throw new Forbidden("Você não tem permissão para banir este usuário!");
       throw new WarningError("Não foi possível marcar todos os usuários!");
