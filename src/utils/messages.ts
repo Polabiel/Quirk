@@ -61,6 +61,7 @@ export const menuAdminMessage = async () => {
 ▢ • /fechar - Fechar grupo (apenas admins podem falar)
 ▢ • /abrir - Abrir grupo (todos podem falar)
 ▢ • /everyone <messagem> - Marcar todos os usuários
+▢ • /modoautomatico - Ativar/desativar modo automático
 ▢
 ╰━━─「🚀」─━━`;
 };

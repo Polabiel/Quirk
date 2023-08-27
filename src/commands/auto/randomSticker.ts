@@ -12,6 +12,7 @@ const command: ICommand = {
   usage: ``,
   handle: async (data) => {
     try {
+      if (Math.random() < 0.05) return;
       const stickers = await prisma.stickers.findMany();
       const randomSticker =
         stickers[Math.floor(Math.random() * stickers.length)];
