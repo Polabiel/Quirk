@@ -6,6 +6,7 @@ interface GeneralConfig {
   PREFIX_EMOJI: string;
   COMMANDS_DIR: string;
   TEMP_DIR: string;
+  CACHE_DIR: string;
   TIMEOUT_IN_MILLISECONDS_BY_EVENT: number;
   NUMBERS_HOSTS: string[];
   NUMBER_BOT: string;
@@ -19,6 +20,7 @@ export const general: GeneralConfig = {
   PREFIX_EMOJI: "🤖",
   COMMANDS_DIR: path.join(__dirname, "..", "commands"),
   TEMP_DIR: path.resolve(__dirname, "..", "..", "assets", "temp"),
+  CACHE_DIR: path.resolve(__dirname, "..", "..", "cache"),
   TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
   NUMBERS_HOSTS: ["5519981022857@s.whatsapp.net"],
   NUMBER_BOT: "556186063515@s.whatsapp.net",

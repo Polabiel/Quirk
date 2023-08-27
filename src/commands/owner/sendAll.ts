@@ -24,14 +24,16 @@ const command: ICommand = {
     if (!data.args[0])
       throw new InvalidParameterError("Você precisa enviar uma mensagem");
 
+    const Message = `Mesagem do proprietário do bot: ${data.args.join(" ")}`;
+
     const groups = await prisma.group.findMany();
     const users = await prisma.user.findMany();
 
     for (const group of groups) {
-      await data.sendTextWithRemotejid(data.args[0], group.number);
+      await data.sendTextWithRemotejid(Message, group.number);
     }
     for (const user of users) {
-      await data.sendTextWithRemotejid(data.args[0], user.number);
+      await data.sendTextWithRemotejid(Message, user.number);
     }
     return data.sendSuccessReply("Mensagem enviada com sucesso!");
   },
