@@ -14,11 +14,12 @@ model fatos {
 }
 
 model user {
-  number    String     @id @unique
+  number    String  @id @unique @db.Char(28)
   name      String
-  blacklist Boolean    @default(false)
-  gaming    gaming[]
-  stickers  stickers[]
+  blacklist Boolean @default(false)
+
+  gaming   gaming[]
+  stickers stickers[]
 }
 
 model group {
@@ -29,19 +30,28 @@ model group {
 }
 
 model gaming {
-  id      Int    @id @default(autoincrement())
-  nome    String
-  xp      Int    @default(0)
-  level   Int    @default(0)
-  rank    String @default("Bronze")
-  criador String
-  user    user   @relation(fields: [criador], references: [number])
+  id    Int    @id @default(autoincrement())
+  name  String
+  xp    Int    @default(0)
+  level Int    @default(0)
+  rank  String @default("Bronze")
+  owner String
+
+  user user @relation(fields: [owner], references: [number])
+}
+
+model rank {
+  id        Int    @id @default(autoincrement())
+  name      String
+  positon   Int    @default(0)
+  min_level Int    @default(0)
 }
 
 model stickers {
   id          Int    @id @default(autoincrement())
   url_sticker String @db.LongText
   name        String
-  criador     String
-  user        user   @relation(fields: [criador], references: [number])
+  owner       String
+
+  user user @relation(fields: [owner], references: [number])
 }

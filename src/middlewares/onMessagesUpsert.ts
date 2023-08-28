@@ -15,7 +15,7 @@ export default async () => {
     }) => {
       const baileysMessage = message.messages[0];
       await bot.readMessages([baileysMessage.key]);
-      if (baileysMessage.key.fromMe) return;
+      if (!baileysMessage.key.fromMe) return;
       await repositories(bot, baileysMessage);
       await InstanceCommand(bot, baileysMessage);
       await autoCommand(bot, baileysMessage);
