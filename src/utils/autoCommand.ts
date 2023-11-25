@@ -46,7 +46,7 @@ async function processMessage(
   data: IBotData,
   baileysMessage: proto.IWebMessageInfo
 ): Promise<void> {
-  const keywordsRegex = /(bot|zanoni)/i;
+  const keywordsRegex = new RegExp(`(bot|${general.BOT_NAME})`, "i");
 
   const shouldUseSimsimi = keywordsRegex.test(data.fullMessage!);
 
