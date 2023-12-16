@@ -13,6 +13,7 @@ import {
   ICommand,
 } from "../interfaces/ICommand";
 import fs from "fs";
+import command from "../commands/_template";
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   const textMessage: string = baileysMessage.message?.conversation!;
@@ -122,6 +123,20 @@ export const getContent = (
   );
 };
 
+export const getContentUnique = (
+  baileysMessage: proto.IWebMessageInfo,
+  type: string
+) => {
+  return (
+    baileysMessage.message?.viewOnceMessageV2?.message?.[
+      `${type}Message` as keyof typeof baileysMessage.message
+    ] ??
+    baileysMessage.message?.extendedTextMessage?.contextInfo?.quotedMessage?.[
+      `${type}Message` as keyof typeof baileysMessage.message
+    ]
+  );
+};
+
 export const downloadVideo = async (baileysMessage: proto.IWebMessageInfo) => {
   return await downloadContent(baileysMessage, "input", "video", "mp4")!;
 };
@@ -130,13 +145,15 @@ export const downloadImage = async (baileysMessage: proto.IWebMessageInfo) => {
   return await downloadContent(baileysMessage, "input", "image", "png")!;
 };
 
-export const downloadSticker = async (baileysMessage: proto.IWebMessageInfo) => {
+export const downloadSticker = async (
+  baileysMessage: proto.IWebMessageInfo
+) => {
   return await downloadContent(baileysMessage, "input", "sticker", "webp")!;
-}
+};
 
 export const downloadAudio = async (baileysMessage: proto.IWebMessageInfo) => {
   return await downloadContent(baileysMessage, "input", "audio", "mp3")!;
-}
+};
 
 export const downloadContent = async (
   baileysMessage: proto.IWebMessageInfo,
@@ -145,23 +162,42 @@ export const downloadContent = async (
   extension: string
 ) => {
   const content = getContent(baileysMessage, context) as DownloadableMessage;
+  const contentUnique = getContentUnique(
+    baileysMessage,
+    context
+  ) as DownloadableMessage;
 
-  if (!content) {
-    return null;
+  if (content) {
+    const stream = await downloadContentFromMessage(content, context);
+
+    let buffer = Buffer.from([]);
+
+    for await (const chunk of stream) {
+      buffer = Buffer.concat([buffer, chunk]);
+    }
+
+    const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
+    fs.writeFileSync(filePath, buffer, { encoding: "binary" });
+
+    return filePath;
   }
 
-  const stream = await downloadContentFromMessage(content, context);
+  if (contentUnique) {
+    const stream = await downloadContentFromMessage(contentUnique, context);
 
-  let buffer = Buffer.from([]);
+    let buffer = Buffer.from([]);
 
-  for await (const chunk of stream) {
-    buffer = Buffer.concat([buffer, chunk]);
+    for await (const chunk of stream) {
+      buffer = Buffer.concat([buffer, chunk]);
+    }
+
+    const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
+    fs.writeFileSync(filePath, buffer, { encoding: "binary" });
+
+    return filePath;
   }
 
-  const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
-  fs.writeFileSync(filePath, buffer, { encoding: "binary" });
-
-  return filePath;
+  if (!content || !contentUnique) return null;
 };
 
 export const extractCommandAndArgs = (message: string) => {
@@ -246,7 +282,7 @@ export const choiceRandomCommand: () => Promise<{
   }
 };
 
-export const readCommandImports: () => Promise<ICommandImports> = async () => {
+export const readCommandImports = async () => {
   const subdirectories: string[] = fs
     .readdirSync(general.COMMANDS_DIR, { withFileTypes: true })
     .filter((directory: { isDirectory: () => unknown }) =>
@@ -258,6 +294,14 @@ export const readCommandImports: () => Promise<ICommandImports> = async () => {
 
   for (const subdir of subdirectories) {
     const subdirectoryPath = path.join(general.COMMANDS_DIR, subdir);
+    // se existir um mesmo comando em mais de um arquivo, o comando do arquivo que foi importado pela heranquia pelo ultimo da lista será ignorado
+    // Heranquia:
+    // 1. src/commands/auto
+    // 2. src/commands/owner
+    // 3. src/commands/admin
+    // 4. src/commands/secure
+    // 5. src/commands/member
+    // 6. src/commands/_template
     const files = fs
       .readdirSync(subdirectoryPath)
       .filter(

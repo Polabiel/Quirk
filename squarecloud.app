@@ -1,4 +1,4 @@
 MAIN=dist/start.js
-MEMORY=124
+MEMORY=128
 VERSION=recommended
 DISPLAY_NAME=zanoni-bot

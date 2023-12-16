@@ -2,6 +2,16 @@ import { general } from "../configuration/general";
 
 export const waitMessage: string = "Carregando dados...";
 
+export const randomMessageViewOnce: () => string = () => {
+  const randomMessage = [
+    "🤭",
+    "Foi mal, vazei sua fotinha unica 🤭",
+    "Eu sou do mal HAHAHA 🤭",
+    `Esse é o poder do ${general.BOT_NAME}-bot 🤭`,
+  ];
+  return randomMessage[Math.floor(Math.random() * randomMessage.length)];
+};
+
 export const menuMessage: (secure?: boolean) => Promise<string> = async (
   secure?: boolean
 ) => {
@@ -29,10 +39,8 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
 ▢ • /menu - Mostrar menu de usuário
 ▢ • /dono - Mostrar informações do bot
 ▢ • /bot - Converse com o simsimi
-▢ • /gpt - Envie uma pergunta para a AI
 ▢ • /cep - Consultar CEP
 ▢ • /ping - Verificar latência
-▢ • /sticker - Converter img/vídeo em sticker
 ▢ • /to-image - Converter sticker em imagem
 ▢ • /dado - Jogar dado de 6 lados
 ▢ • /coinflip - Jogar cara ou coroa 

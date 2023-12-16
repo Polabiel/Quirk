@@ -17,9 +17,6 @@ const command: ICommand = {
       const group = await prisma.group.findUnique({
         where: {
           number: data.remoteJid!,
-          NOT: {
-            TOKEN_OPEANAI: null,
-          },
         },
       });
       if (!group?.TOKEN_OPEANAI)

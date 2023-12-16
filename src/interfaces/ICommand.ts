@@ -5,7 +5,7 @@ export interface ICommand {
   description: string;
   commands: string[];
   usage: string;
-  handle: (data: IBotData) => Promise<void>;
+  handle: (data: IBotData) => Promise<any>;
 }
 
 export interface IDefaultCommand {

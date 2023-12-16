@@ -185,9 +185,15 @@ export default function (
       sticker: { url: file },
     });
 
-  const sendImageFromFile = async (file: string) =>
+  const sendImageFromFile = async (
+    file: string,
+    text?: string,
+    mention?: string[]
+  ) =>
     await bot.sendMessage(remoteJid!, {
       image: { url: file },
+      caption: text,
+      mentions: mention ?? undefined,
     });
 
   const sendVideoFromFile = async (file: string, caption: string) =>

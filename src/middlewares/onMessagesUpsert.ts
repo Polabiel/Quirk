@@ -2,7 +2,7 @@ import { MessageUpsertType, proto } from "@whiskeysockets/baileys";
 import { connect } from "../connection";
 import InstanceCommand from "../utils/InstanceCommand";
 import autoCommand from "../utils/autoCommand";
-import repositories from "../repositories";
+import repositories from "../database";
 
 export default async () => {
   const bot = await connect();

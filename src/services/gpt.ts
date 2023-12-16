@@ -1,14 +1,21 @@
 import axios from "axios";
 import { DangerError } from "../errors/DangerError";
 
-export default async function (content: string, token: string) {
+export default async function (content: string, token: string): Promise<string> {
   if (!content) throw new DangerError("Você precisa me perguntar algo!");
   if (!token) throw new DangerError("Você precisa me enviar um token!");
 
   const { data } = await axios.post(
     `https://api.openai.com/v1/chat/completions`,
     {
-      messages: [{ role: "user", content }],
+      messages: [
+        {
+          role: "system",
+          content:
+            "Você é um assistente útil projetado para gerar respostas para usuarios de whatsapp",
+        },
+        { role: "user", content },
+      ],
     },
     {
       headers: {

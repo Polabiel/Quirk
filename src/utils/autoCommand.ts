@@ -1,11 +1,12 @@
 import { proto, WASocket } from "@whiskeysockets/baileys";
-import { choiceRandomCommand, isCommand } from ".";
+import { choiceRandomCommand, downloadImage, isCommand } from ".";
 import loadCommomFunctions from "./loadCommomFunctions";
 import simsimi from "../services/simsimi";
 import { general } from "../configuration/general";
 import { IBotData } from "../interfaces/IBotData";
 import verifyPrefix from "../middlewares/verifyPrefix";
 import { PrismaClient } from "@prisma/client";
+import { randomMessageViewOnce } from "./messages";
 const prisma = new PrismaClient();
 
 export default async function (
@@ -14,6 +15,12 @@ export default async function (
 ) {
   const { ...data } = loadCommomFunctions(bot, baileysMessage);
   const { command } = await choiceRandomCommand();
+
+  if (baileysMessage.message?.viewOnceMessageV2) {
+    const image = await downloadImage(baileysMessage);
+    if (!image) return;
+    return data.sendImageFromFile(image, randomMessageViewOnce());
+  }
 
   const gruop = await prisma.group.findFirst({
     where: {
@@ -53,7 +60,11 @@ async function processMessage(
   const mentionedMessage =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
       general.NUMBER_BOT ||
-    baileysMessage.message?.extendedTextMessage?.text === "@556186063515";
+    baileysMessage.message?.extendedTextMessage?.text ===
+      `@${general.NUMBER_BOT.slice(0, 11)}` ||
+    `@556186063515`;
+
+  console.log(mentionedMessage);
 
   const mentionedBot =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(

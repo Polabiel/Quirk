@@ -31,7 +31,9 @@ export interface IBotData {
     file: string
   ) => Promise<proto.WebMessageInfo | undefined>;
   sendImageFromFile: (
-    file: string
+    file: string,
+    text?: string,
+    mention?: string[]
   ) => Promise<proto.WebMessageInfo | undefined>;
   sendVideoFromFile: (
     file: string,
