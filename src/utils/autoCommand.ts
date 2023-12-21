@@ -22,18 +22,13 @@ export default async function (
     return data.sendImageFromFile(image, randomMessageViewOnce());
   }
 
-  const gruop = await prisma.group.findFirst({
-    where: {
-      number: data.remoteJid!,
-    },
-  });
+  // const gruop = await prisma.group.findUnique({
+  //   where: {
+  //     number: data.remoteJid!,
+  //   },
+  // });
 
-  if (
-    isCommand(data.fullMessage!) ||
-    verifyPrefix(data.prefix!) ||
-    data.fromMe ||
-    !gruop?.enable
-  )
+  if (isCommand(data.fullMessage!) || verifyPrefix(data.prefix!) || data.fromMe)
     return;
 
   processMessage(data, baileysMessage);
@@ -56,6 +51,8 @@ async function processMessage(
   const keywordsRegex = new RegExp(`(bot|${general.BOT_NAME})`, "i");
 
   const shouldUseSimsimi = keywordsRegex.test(data.fullMessage!);
+
+  console.log(shouldUseSimsimi);
 
   const mentionedMessage =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
