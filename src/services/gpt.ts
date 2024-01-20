@@ -1,7 +1,11 @@
 import axios from "axios";
 import { DangerError } from "../errors/DangerError";
+import { general } from "../configuration/general";
 
-export default async function (content: string, token: string): Promise<string> {
+export default async function (
+  content: string,
+  token: string
+): Promise<string> {
   if (!content) throw new DangerError("Você precisa me perguntar algo!");
   if (!token) throw new DangerError("Você precisa me enviar um token!");
 
@@ -11,8 +15,7 @@ export default async function (content: string, token: string): Promise<string> 
       messages: [
         {
           role: "system",
-          content:
-            "Você é um assistente útil projetado para gerar respostas para usuarios de whatsapp",
+          content: `Você é um assistente útil chamado ${general.BOT_NAME} projetado para gerar respostas para usuarios de whatsapp`,
         },
         { role: "user", content },
       ],

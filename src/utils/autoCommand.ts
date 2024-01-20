@@ -22,12 +22,6 @@ export default async function (
     return data.sendImageFromFile(image, randomMessageViewOnce());
   }
 
-  // const gruop = await prisma.group.findUnique({
-  //   where: {
-  //     number: data.remoteJid!,
-  //   },
-  // });
-
   if (isCommand(data.fullMessage!) || verifyPrefix(data.prefix!) || data.fromMe)
     return;
 
@@ -52,16 +46,12 @@ async function processMessage(
 
   const shouldUseSimsimi = keywordsRegex.test(data.fullMessage!);
 
-  console.log(shouldUseSimsimi);
-
   const mentionedMessage =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
       general.NUMBER_BOT ||
     baileysMessage.message?.extendedTextMessage?.text ===
       `@${general.NUMBER_BOT.slice(0, 11)}` ||
     `@556186063515`;
-
-  console.log(mentionedMessage);
 
   const mentionedBot =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(

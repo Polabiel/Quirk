@@ -13,7 +13,6 @@ import {
   ICommand,
 } from "../interfaces/ICommand";
 import fs from "fs";
-import command from "../commands/_template";
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   const textMessage: string = baileysMessage.message?.conversation!;
