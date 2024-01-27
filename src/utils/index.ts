@@ -293,14 +293,6 @@ export const readCommandImports = async () => {
 
   for (const subdir of subdirectories) {
     const subdirectoryPath = path.join(general.COMMANDS_DIR, subdir);
-    // se existir um mesmo comando em mais de um arquivo, o comando do arquivo que foi importado pela heranquia pelo ultimo da lista será ignorado
-    // Heranquia:
-    // 1. src/commands/auto
-    // 2. src/commands/owner
-    // 3. src/commands/admin
-    // 4. src/commands/secure
-    // 5. src/commands/member
-    // 6. src/commands/_template
     const files = fs
       .readdirSync(subdirectoryPath)
       .filter(

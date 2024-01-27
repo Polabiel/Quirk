@@ -31,9 +31,9 @@ export default async function (
   });
 
   if (
-    isCommand(data.fullMessage!) ||
-    verifyPrefix(data.prefix!) ||
-    data.fromMe ||
+    (isCommand(data.fullMessage!) ||
+      verifyPrefix(data.prefix!) ||
+      data.fromMe) &&
     group?.enable
   )
     return;
