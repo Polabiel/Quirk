@@ -22,19 +22,32 @@ export default async function (
     return data.sendImageFromFile(image, randomMessageViewOnce());
   }
 
-  if (isCommand(data.fullMessage!) || verifyPrefix(data.prefix!) || data.fromMe)
+  if (!data.isGroup) return;
+
+  const group = await prisma.group.findUnique({
+    where: {
+      number: data.remoteJid!,
+    },
+  });
+
+  if (
+    isCommand(data.fullMessage!) ||
+    verifyPrefix(data.prefix!) ||
+    data.fromMe ||
+    group?.enable
+  )
     return;
 
-  processMessage(data, baileysMessage);
-
-  if (Math.random() < 0.001) return;
-
   try {
+    processMessage(data, baileysMessage);
+
+    if (Math.random() < 0.4) return;
+
     await command?.handle({
       ...data,
     });
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -44,21 +57,37 @@ async function processMessage(
 ): Promise<void> {
   const keywordsRegex = new RegExp(`(bot|${general.BOT_NAME})`, "i");
 
-  const shouldUseSimsimi = keywordsRegex.test(data.fullMessage!);
+  const shouldUseSimsimi = keywordsRegex.test(
+    data.fullMessage! ??
+      data.baileysMessage.message?.ephemeralMessage?.message
+        ?.extendedTextMessage?.text!
+  );
 
-  const mentionedMessage =
-    baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
-      general.NUMBER_BOT ||
-    baileysMessage.message?.extendedTextMessage?.text ===
-      `@${general.NUMBER_BOT.slice(0, 11)}` ||
-    `@556186063515`;
-
-  const mentionedBot =
+  const mentionedMessage: boolean =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(
       general.NUMBER_BOT
-    );
+    ) ||
+    baileysMessage.message?.ephemeralMessage?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(
+      general.NUMBER_BOT
+    ) ||
+    false;
+
+  const mentionedBot: boolean =
+    (baileysMessage.message?.ephemeralMessage?.message?.extendedTextMessage?.contextInfo?.participant?.includes(
+      general.NUMBER_BOT
+    ) ??
+      baileysMessage.message?.extendedTextMessage?.contextInfo?.participant?.includes(
+        general.NUMBER_BOT
+      )) ||
+    false;
 
   if (shouldUseSimsimi || mentionedMessage || mentionedBot) {
-    return data.sendText(await simsimi(data.fullMessage!)!);
+    return data.sendText(
+      await simsimi(
+        data.fullMessage! ??
+          data.baileysMessage.message?.ephemeralMessage?.message
+            ?.extendedTextMessage?.text!
+      )!
+    );
   }
 }
