@@ -17,7 +17,7 @@ const command: ICommand = {
           criador: data.participant,
         },
       });
-      data.sendSuccessReply(`Fato adicionado com sucesso!`);
+      return data.sendSuccessReply(`Fato adicionado com sucesso!`);
     } else {
       const fatos: fatos[] = await prisma.fatos.findMany();
       if (fatos.length === 0)

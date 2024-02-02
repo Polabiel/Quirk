@@ -30,13 +30,13 @@ export default async function (
     },
   });
 
-  if (
-    (isCommand(data.fullMessage!) ||
-      verifyPrefix(data.prefix!) ||
-      data.fromMe) &&
-    group?.enable
-  )
+  const isDisabled = group?.enable === false;
+  const isCommandMessage = data.fullMessage && isCommand(data.fullMessage);
+  const hasValidPrefix = data.prefix && verifyPrefix(data.prefix);
+
+  if (isDisabled || isCommandMessage || hasValidPrefix || data.fromMe) {
     return;
+  }
 
   try {
     processMessage(data, baileysMessage);
