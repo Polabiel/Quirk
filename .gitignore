@@ -133,3 +133,6 @@ dist
 /assets/auth/baileys
 /assets/auth_bot
 /cache/*
+
+# database prisma
+prisma/dev.db
