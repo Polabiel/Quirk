@@ -15,7 +15,7 @@ interface GeneralConfig {
 }
 
 export const general: GeneralConfig = {
-  BOT_NAME: "jhon",
+  BOT_NAME: "Z-bot",
   PREFIX: "/",
   PREFIX_EMOJI: "🤖",
   COMMANDS_DIR: path.join(__dirname, "..", "commands"),
