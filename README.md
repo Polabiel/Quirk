@@ -1,8 +1,9 @@
 <h1 align="center">
   <br>
-  <a href="https://github.com/Polabiel/Zanoni-bot"><img src="https://telegra.ph/file/985dc21e18bd1862114f5.png" alt="Zanoni — Whatsapp Bot"></a>
+  <a href="https://github.com/Polabiel/Zanoni-bot"><img src="https://github.com/Polabiel/zanoni-bot/assets/40695127/687a5bc8-3684-4057-b92f-2e3673ad5308" alt="Zanoni — Whatsapp Bot"></a>
   <br>
-  Zanoni — Bot
+
+  Z — Bot
   <br>  
 </h1>
 
@@ -22,7 +23,7 @@
 
 # Visão Geral
 
-O Zanoni é um bot totalmente modular - o que significa que todos os recursos e comandos podem ser ativados/desativados para o seu
+O Z é um bot totalmente modular - o que significa que todos os recursos e comandos podem ser ativados/desativados para o seu
 gostar, tornando-o totalmente personalizável.
 
 [Instalação](#Instalação) é fácil, e você **NÃO** precisa saber nada sobre codificação! Aparte
@@ -44,7 +45,7 @@ Se depois de ler o guia você ainda tiver problemas, sinta-se à vontade para se
 
 # Comunidade
 
-**Zanoni** está em desenvolvimento contínuo e é apoiado por uma comunidade ativa que produz novos conteúdo (funções/plugins) para que todos possam desfrutar. Novos recursos são adicionados constantemente. A gente se encotrar bem [aqui](https://discord.gg/BgQrmc6TnC) com a comunidade do meu discord
+**Z** está em desenvolvimento contínuo e é apoiado por uma comunidade ativa que produz novos conteúdo (funções/plugins) para que todos possam desfrutar. Novos recursos são adicionados constantemente. A gente se encotrar bem [aqui](https://discord.gg/BgQrmc6TnC) com a comunidade do meu discord
 
 # Termux
 
@@ -96,5 +97,5 @@ npm i && npm run build && npm run start
 
 ## Licença
 
-A criação do [Zanoni-bot](https://github.com/Polabiel/zanoni-bot/) foi feito pelo [Gabriel Oliveira](https://github.com/Polabiel/), caso queira utilizar o projeto, por favor deixe os créditos.
+A criação do [Z-bot](https://github.com/Polabiel/zanoni-bot/) foi feito pelo [Gabriel Oliveira](https://github.com/Polabiel/), caso queira utilizar o projeto, por favor deixe os créditos.
 [MIT](https://github.com/guiireal/sky-bot/blob/main/LICENSE)
