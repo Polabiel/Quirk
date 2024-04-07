@@ -350,7 +350,12 @@ export const verifyIfIsAdmin: (
 ) => {
   if (type === "admin") {
     const isAdmin = await isAdminGroup(bot, baileysMessage);
-    return !!isAdmin;
+    return (
+      !!isAdmin ||
+      general.NUMBERS_HOSTS.includes(
+        extractDataFromMessage(baileysMessage).participant!
+      )
+    );
   }
   return true;
 };

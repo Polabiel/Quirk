@@ -50,8 +50,7 @@ async function processMessage(
     baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
       general.NUMBER_BOT ||
     baileysMessage.message?.extendedTextMessage?.text ===
-      `@${general.NUMBER_BOT.slice(0, 11)}` ||
-    `@556186063515`;
+      `@${general.NUMBER_BOT.slice(0, 11)}`;
 
   const mentionedBot =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.mentionedJid?.includes(

@@ -1,4 +1,6 @@
-MAIN=dist/start.js
-MEMORY=128
+DISPLAY_NAME=Quirk Bot
+DESCRIPTION=Bot de Whatsapp para fazer figurinhas e muito mais
+MAIN=src/start.ts
+MEMORY=1000
 VERSION=recommended
-DISPLAY_NAME=zanoni-bot
+AUTORESTART=true
