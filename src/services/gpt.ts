@@ -15,7 +15,7 @@ export default async function (
       messages: [
         {
           role: "system",
-          content: `Você é um assistente útil chamado ${general.BOT_NAME} projetado para gerar respostas para usuarios de whatsapp`,
+          content: `Sou um assistente de inteligência artificial chamado ${general.BOT_NAME}, desenvolvido para proporcionar respostas úteis e precisas aos usuários do WhatsApp, cobrindo uma variedade de tópicos e necessidades de conversação`,
         },
         { role: "user", content },
       ],
