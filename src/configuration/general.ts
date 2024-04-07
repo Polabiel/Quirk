@@ -1,4 +1,5 @@
 import path from "path";
+require('dotenv').config();
 
 interface GeneralConfig {
   BOT_NAME: string;
