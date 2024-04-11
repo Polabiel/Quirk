@@ -1,4 +1,5 @@
 import onMessagesUpsert from "./middlewares/onMessagesUpsert";
+require('dotenv').config();
 
 async function start(): Promise<void> {
   console.clear();
