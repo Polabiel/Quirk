@@ -15,15 +15,21 @@ import {
 import fs from "fs";
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
-  const textMessage: string = baileysMessage.message?.conversation!;
+  const textMessage: string =
+    baileysMessage.message?.conversation! ??
+    baileysMessage.message?.ephemeralMessage?.message?.conversation!;
   const extendedTextMessage: string =
-    baileysMessage.message?.extendedTextMessage?.text!;
+    baileysMessage.message?.extendedTextMessage?.text! ??
+    baileysMessage.message?.ephemeralMessage?.message?.extendedTextMessage
+      ?.text!;
   const imageTextMessage: string =
-    baileysMessage.message?.imageMessage?.caption!;
+    baileysMessage.message?.imageMessage?.caption! ??
+    baileysMessage.message?.ephemeralMessage?.message?.videoMessage?.caption!;
   const videoTextMessage: string =
-    baileysMessage.message?.videoMessage?.caption!;
+    baileysMessage.message?.videoMessage?.caption! ??
+    baileysMessage.message?.ephemeralMessage?.message?.imageMessage?.caption!;
 
-  const fullMessage: string =
+  const fullMessage =
     textMessage || extendedTextMessage || imageTextMessage || videoTextMessage;
 
   if (!fullMessage) {
