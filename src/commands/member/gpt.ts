@@ -19,6 +19,7 @@ const command: ICommand = {
           number: data.remoteJid!,
         },
       });
+      console.log("Group data:", group);
       if (!group?.TOKEN_OPEANAI)
         throw new WarningError(
           "Você precisa de um token para usar o GPT\n\nPara obter um token, acesse: https://platform.openai.com/account/api-keys e envie o comando /token <token>"

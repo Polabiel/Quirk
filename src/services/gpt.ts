@@ -9,24 +9,22 @@ export default async function (
   if (!content) throw new DangerError("Você precisa me perguntar algo!");
   if (!token) throw new DangerError("Você precisa me enviar um token!");
 
-  const { data } = await axios.post(
-    `https://api.openai.com/v1/chat/completions`,
-    {
-      messages: [
-        {
-          role: "system",
-          content: `Sou um assistente de inteligência artificial chamado ${general.BOT_NAME}, desenvolvido para proporcionar respostas úteis e precisas aos usuários do WhatsApp, cobrindo uma variedade de tópicos e necessidades de conversação`,
-        },
-        { role: "user", content },
-      ],
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+  const {data} = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: `Sou um assistente de inteligência artificial chamado ${general.BOT_NAME}, desenvolvido para proporcionar respostas úteis e precisas aos usuários do WhatsApp, cobrindo uma variedade de tópicos e necessidades de conversação` },
+          { role: 'user', content: content },
+        ],
       },
-    }
-  );
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
 
   if (data.errors) {
     throw new Error(data.errors[0].message);
