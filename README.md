@@ -7,95 +7,93 @@
   <br>  
 </h1>
 
-<h4 align="center">Música, Moderação, Diversão and Modulavel.</h4>
+<h4 align="center">Music, Moderation, Fun, and Customizable.</h4>
 
 <p align="center">
-  <a href="#visão-geral">Visão Geral</a>
+  <a href="#overview">Overview</a>
   •
-  <a href="#installation">Instalação</a>
+  <a href="#installation">Installation</a>
   •
   <a href="#plugins">Plugins</a>
   •
-  <a href="#comunidade">Comunidade</a>
+  <a href="#community">Community</a>
   •
-  <a href="#licença">Licença</a>
+  <a href="#license">License</a>
 </p>
 
-# Visão Geral
+# Overview
 
-O Quirk é um bot totalmente modular - o que significa que todos os recursos e comandos podem ser ativados/desativados para o seu
-gostar, tornando-o totalmente personalizável.
+Quirk is a fully modular bot - meaning all features and commands can be toggled on/off to your liking, making it fully customizable.
 
-[Instalação](#Instalação) é fácil, e você **NÃO** precisa saber nada sobre codificação! Aparte
-desde a instalação e atualização, todas as partes do bot podem ser controladas no Whatsapp.
+[Installation](#Installation) is easy, and you **DON'T** need to know anything about coding! Apart from installation and updates, all parts of the bot can be controlled via Whatsapp.
 
-# Instalação
+# Installation
 
-A instalação requer **node.LTS**
+Installation requires **node.LTS**
 
-**O que significa que você pode baixar** *as seguintes plataformas que suportam Node.LTS:*
+**Which means you can download** *the following platforms supporting Node.LTS:*
 
 - [Windows](https://nodejs.org/pt-br/download/)
 - [Termux — Android](#termux)
 - [Linux](https://nodejs.org/pt-br/download/)
 - [MacOS](https://nodejs.org/pt-br/download/)
 
-Se depois de ler o guia você ainda tiver problemas, sinta-se à vontade para se juntar ao
-[Servidor oficial do Discord](https://discord.gg/BgQrmc6TnC) e peça ajuda no canal **#Suporte**.
+If after reading the guide you still encounter issues, feel free to join the
+[Official Discord Server](https://discord.gg/BgQrmc6TnC) and ask for help in the **#Support** channel.
 
-# Comunidade
+# Community
 
-**Quirk** está em desenvolvimento contínuo e é apoiado por uma comunidade ativa que produz novos conteúdo (funções/plugins) para que todos possam desfrutar. Novos recursos são adicionados constantemente. A gente se encotrar bem [aqui](https://discord.gg/BgQrmc6TnC) com a comunidade do meu discord
+**Quirk** is under continuous development and is supported by an active community that produces new content (functions/plugins) for everyone to enjoy. New features are constantly being added. You can join us [here](https://discord.gg/BgQrmc6TnC) in my Discord community.
 
 # Termux
 
-Para aqueles que tem dificil para mexer no Termux, tem aqui um Tutorial bem básico
+For those who have difficulty using Termux, here's a very basic tutorial.
 
-1. Instale o aplicativo F-Droid
+1. Install the F-Droid app
 
-O F-Droid é uma biblioteca de aplicativos Android, similar a Play Store. A diferença é que o F-Droid é exclusivo para aplicativos open-source.
+F-Droid is a library of Android apps, similar to the Play Store. The difference is that F-Droid is exclusive to open-source apps.
 
-- [Site Oficial do fdroid](fdroid.org)
+- [Official F-Droid website](fdroid.org)
 
-<a href="https://fdroid.org"><img src="https://content.invisioncic.com/v310067/monthly_2022_07/f-droid.png.9c45eb46593f3eb4276b56b7e5534118.png" alt="O que é F-droid" width=300px></a>
+<a href="https://fdroid.org"><img src="https://content.invisioncic.com/v310067/monthly_2022_07/f-droid.png.9c45eb46593f3eb4276b56b7e5534118.png" alt="What is F-droid" width=300px></a>
 
-Como se trata de um aplicativo fora da Play Store, pode ser necessário liberar algumas permissões durante o processo de instalação.
+As it's an app outside the Play Store, you may need to allow some permissions during the installation process.
 
-2. Instale o Termux
+2. Install Termux
 
-Abra o F-Droid, pesquise por Termux e clique em instalar. O Termux é um poderoso emulador de terminal e ambiente Linux para Android. Ele permite a instalação de diversos pacotes (como o Node.js) usando as bibliotecas apt e pkg.
+Open F-Droid, search for Termux, and click install. Termux is a powerful terminal emulator and Linux environment for Android. It allows the installation of various packages (like Node.js) using the apt and pkg libraries.
 
-3. Instale o Node.js
+3. Install Node.js
 
-Abra o Termux. Usaremos a lib apt para instalar o Node.js. Mas antes, é necessário atualizar a lib. Digite os seguintes comandos:
+Open Termux. We'll use the apt library to install Node.js. But before that, let's update the library. Enter the following commands:
 
 ```bash
 apt update
 apt upgrade
 ```
 
-Caso haja alguma solicitação durante a instalação, apenas pressione a tecla Enter.
+If there's any prompt during installation, just press Enter.
 
-Para instalar o Node.js, digite o comando:
+To install Node.js, enter the command:
 
 ```bash
 apt install nodejs
 ```
 
-<a href=""><img src="https://content.invisioncic.com/v310067/monthly_2022_07/apt-nodejs.png.94906a380be23e14fc1f8e13c89820cb.png" alt="Terminal do Termux" width=300px></a>
+<a href=""><img src="https://content.invisioncic.com/v310067/monthly_2022_07/apt-nodejs.png.94906a380be23e14fc1f8e13c89820cb.png" alt="Termux Terminal" width=300px></a>
 
-Após a instalação, podemos rodar o Node em nosso dispositivo Android.
+After installation, we can run Node on our Android device.
 
-<a href=""><img src="https://content.invisioncic.com/v310067/monthly_2022_07/node-running.png.4a758f1bb384e6c748c9ca14af7458ae.png" alt="Terminal do Termux" width=300px></a>
+<a href=""><img src="https://content.invisioncic.com/v310067/monthly_2022_07/node-running.png.4a758f1bb384e6c748c9ca14af7458ae.png" alt="Termux Terminal" width=300px></a>
 
-Após isso basta iniciar digitando o comando 
+Then just start by typing the command
 ```bash
 npm i && npm run build && npm run start
 ```
 
-- [Creditos](https://forum.casadodesenvolvedor.com.br/topic/44722-como-emular-um-terminal-linux-e-instalar-o-nodejs-no-android/)
+- [Credits](https://forum.casadodesenvolvedor.com.br/topic/44722-como-emular-um-terminal-linux-e-instalar-o-nodejs-no-android/)
 
-## Licença
+## License
 
-A criação do [Quirk](https://github.com/Polabiel/Quirk/) foi feito pelo [Gabriel Oliveira](https://github.com/Polabiel/), caso queira utilizar o projeto, por favor deixe os créditos.
+The creation of [Quirk](https://github.com/Polabiel/Quirk/) was done by [Gabriel Oliveira](https://github.com/Polabiel/), if you wish to use the project, please leave the credits.
 [MIT](https://github.com/Polabiel/Quirk/blob/main/LICENSE)
