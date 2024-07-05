@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev ./src/start.ts",
-    "prod:start": "pm2-runtime ./dist/start.js",
+    "prod:start": "tsc && node ./dist/start.js",
+    "prod:pm2": "tsc && pm2 start ./dist/start.js",
     "prod:prisma": "npx prisma db push",
     "start": "node ./dist/start.js",
     "build": "tsc",
