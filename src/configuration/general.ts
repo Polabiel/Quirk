@@ -1,5 +1,5 @@
 import path from "path";
-require('dotenv').config();
+require("dotenv").config();
 
 interface GeneralConfig {
   BOT_NAME: string;
@@ -24,7 +24,7 @@ export const general: GeneralConfig = {
   CACHE_DIR: path.resolve(__dirname, "..", "..", "cache"),
   TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
   NUMBERS_HOSTS: [process.env.NUMBER_HOST ?? ""],
-  NUMBER_BOT: "556186063515@s.whatsapp.net",
+  NUMBER_BOT: "554797010769@s.whatsapp.net",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   GROUP_SECURE: [
     "5519987529732-1625550643@g.us",
