@@ -44,7 +44,6 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
   ▢ • *MENU DE USUÁRIO*
   ▢
   ▢ • ${capitalizedBotName} — Bot para WhatsApp
-  ▢ • Criado por: *instagram.com/polabiel*
   ▢ • Versão: 2.0.0
   ▢
   ▢ • Data: ${date.toLocaleDateString("pt-br")}
@@ -75,7 +74,6 @@ export const ownerMessage = async () => {
 ▢ • *INFORMAÇÕES DO DONO*
 ▢
 ▢ • Criado pelo: *wa.me/${general.NUMBERS_HOSTS[0].slice(0, 13)}*
-▢ • Instagram: *instagram.com/polabiel*
 ▢ • Github: *github.com/polabiel*
 ▢
 ╰━━─「」─━━`;
