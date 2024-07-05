@@ -1,4 +1,5 @@
 import { general } from "../configuration/general";
+import { readCommandImports } from ".";
 
 export const waitMessage: string = "Carregando dados...";
 
@@ -12,6 +13,16 @@ export const randomMessageViewOnce: () => string = () => {
   return randomMessage[Math.floor(Math.random() * randomMessage.length)];
 };
 
+export const getCommandsFromFolder = async (folderName: string) => {
+  const commandFiles = await readCommandImports();
+  const filteredCommandFiles = commandFiles[folderName];
+  const commandList = filteredCommandFiles.map((command) => ({
+    name: command.default.commands[0],
+    description: command.default.description,
+  }));
+  return commandList;
+};
+
 export const menuMessage: (secure?: boolean) => Promise<string> = async (
   secure?: boolean
 ) => {
@@ -19,49 +30,44 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
   const capitalizedBotName =
     general.BOT_NAME.charAt(0).toUpperCase() + general.BOT_NAME.slice(1);
 
-  const commandSecure = `▢ • /fato - Retornar um fato sobre o grupo\n▢ • /joão - Comando do João`;
+  const commandListSecure = await getCommandsFromFolder("secure");
+  const commandListTextSecure = commandListSecure
+    .map((command) => `  ▢ • /${command.name} - ${command.description}`)
+    .join("\n");
+
+  const commandList = await getCommandsFromFolder("member");
+  const commandListText = commandList
+    .map((command) => `  ▢ • /${command.name} - ${command.description}`)
+    .join("\n");
 
   return `╭━━─「🤖」─━━ 
-▢ • *MENU DE USUÁRIO*
-▢
-▢ • ${capitalizedBotName} — Bot para WhatsApp
-▢ • Criado por: *instagram.com/polabiel*
-▢ • Versão: 2.0.0
-▢
-▢ • Data: ${date.toLocaleDateString("pt-br")}
-▢ • Hora: ${date.toLocaleTimeString("pt-br").slice(0, 5)}
-▢ • Prefixo: 「 ${general.PREFIX} 」
-╰━━─「🤖」─━━
-  
-╭━━⪩ *Comandos* ⪨━━
-▢
-▢ • /admin - Mostrar menu de administradores do grupo
-▢ • /menu - Mostrar menu de usuário
-▢ • /dono - Mostrar informações do bot
-▢ • /bot - Converse com o simsimi
-▢ • /cep - Consultar CEP
-▢ • /ping - Verificar latência
-▢ • /to-image - Converter sticker em imagem
-▢ • /dado - Jogar dado de 6 lados
-▢ • /coinflip - Jogar cara ou coroa 
-${secure ? commandSecure : "▢"}
-╰━━─「🚀」─━━`;
+  ▢ • *MENU DE USUÁRIO*
+  ▢
+  ▢ • ${capitalizedBotName} — Bot para WhatsApp
+  ▢ • Criado por: *instagram.com/polabiel*
+  ▢ • Versão: 2.0.0
+  ▢
+  ▢ • Data: ${date.toLocaleDateString("pt-br")}
+  ▢ • Hora: ${date.toLocaleTimeString("pt-br").slice(0, 5)}
+  ▢ • Prefixo: 「 ${general.PREFIX} 」
+  ╰━━─「🤖」─━━
+    
+  ╭━━⪩ *Comandos* ⪨━━
+  ▢\n${commandListText}
+  ${secure ? commandListTextSecure : "▢"}
+  ╰━━─「🚀」─━━`;
 };
 
 export const menuAdminMessage = async () => {
+  const commandList = await getCommandsFromFolder("admin");
+  const commandListText = commandList
+    .map((command) => `  ▢ • /${command.name} - ${command.description}`)
+    .join("\n");
   return `╭━━─「🔐」─━━
-╭━━⪩ *MENU DE ADMINISTRADORES* ⪨━━
-▢
-▢ • /banir - Banir um ou mais usuários
-▢ • /promover - Promover um ou mais usuários
-▢ • /rebaixar - Rebaixar um ou mais usuários
-▢ • /add - Adicionar um ou mais usuários
-▢ • /fechar - Fechar grupo (apenas admins podem falar)
-▢ • /abrir - Abrir grupo (todos podem falar)
-▢ • /everyone <messagem> - Marcar todos os usuários
-▢ • /modoautomatico - Ativar/desativar modo automático
-▢
-╰━━─「🚀」─━━`;
+  ╭━━⪩ *MENU DE ADMINISTRADORES* ⪨━━
+  ▢\n${commandListText}
+  ▢
+  ╰━━─「🚀」─━━`;
 };
 
 export const ownerMessage = async () => {
