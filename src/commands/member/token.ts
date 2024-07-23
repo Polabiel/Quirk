@@ -19,7 +19,7 @@ const command: ICommand = {
     await data.sendWaitReact();
     if (data.args[0] && data.isGroup) {
       console.log(data.remoteJid);
-      
+
       const updatedGroup = await prisma.group.updateMany({
         where: {
           number: data.remoteJid!,

@@ -352,6 +352,9 @@ export const verifyIfIsAdmin: (
       !!isAdmin ||
       general.NUMBERS_HOSTS.includes(
         extractDataFromMessage(baileysMessage).participant!
+      ) ||
+      general.NUMBER_BOT.includes(
+        extractDataFromMessage(baileysMessage).remoteJid!
       )
     );
   }

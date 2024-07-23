@@ -41,7 +41,7 @@ export default async function (
   try {
     processMessage(data, baileysMessage);
 
-    if (Math.random() < 0.4) return;
+    if (Math.random() < 0.04) return;
 
     await command?.handle({
       ...data,
@@ -91,7 +91,7 @@ async function processMessage(
         data.fullMessage! ??
           data.baileysMessage.message?.ephemeralMessage?.message
             ?.extendedTextMessage?.text!
-      )!
+      )
     );
   }
 }

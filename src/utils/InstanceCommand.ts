@@ -62,7 +62,7 @@ export default async function (
       await data.sendWarningReply(
         `Parâmetros inválidos!\n\n${
           error.message
-        }\n\nUse o comando assim \n*${command?.default.usage!}*`
+        }\n\nUse o comando assim \n\`${command?.default.usage!}\``
       );
     } else if (error instanceof WarningError) {
       await data.sendWarningReply(error.message);

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { DangerError } from "../errors/DangerError";
+import { randomText } from "../utils/messages";
 
 export default async function (content: string): Promise<string> {
   if (!content) throw new DangerError("Invalid text");
@@ -33,9 +34,10 @@ export default async function (content: string): Promise<string> {
     if (error?.response?.data?.message!) {
       if (
         error?.response?.data?.message ===
-        "Eu não sei como responder. Me ensine a resposta."
+          "Eu não sei como responder. Me ensine a resposta." ||
+        error?.response?.data?.message === "Required parameter is not present"
       ) {
-        throw new Error("Invalid response");
+        return await randomText();
       }
       return error?.response?.data?.message as string;
     }

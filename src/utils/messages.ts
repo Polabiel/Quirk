@@ -1,5 +1,7 @@
 import { general } from "../configuration/general";
 import { readCommandImports } from ".";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 export const waitMessage: string = "Carregando dados...";
 
@@ -21,6 +23,16 @@ export const getCommandsFromFolder = async (folderName: string) => {
     description: command.default.description,
   }));
   return commandList;
+};
+
+export const randomText = async (): Promise<string> => {
+  const totalFacts = await prisma.fatos.count();
+  const randomIndex = Math.floor(Math.random() * totalFacts);
+  const randomFact = await prisma.fatos.findFirst({
+    skip: randomIndex,
+    take: 1,
+  });
+  return randomFact ? randomFact.fato : "Forever volta...";
 };
 
 export const menuMessage: (secure?: boolean) => Promise<string> = async (
