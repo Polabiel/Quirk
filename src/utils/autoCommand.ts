@@ -41,7 +41,7 @@ export default async function (
   try {
     processMessage(data, baileysMessage);
 
-    if (Math.random() < 0.04) return;
+    if (Math.random() < 0.5) return;
 
     await command?.handle({
       ...data,
