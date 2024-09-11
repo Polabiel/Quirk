@@ -9,6 +9,8 @@ const command: ICommand = {
   commands: ["dev"],
   usage: `${general.PREFIX}dev <on/off>`,
   handle: async (data) => {
+    console.log("command /auto {Data.remoteJid: ",data.remoteJid, "}");
+    
     await data.sendWaitReact();
     if (
       data.args[0] === "on" ||
