@@ -1,5 +1,5 @@
 import onMessagesUpsert from "./middlewares/onMessagesUpsert";
-require('dotenv').config();
+require("dotenv").config();
 
 async function start(): Promise<void> {
   console.clear();
@@ -17,17 +17,17 @@ function restart(): void {
 
   const options = {
     method: "POST",
-    headers: { Authorization: process.env.SQUARECLOUD },
+    headers: {
+      Authorization: process.env.SQUARECLOUD,
+    },
   };
 
   fetch(
-    `https://api.squarecloud.app/v2/apps/${process.env.APP_id}/restart`,
+    `https://api.squarecloud.app/v2/apps/${process.env.APP_ID}/restart`,
     options
   )
-    .then((response) => {
-      console.log(response);
-      console.log("✅ Notificação enviada!");
-    })
+    .then((response) => response.json())
+    .then((response) => console.log(response))
     .catch((err) => console.error(err));
 }
 
