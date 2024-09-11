@@ -13,7 +13,7 @@ async function start(): Promise<void> {
 }
 
 function restart(): void {
-  if (!process.env.SQUARECLOUD || !process.env.APP_id) return;
+  if (!process.env.SQUARECLOUD || !process.env.APP_ID) return;
 
   const options = {
     method: "POST",
