@@ -7,6 +7,7 @@ import { IBotData } from "../interfaces/IBotData";
 import verifyPrefix from "../middlewares/verifyPrefix";
 import { PrismaClient } from "@prisma/client";
 import { randomMessageViewOnce } from "./messages";
+import { logger } from "../middlewares/onMessagesUpsert";
 const prisma = new PrismaClient();
 
 export default async function (
@@ -46,6 +47,13 @@ export default async function (
     await command?.handle({
       ...data,
     });
+    logger.info(
+      `Comando: ${command?.name}`,
+      `executado por: ${data.nickName}`,
+      `Número: ${
+        data.remoteJid?.endsWith("@g.us") ? data.participant : data.remoteJid
+      }`
+    );
   } catch (error: any) {
     console.error(error);
   }
