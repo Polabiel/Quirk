@@ -55,7 +55,7 @@ export default async function (
   try {
     addFilter(data.user);
     logger.info(
-      `Comando: ${command?.default.name}`,`executado por: ${data.nickName}`,`Número: ${data.remoteJid?.endsWith("@g.us") ? data.participant : data.remoteJid}`
+      `Comando: /${command?.default.name}; executado por: ${data.nickName}Número: ${data.remoteJid?.endsWith("@g.us") ? data.participant : data.remoteJid}`
     );
     await command?.default.handle({
       ...data,

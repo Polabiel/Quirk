@@ -20,7 +20,6 @@ export default async () => {
     }) => {
       const baileysMessage = message.messages[0];
       if (!baileysMessage) return;
-      logger.info("New message received", baileysMessage);
       await bot.readMessages([baileysMessage.key]);
       if (baileysMessage.key.fromMe) return;
       await repositories(bot, baileysMessage);
