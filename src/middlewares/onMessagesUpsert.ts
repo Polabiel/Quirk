@@ -3,18 +3,9 @@ import { connect } from "../connection";
 import InstanceCommand from "../utils/InstanceCommand";
 import autoCommand from "../utils/autoCommand";
 import repositories from "../database";
-import PinoPretty from "pino-pretty";
 import pino from "pino";
 
-
-export const logger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true
-    }
-  }
-});
+export const logger = pino({ level: "info" });
 
 logger.info("Loading onMessagesUpsert middleware...");
 
@@ -38,3 +29,7 @@ export default async () => {
     }
   );
 };
+function pretty(arg0: { colorize: boolean; }) {
+  throw new Error("Function not implemented.");
+}
+
