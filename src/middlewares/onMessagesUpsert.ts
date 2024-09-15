@@ -11,10 +11,9 @@ export const logger = pino({
   transport: {
     target: 'pino-pretty',
     options: {
-      colorize: true,
-      translateTime: "SYS:standard",
-    },
-  },
+      colorize: true
+    }
+  }
 });
 
 logger.info("Loading onMessagesUpsert middleware...");
