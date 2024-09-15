@@ -4,7 +4,6 @@ import makeWASocket, {
   WASocket,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
-import pino from "pino";
 
 export const connect: () => Promise<WASocket> = async () => {
   const { state, saveCreds } = await useMultiFileAuthState(
@@ -14,7 +13,6 @@ export const connect: () => Promise<WASocket> = async () => {
   const bot = makeWASocket({
     printQRInTerminal: true,
     auth: state,
-    logger: pino({ level: "silent" }),
   });
 
   bot.ev.on("connection.update", (update) => {

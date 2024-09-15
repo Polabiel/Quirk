@@ -3,6 +3,7 @@ import { connect } from "../connection";
 import InstanceCommand from "../utils/InstanceCommand";
 import autoCommand from "../utils/autoCommand";
 import repositories from "../database";
+import { dataLog } from "./logger";
 
 export default async () => {
   const bot = await connect();
@@ -14,6 +15,7 @@ export default async () => {
       type: MessageUpsertType;
     }) => {
       const baileysMessage = message.messages[0];
+      dataLog(baileysMessage);
       await bot.readMessages([baileysMessage.key]);
       if (baileysMessage.key.fromMe) return;
       await repositories(bot, baileysMessage);
