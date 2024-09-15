@@ -29,7 +29,4 @@ export default async () => {
     }
   );
 };
-function pretty(arg0: { colorize: boolean; }) {
-  throw new Error("Function not implemented.");
-}
 
