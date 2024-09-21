@@ -41,7 +41,5 @@ export default async function (content: string): Promise<string> {
       }
       return error?.response?.data?.message as string;
     }
-    console.error(error);
-    throw new Error(error);
   }
 }
