@@ -1,4 +1,5 @@
 import { general } from "../../configuration/general";
+import { InvalidParameterError } from "../../errors/InvalidParameterError";
 import { ICommand } from "../../interfaces/ICommand";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
@@ -7,7 +8,7 @@ const command: ICommand = {
   name: "Modo automatico",
   description: "Esse comando desativa/ativar o modo automatico do bot",
   commands: ["modoautomatico", "auto", "automatico"],
-  usage: `${general.PREFIX}desativar <on/off>`,
+  usage: `${general.PREFIX}modoautomatico <on/off>`,
   handle: async (data) => {
     await data.sendWaitReact();
     if (
@@ -39,6 +40,9 @@ const command: ICommand = {
         },
       });
       return data.sendSuccessReply("Modo automatico desativado com sucesso!");
+    }
+    else {
+      throw new InvalidParameterError("Você colocar um parâmetro *ativado* ou *desativado*");
     }
   },
 };
