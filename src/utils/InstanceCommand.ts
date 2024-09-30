@@ -53,7 +53,7 @@ export default async function (
   if (isFiltered(data.user)) return;
 
   try {
-    addFilter(data.user);
+    addFilter(data, data.user);
     logger.info(
       `Comando: /${command?.default.name}; executado por: ${data.nickName}; Número: ${data.remoteJid?.endsWith("@g.us") ? data.participant : data.remoteJid}`
     );
