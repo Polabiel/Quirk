@@ -2,6 +2,7 @@ import { general } from "../configuration/general";
 import { IBotData } from "../interfaces/IBotData";
 
 const userFilter = new Map();
+const messagereceibed = new Map();
 
 export const isFiltered = (data: IBotData) => {
   if (!userFilter.has(data.user)) {
@@ -10,12 +11,13 @@ export const isFiltered = (data: IBotData) => {
 
   const { count, timeoutId } = userFilter.get(data.user);
 
-  if (count === 2) {
+  if (count === 2 && !messagereceibed.has(data.user)) {
     data.sendWarningReply(
       `${data.nickName} está enviando mensagens muito rápido! Aguarde ${
         general.TIMEOUT_IN_MILLISECONDS_BY_EVENT / 1000
       } segundos para enviar novamente!`
     );
+    messagereceibed.set(data.user, true);
   }
 
   return count >= 2 && timeoutId !== null;
