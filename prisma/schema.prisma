@@ -14,9 +14,18 @@ model fatos {
 }
 
 model user {
-  number    String  @id @unique
+  number    String        @id @unique
   name      String
-  blacklist Boolean @default(false)
+  blacklist Boolean       @default(false)
+  sugger    suggestions[]
+}
+
+model suggestions {
+  id       Int    @id @default(autoincrement())
+  sugestao String @unique
+
+  userNumber String
+  user       user   @relation(fields: [userNumber], references: [number])
 }
 
 model group {
