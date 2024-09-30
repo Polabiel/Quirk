@@ -71,7 +71,6 @@ const command: ICommand = {
         }
       );
     }
-    return fs.unlinkSync(outputPath);
   },
 };
 
