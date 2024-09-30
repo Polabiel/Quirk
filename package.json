@@ -27,10 +27,12 @@
     "dotenv": "^16.4.5",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
-    "pm2": "^5.4.1"
+    "pm2": "^5.4.1",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.4",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "eslint": "^8.47.0",
     "eslint-config-standard-with-typescript": "^37.0.0",
