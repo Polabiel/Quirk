@@ -50,10 +50,10 @@ export default async function (
 
   if (!valueOwner) return;
   if (!groupSecure) return;
-  if (isFiltered(data.user)) return;
+  if (isFiltered(data)) return;
 
   try {
-    addFilter(data, data.user);
+    addFilter(data.user);
     logger.info(
       `Comando: /${command?.default.name}; executado por: ${data.nickName}; Número: ${data.remoteJid?.endsWith("@g.us") ? data.participant : data.remoteJid}`
     );

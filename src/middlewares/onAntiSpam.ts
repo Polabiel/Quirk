@@ -3,31 +3,33 @@ import { IBotData } from "../interfaces/IBotData";
 
 const userFilter = new Map();
 
-export const isFiltered = (sender: string) => {
-  if (!userFilter.has(sender)) {
+export const isFiltered = (data: IBotData) => {
+  if (!userFilter.has(data.user)) {
     return false;
   }
 
-  const { count, timeoutId } = userFilter.get(sender);
+  const { count, timeoutId } = userFilter.get(data.user);
+
+  if (count === 1) {
+    data.sendMentionReply(
+      `Você está enviando mensagens muito rápido! Aguarde ${
+        general.TIMEOUT_IN_MILLISECONDS_BY_EVENT / 1000
+      } segundos para enviar novamente!`,
+      [data.user],
+      true
+    );
+  }
+
   return count >= 2 && timeoutId !== null;
 };
 
-export const addFilter = (data: IBotData, sender: string) => {
+export const addFilter = (sender: string) => {
   if (!userFilter.has(sender)) {
     userFilter.set(sender, { count: 0, timeoutId: null });
   }
 
   const { count, timeoutId } = userFilter.get(sender);
   if (count < 2) {
-    if (count === 1) {
-      data.sendMentionReply(
-        `Você está enviando mensagens muito rápido! Aguarde ${
-          general.TIMEOUT_IN_MILLISECONDS_BY_EVENT / 1000
-        } segundos para enviar novamente!`,
-        [sender],
-        true
-      );
-    }
     userFilter.set(sender, { count: count + 1, timeoutId });
 
     if (count === 0) {
