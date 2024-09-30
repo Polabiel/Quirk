@@ -12,6 +12,7 @@ import {
   ICommandImports,
   ICommand,
 } from "../interfaces/ICommand";
+import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
@@ -143,21 +144,26 @@ export const getContentUnique = (
 };
 
 export const downloadVideo = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, "input", "video", "mp4")!;
+  return await downloadContent(baileysMessage, `${uuidv4()}`, "video", "mp4")!;
 };
 
 export const downloadImage = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, "input", "image", "png")!;
+  return await downloadContent(baileysMessage, `${uuidv4()}`, "image", "png")!;
 };
 
 export const downloadSticker = async (
   baileysMessage: proto.IWebMessageInfo
 ) => {
-  return await downloadContent(baileysMessage, "input", "sticker", "webp")!;
+  return await downloadContent(
+    baileysMessage,
+    `${uuidv4()}`,
+    "sticker",
+    "webp"
+  )!;
 };
 
 export const downloadAudio = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, "input", "audio", "mp3")!;
+  return await downloadContent(baileysMessage, `${uuidv4()}`, "audio", "mp3")!;
 };
 
 export const downloadContent = async (

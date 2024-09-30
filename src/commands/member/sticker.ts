@@ -4,6 +4,7 @@ import path from "path";
 import { ICommand } from "../../interfaces/ICommand";
 import { InvalidParameterError } from "../../errors/InvalidParameterError";
 import { downloadImage, downloadVideo } from "../../utils";
+import { v4 as uuidv4 } from "uuid";
 import { exec } from "child_process";
 
 const command: ICommand = {
@@ -19,7 +20,7 @@ const command: ICommand = {
         "Você precisa marcar uma imagem/vídeo/gif responder a uma imagem/vídeo/gif"
       );
     }
-    const outputPath = path.resolve(general.TEMP_DIR, "output.webp");
+    const outputPath = path.resolve(general.TEMP_DIR, `${uuidv4()}.webp`);
 
     if (data.isImage) {
       const inputPath = await downloadImage(data.baileysMessage);
@@ -70,6 +71,7 @@ const command: ICommand = {
         }
       );
     }
+    return fs.unlinkSync(outputPath);
   },
 };
 
