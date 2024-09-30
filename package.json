@@ -8,6 +8,7 @@
     "dev": "ts-node-dev ./src/start.ts",
     "prod:start": "tsc && node ./dist/start.js",
     "prod:pm2": "tsc && pm2 start ./dist/start.js --name \"Quirk\" --cron-restart=\"0 3 * * *\"",
+    "generate": "npx prisma generate",
     "prod:prisma": "npx prisma db push",
     "start": "node ./dist/start.js",
     "build": "tsc",
