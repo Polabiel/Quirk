@@ -10,7 +10,7 @@ export const isFiltered = (data: IBotData) => {
 
   const { count, timeoutId } = userFilter.get(data.user);
 
-  if (count === 1) {
+  if (count === 2) {
     data.sendMentionReply(
       `Você está enviando mensagens muito rápido! Aguarde ${
         general.TIMEOUT_IN_MILLISECONDS_BY_EVENT / 1000
