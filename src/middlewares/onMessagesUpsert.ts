@@ -27,5 +27,5 @@ export default async () => {
       await autoCommand(bot, baileysMessage);
     }
   );
-};
 
+};
