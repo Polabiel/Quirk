@@ -14,7 +14,15 @@ export const connect: () => Promise<WASocket> = async () => {
   const bot = makeWASocket({
     printQRInTerminal: true,
     auth: state,
-    logger: pino({ level: "info" }) as any
+    logger: pino({
+      level: "info",
+      transport: {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+        },
+      },
+    }) as any,
   });
 
   bot.ev.on("connection.update", (update) => {
