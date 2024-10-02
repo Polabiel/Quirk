@@ -9,7 +9,7 @@ async function start(): Promise<void> {
 
   setTimeout(() => {
     restart();
-  }, 2 * 60 * 60 * 1000);
+  }, 1 * 60 * 60 * 1000);
 }
 
 function restart(): void {
