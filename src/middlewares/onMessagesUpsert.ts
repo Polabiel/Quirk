@@ -3,11 +3,6 @@ import { connect } from "../connection";
 import InstanceCommand from "../utils/InstanceCommand";
 import autoCommand from "../utils/autoCommand";
 import repositories from "../database";
-import pino from "pino";
-
-export const logger = pino({ level: "info" });
-
-logger.info("Loading onMessagesUpsert middleware...");
 
 export default async () => {
   const bot = await connect();

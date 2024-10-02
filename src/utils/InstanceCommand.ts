@@ -16,7 +16,6 @@ import loadCommomFunctions from "./loadCommomFunctions";
 import { addFilter, isFiltered } from "../middlewares/onAntiSpam";
 import { general } from "../configuration/general";
 import { Forbidden } from "../errors/Forbidden";
-import { logger } from "../middlewares/onMessagesUpsert";
 
 export default async function (
   bot: WASocket,
@@ -54,14 +53,10 @@ export default async function (
 
   try {
     addFilter(data.user);
-    logger.info(
-      `Comando: /${command?.default.name}; executado por: ${data.nickName}; Número: ${data.remoteJid?.endsWith("@g.us") ? data.participant : data.remoteJid}`
-    );
     await command?.default.handle({
       ...data,
     });
   } catch (error: any) {
-    console.error(error);
     if (error instanceof InvalidParameterError) {
       await data.sendWarningReply(
         `Parâmetros inválidos!\n\n${
