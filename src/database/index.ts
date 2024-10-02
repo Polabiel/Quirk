@@ -2,7 +2,6 @@ import { WASocket, proto } from "@whiskeysockets/baileys";
 import loadCommomFunctions from "../utils/loadCommomFunctions";
 import { PrismaClient } from "@prisma/client";
 import checkCache, { addCache } from "./checkCache";
-import { logger } from "../middlewares/onMessagesUpsert";
 import { general } from "../configuration/general";
 const prisma = new PrismaClient();
 
@@ -29,9 +28,6 @@ export default async function (
       });
     }
 
-    logger.info(
-      `Grupo: ${baileysMessage.key.remoteJid!} adicionado ao banco de dados.`
-    );
     return await addCache(baileysMessage.key.remoteJid!);
   } else if (!isGroup) {
     if (await checkCache(baileysMessage.key.remoteJid!)) return;
@@ -50,11 +46,7 @@ export default async function (
       });
     }
 
-    logger.info(
-      `Usuário: ${baileysMessage.key.remoteJid!} adicionado ao banco de dados.`
-    );
     return await addCache(baileysMessage.key.remoteJid!);
   }
-  logger.error("Erro ao adicionar grupo ou usuário ao banco de dados.");
   return null;
 }
