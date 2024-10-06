@@ -31,10 +31,8 @@ const command: ICommand = {
 
     exec(`ffmpeg -i ${inputPath} ${outputPath}`, async (error) => {
       if (error) {
-        console.log(error);
-        throw new Error(error as any);
+        return data.sendErrorReply("Error ao tentar converter a imagem, caso seja uma imagem animada, digite um /tovideo")
       }
-
       await data.sendSuccessReact();
       await data.sendImageFromFile(outputPath);
 
