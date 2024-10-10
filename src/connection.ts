@@ -2,18 +2,25 @@ import { Boom } from "@hapi/boom";
 import makeWASocket, {
   DisconnectReason,
   WASocket,
+  fetchLatestBaileysVersion,
+  isJidBroadcast,
+  isJidStatusBroadcast,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
 import pino from "pino";
+import NodeCache from "node-cache";
+
+const msgRetryCounterCache = new NodeCache();
 
 export const connect: () => Promise<WASocket> = async () => {
   const { state, saveCreds } = await useMultiFileAuthState(
     "./assets/auth/baileys"
   );
 
+  const { version } = await fetchLatestBaileysVersion();
+
   const bot = makeWASocket({
-    printQRInTerminal: true,
-    auth: state,
+    version,
     logger: pino({
       level: "info",
       transport: {
@@ -23,6 +30,13 @@ export const connect: () => Promise<WASocket> = async () => {
         },
       },
     }) as any,
+    printQRInTerminal: false,
+    defaultQueryTimeoutMs: 60 * 1000,
+    auth: state,
+    shouldIgnoreJid: (jid) => isJidBroadcast(jid) || isJidStatusBroadcast(jid),
+    keepAliveIntervalMs: 60 * 1000,
+    markOnlineOnConnect: true,
+    msgRetryCounterCache,
   });
 
   bot.ev.on("connection.update", (update) => {
