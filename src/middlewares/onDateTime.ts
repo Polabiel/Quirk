@@ -8,19 +8,19 @@ export default async (bot: WASocket) => {
   const groups = await prisma.group.findMany({});
 
   if (users) {
-    users.map(async (user) => {
-      groups.forEach(async (group) => {
+    users.forEach(async (user) => {
+      for (const group of groups) {
         const GroupMetadata = await bot.groupMetadata(group.number);
-        if(GroupMetadata.participants.some(participant => participant.id === user.number)) {
+        if (GroupMetadata.participants.some(participant => participant.id === user.number)) {
           return;
         }
-      });
+      }
       bot.sendMessage(user.number, { text: generateRandomMessage() });
     });
   }
 
   if(groups) {
-    groups.map((group) => {
+    groups.forEach((group) => {
       bot.sendMessage(group.number, {text: generateRandomMessage()});
     })
   }
