@@ -5,7 +5,7 @@ import { menuMessage } from "../../utils/messages";
 const command: ICommand = {
   name: "menu",
   description: "Menu do bot",
-  commands: ["menu", "cmd", "comandos", "commands", "ajuda", "help"],
+  commands: ["menu", "cmd", "comandos", "commands", "ajuda", "help", "comando"],
   usage: `${general.PREFIX}menu`,
   handle: async (data) => {
     for (const host of general.GROUP_SECURE) {

@@ -11,10 +11,15 @@ const command: ICommand = {
   name: "Sugestão",
   description: `Comando para sugestão de melhorias do ${general.BOT_NAME}`,
   commands: ["sugestão", "sugestao", "sugestões", "sugestoes"],
-  usage: `${general.PREFIX}sugestao <texto>`,
+  usage: `${general.PREFIX}sugestao [texto]`,
   handle: async (data) => {
     await data.sendWaitReact();
     if (data.args[0]) {
+
+      if(data.args[0].length < 10) {
+        throw new InvalidParameterError("A sugestão deve ter no *mínimo 10 caracteres!*");
+      }
+
       const suggestion = await prisma.suggestions
         .create({
           data: {
@@ -44,12 +49,19 @@ const command: ICommand = {
             "Erro ao tentar inserir a sugestão no banco de dados!"
           );
         });
-    } else if (!data.args[0]) {
-      throw new InvalidParameterError(
-        "Você precisa escrever uma sugestão de melhoria!"
-      );
-    }
-  },
-};
+    } 
+    // enviar as sugestões existenstes
 
-export default command;
+    const suggestions = await prisma.suggestions.findMany({
+    });
+
+    if (suggestions.length === 0) {
+      return data.sendWarningReply("Não existem sugestões pendentes!");
+    }
+
+    const users = await prisma.user.findMany({});
+    const suggestionsList = suggestions.map((suggestion) => {
+      const user = users.find((user) => user.number === suggestion.userNumber);
+      return `👤 Usuário: ${user?.name || 'Desconhecido'}\n📱 Número: ${suggestion.userNumber}\💡 Sugestão: ${suggestion.sugestao}`;
+    });
+  }}

@@ -86,6 +86,7 @@ export const ownerMessage = async () => {
 ▢ • *INFORMAÇÕES DO DONO*
 ▢
 ▢ • Criado pelo: *wa.me/${general.NUMBERS_HOSTS[0].slice(0, 13)}*
+▢ • Alguma sugestão? - */sugestao [mensagem]*
 ▢ • Github: *github.com/polabiel*
 ▢ • Instagram: *instagram.com/polabiel*
 ▢
