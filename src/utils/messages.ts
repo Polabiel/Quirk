@@ -19,7 +19,7 @@ export const getCommandsFromFolder = async (folderName: string) => {
   const commandFiles = await readCommandImports();
   const filteredCommandFiles = commandFiles[folderName];
   const commandList = filteredCommandFiles.map((command) => ({
-    name: command.default.commands[0],
+    name: command.default.commands[0] ?? command.default.name,
     description: command.default.description,
   }));
   return commandList;
