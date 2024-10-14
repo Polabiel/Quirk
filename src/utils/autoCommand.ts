@@ -1,5 +1,10 @@
 import { proto, WASocket } from "@whiskeysockets/baileys";
-import { choiceRandomCommand, downloadImage, isCommand } from ".";
+import {
+  choiceRandomCommand,
+  downloadImage,
+  downloadVideo,
+  isCommand,
+} from ".";
 import loadCommomFunctions from "./loadCommomFunctions";
 import simsimi from "../services/simsimi";
 import { general } from "../configuration/general";
@@ -18,8 +23,15 @@ export default async function (
 
   if (baileysMessage.message?.viewOnceMessageV2) {
     const image = await downloadImage(baileysMessage);
-    if (!image) return;
-    return data.sendImageFromFile(image, randomMessageViewOnce());
+    const video = await downloadVideo(baileysMessage);
+
+    if (video) {
+      return data.sendVideoFromFile(video, randomMessageViewOnce());
+    }
+
+    if (image) {
+      return data.sendImageFromFile(image, randomMessageViewOnce());
+    }
   }
 
   if (!data.isGroup) return;
