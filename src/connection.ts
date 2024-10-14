@@ -10,6 +10,7 @@ import makeWASocket, {
 } from "@whiskeysockets/baileys";
 import pino from "pino";
 import NodeCache from "node-cache";
+import { general } from "./configuration/general";
 
 const msgRetryCounterCache = new NodeCache();
 
@@ -61,7 +62,12 @@ export const connect: () => Promise<WASocket> = async () => {
     printQRInTerminal: false,
     defaultQueryTimeoutMs: 60 * 1000,
     auth: state,
-    shouldIgnoreJid: (jid) => isJidBroadcast(jid) || isJidStatusBroadcast(jid),
+    shouldIgnoreJid: (jid) => {
+      if (process.env.NODE_ENV?.toLocaleLowerCase() === "development") {
+        return !general.NUMBERS_HOSTS.includes(jid);
+      }
+      return isJidBroadcast(jid) || isJidStatusBroadcast(jid);
+    },
     keepAliveIntervalMs: 60 * 1000,
     markOnlineOnConnect: true,
     msgRetryCounterCache,
