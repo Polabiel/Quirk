@@ -24,7 +24,7 @@ const command: ICommand = {
           number: data.remoteJid!,
         },
         data: {
-          TOKEN_OPEANAI: data.args[0]!,
+          TOKEN_OPEANAI: data.args[0],
         },
       });
 
