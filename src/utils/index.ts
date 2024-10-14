@@ -144,11 +144,11 @@ export const getContentUnique = (
 };
 
 export const downloadVideo = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, `${uuidv4()}`, "video", "mp4")!;
+  return await downloadContent(baileysMessage, `${uuidv4()}`, "video", "mp4");
 };
 
 export const downloadImage = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, `${uuidv4()}`, "image", "png")!;
+  return await downloadContent(baileysMessage, `${uuidv4()}`, "image", "png");
 };
 
 export const downloadSticker = async (
@@ -159,11 +159,11 @@ export const downloadSticker = async (
     `${uuidv4()}`,
     "sticker",
     "webp"
-  )!;
+  );
 };
 
 export const downloadAudio = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, `${uuidv4()}`, "audio", "mp3")!;
+  return await downloadContent(baileysMessage, `${uuidv4()}`, "audio", "mp3");
 };
 
 export const downloadContent = async (

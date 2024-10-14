@@ -3,7 +3,6 @@ import { general } from "../../configuration/general";
 import { InvalidParameterError } from "../../errors/InvalidParameterError";
 import { ICommand } from "../../interfaces/ICommand";
 import { PrismaClient } from "@prisma/client";
-import { WarningError } from "../../errors/WarningError";
 import { DangerError } from "../../errors/DangerError";
 const prisma = new PrismaClient();
 
@@ -15,12 +14,13 @@ const command: ICommand = {
   handle: async (data) => {
     await data.sendWaitReact();
     if (data.args[0]) {
-
-      if(data.args[0].length < 10) {
-        throw new InvalidParameterError("A sugestão deve ter no *mínimo 10 caracteres!*");
+      if (data.args[0].length < 10) {
+        throw new InvalidParameterError(
+          "A sugestão deve ter no *mínimo 10 caracteres!*"
+        );
       }
 
-      const suggestion = await prisma.suggestions
+      await prisma.suggestions
         .create({
           data: {
             sugestao: data.args[0],
@@ -49,19 +49,20 @@ const command: ICommand = {
             "Erro ao tentar inserir a sugestão no banco de dados!"
           );
         });
-    } 
-    // enviar as sugestões existenstes
+    }
 
-    const suggestions = await prisma.suggestions.findMany({
-    });
+    const suggestions = await prisma.suggestions.findMany({});
 
     if (suggestions.length === 0) {
       return data.sendWarningReply("Não existem sugestões pendentes!");
     }
 
     const users = await prisma.user.findMany({});
-    const suggestionsList = suggestions.map((suggestion) => {
+    suggestions.forEach((suggestion) => {
       const user = users.find((user) => user.number === suggestion.userNumber);
-      return `👤 Usuário: ${user?.name || 'Desconhecido'}\n📱 Número: ${suggestion.userNumber}\💡 Sugestão: ${suggestion.sugestao}`;
+      return `👤 Usuário: ${user?.name ?? "Desconhecido"}\n📱 Número: ${
+        suggestion.userNumber
+      }\n💡 Sugestão: ${suggestion.sugestao}`;
     });
-  }}
+  },
+};
