@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 import { DangerError } from "../../errors/DangerError";
 const prisma = new PrismaClient();
 
-const command: ICommand = {
+export const command: ICommand = {
   name: "Sugestão",
   description: `Comando para sugestão de melhorias do ${general.BOT_NAME}`,
   commands: ["sugestão", "sugestao", "sugestões", "sugestoes"],
