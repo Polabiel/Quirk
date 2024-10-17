@@ -6,20 +6,14 @@ import { PrismaClient } from "@prisma/client";
 import { DangerError } from "../../errors/DangerError";
 const prisma = new PrismaClient();
 
-export const command: ICommand = {
+const command: ICommand = {
   name: "Sugestão",
   description: `Comando para sugestão de melhorias do ${general.BOT_NAME}`,
   commands: ["sugestão", "sugestao", "sugestões", "sugestoes"],
   usage: `${general.PREFIX}sugestao [texto]`,
   handle: async (data) => {
     await data.sendWaitReact();
-    if (data.args[0]) {
-      if (data.args[0].length < 10) {
-        throw new InvalidParameterError(
-          "A sugestão deve ter no *mínimo 10 caracteres!*"
-        );
-      }
-
+    if (data.args[0] && data.args[0].length > 0 && data.args[0].length < 10) {
       await prisma.suggestions
         .create({
           data: {
@@ -49,20 +43,34 @@ export const command: ICommand = {
             "Erro ao tentar inserir a sugestão no banco de dados!"
           );
         });
+    } else {
+      console.log("aqui");
+      
+      const suggestions = await prisma.suggestions.findMany({});
+
+      console.log(suggestions);
+      
+      if (suggestions.length === 0) {
+        return data.sendWarningReply("Não existem sugestões pendentes!");
+      }
+
+      const users = await prisma.user.findMany({});
+
+      console.log(users);
+      
+
+      let formattedSuggestion = "";
+      
+      suggestions.forEach((suggestion) => {
+        const user = users.find(
+          (user) => user.number === suggestion.userNumber
+        );
+        formattedSuggestion += `👤 Usuário: ${user?.name ?? "Desconhecido"}\n💡 Sugestão: ${suggestion.sugestao}\n\n`;
+      });
+
+      return data.sendSuccessReply(formattedSuggestion);
     }
-
-    const suggestions = await prisma.suggestions.findMany({});
-
-    if (suggestions.length === 0) {
-      return data.sendWarningReply("Não existem sugestões pendentes!");
-    }
-
-    const users = await prisma.user.findMany({});
-    suggestions.forEach((suggestion) => {
-      const user = users.find((user) => user.number === suggestion.userNumber);
-      return `👤 Usuário: ${user?.name ?? "Desconhecido"}\n📱 Número: ${
-        suggestion.userNumber
-      }\n💡 Sugestão: ${suggestion.sugestao}`;
-    });
   },
 };
+
+export default command; 
