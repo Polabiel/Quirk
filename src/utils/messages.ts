@@ -19,8 +19,8 @@ export const getCommandsFromFolder = async (folderName: string) => {
   const commandFiles = await readCommandImports();
   const filteredCommandFiles = commandFiles[folderName];
   const commandList = filteredCommandFiles.map((command) => ({
-    name: command.default.commands[1] ?? command.default.name,
-    description: command.default.description,
+    name: command.default?.commands[0] || null,
+    description: command.default?.description || null,
   }));
   return commandList;
 };
@@ -44,11 +44,13 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
 
   const commandListSecure = await getCommandsFromFolder("secure");
   const commandListTextSecure = commandListSecure
+    .filter((command) => command.name && command.description)
     .map((command) => `  ▢ • /${command.name} - ${command.description}`)
     .join("\n");
 
   const commandList = await getCommandsFromFolder("member");
   const commandListText = commandList
+    .filter((command) => command.name && command.description)
     .map((command) => `  ▢ • /${command.name} - ${command.description}`)
     .join("\n");
 
@@ -72,6 +74,7 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
 export const menuAdminMessage = async () => {
   const commandList = await getCommandsFromFolder("admin");
   const commandListText = commandList
+    .filter((command) => command.name && command.description)
     .map((command) => `  ▢ • /${command.name} - ${command.description}`)
     .join("\n");
   return `╭━━─「🔐」─━━
