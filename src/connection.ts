@@ -59,7 +59,7 @@ export const connect: () => Promise<WASocket> = async () => {
         },
       },
     }) as any,
-    printQRInTerminal: false,
+    printQRInTerminal: true,
     defaultQueryTimeoutMs: 60 * 1000,
     auth: state,
     shouldIgnoreJid: (jid) => {
