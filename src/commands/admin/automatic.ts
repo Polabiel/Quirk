@@ -17,6 +17,11 @@ const command: ICommand = {
       data.args[0] === "ligar" ||
       data.args[0] === "enable"
     ) {
+      data.sendMentionReply(
+        "🚨 Aviso: Caso você tenha ativado este comando, é importante ressaltar que ele *contém* linguagem imprópria, expressões ofensivas e um humor que pode ser considerado inapropriado. Se não desejar prosseguir com este conteúdo, por favor, digite ‘/modoautomatico off’.",
+        [data.participant!],
+        true
+      );
       await prisma.group.update({
         where: {
           number: data.remoteJid!,
@@ -40,9 +45,10 @@ const command: ICommand = {
         },
       });
       return data.sendSuccessReply("Modo automatico desativado com sucesso!");
-    }
-    else {
-      throw new InvalidParameterError("Você colocar um parâmetro *ativado* ou *desativado*");
+    } else {
+      throw new InvalidParameterError(
+        "Você colocar um parâmetro *ativado* ou *desativado*"
+      );
     }
   },
 };
