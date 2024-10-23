@@ -1,6 +1,5 @@
 import { isJidGroup } from "@whiskeysockets/baileys";
 import { general } from "../../configuration/general";
-import { InvalidParameterError } from "../../errors/InvalidParameterError";
 import { ICommand } from "../../interfaces/ICommand";
 import { PrismaClient } from "@prisma/client";
 import { DangerError } from "../../errors/DangerError";
