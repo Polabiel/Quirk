@@ -1,6 +1,20 @@
 import axios from "axios";
 import { DangerError } from "../errors/DangerError";
 import { general } from "../configuration/general";
+const { openai } = require('betabotz-tools') 
+
+export async function getOpenAIResults(prompt: string): Promise<any> {
+
+  if (!prompt) throw new DangerError("Você precisa me perguntar algo!");
+
+  const results: {
+    status: number
+    creator: string
+    result: string
+  } = await openai(prompt);
+
+  return results;
+}
 
 export default async function (
   content: string,
