@@ -4,6 +4,7 @@ import makeWASocket, {
   WASocket,
   fetchLatestBaileysVersion,
   isJidBroadcast,
+  isJidGroup,
   isJidStatusBroadcast,
   proto,
   useMultiFileAuthState,
@@ -64,6 +65,9 @@ export const connect: () => Promise<WASocket> = async () => {
     auth: state,
     shouldIgnoreJid: (jid) => {
       if (process.env.NODE_ENV?.toLocaleLowerCase() === "development") {
+        if(isJidGroup(jid)) {
+          return !general.GROUP_SECURE.includes(jid);
+        }
         return !general.NUMBERS_HOSTS.includes(jid);
       }
       return isJidBroadcast(jid) || isJidStatusBroadcast(jid);
