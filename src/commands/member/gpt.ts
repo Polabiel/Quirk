@@ -11,8 +11,8 @@ const command: ICommand = {
   usage: `${general.PREFIX}${general.BOT_NAME} ${general.BOT_NAME} o que é a vida?`,
   handle: async (data) => {
     await data.sendWaitReact();
-    if(!data.args[0] || data.args[0].length < 10) throw new InvalidParameterError("Você precisa informar uma pergunta com mais de 10 caracteres");
-    const responseText = await getOpenAIResults(data.args[0]);
+    if(!data.argsJoined || data.argsJoined.length < 10) throw new InvalidParameterError("Você precisa informar uma pergunta com mais de 10 caracteres");
+    const responseText = await getOpenAIResults(data.argsJoined);
 
     if(!responseText) throw new WarningError("Não foi possível obter uma resposta da IA");
 
