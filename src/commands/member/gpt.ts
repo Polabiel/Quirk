@@ -16,7 +16,7 @@ const command: ICommand = {
 
     if(!responseText) throw new WarningError("Não foi possível obter uma resposta da IA");
 
-    await data.sendSuccessReply(responseText);
+    await data.sendSuccessReply(responseText.result);
   },
 };
 

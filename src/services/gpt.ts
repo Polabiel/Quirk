@@ -3,7 +3,7 @@ import { DangerError } from "../errors/DangerError";
 import { general } from "../configuration/general";
 const { openai } = require('betabotz-tools') 
 
-export async function getOpenAIResults(prompt: string): Promise<any> {
+export async function getOpenAIResults(prompt: string) {
 
   if (!prompt) throw new DangerError("Você precisa me perguntar algo!");
 
