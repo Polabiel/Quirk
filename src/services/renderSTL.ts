@@ -36,6 +36,8 @@ export async function renderSTLToImage(stlPath: string): Promise<string> {
 
   await inputUploadHandle.uploadFile(stlPath);
 
+  // ! esperar +10 segundos
+
   // Aguarde a renderização e a geração da imagem
   await page.waitForSelector("#download", { visible: true });
 
