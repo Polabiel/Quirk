@@ -8,5 +8,6 @@
     "**/Thumbs.db": true,
     "node_modules": true
   },
-  "hide-files.files": []
+  "hide-files.files": [],
+  "DockerRun.DisableDockerrc": true
 }

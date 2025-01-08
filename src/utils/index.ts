@@ -162,11 +162,23 @@ export const downloadSticker = async (
   );
 };
 
+export const downloadFile = async (
+  baileysMessage: proto.IWebMessageInfo,
+  fileType: string
+) => {
+  return await downloadContent(
+    baileysMessage,
+    `${uuidv4()}`,
+    "document",
+    fileType
+  );
+};
+
 export const downloadAudio = async (baileysMessage: proto.IWebMessageInfo) => {
   return await downloadContent(baileysMessage, `${uuidv4()}`, "audio", "mp3");
 };
 
-export const downloadContent = async (
+const downloadContent = async (
   baileysMessage: proto.IWebMessageInfo,
   fileName: string,
   context: MediaType,

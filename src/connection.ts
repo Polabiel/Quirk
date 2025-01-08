@@ -6,7 +6,6 @@ import makeWASocket, {
   isJidBroadcast,
   isJidGroup,
   isJidStatusBroadcast,
-  proto,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
 import pino from "pino";
@@ -25,34 +24,7 @@ export const connect: () => Promise<WASocket> = async () => {
   const bot = makeWASocket({
     version,
     logger: pino({
-      serializers: {
-        ...pino.stdSerializers,
-        error: (err) => {
-          if (err instanceof Error) {
-            return {
-              message: err.message,
-              name: err.name,
-              stack: err.stack,
-            };
-          }
-          return err;
-        },
-        message: (msg) => {
-          if (msg instanceof proto.WebMessageInfo) {
-            return {
-              key: msg.key,
-              message: msg.message,
-              messageTimestamp: new Date(
-                typeof msg.messageTimestamp === "number"
-                  ? msg.messageTimestamp
-                  : msg.messageTimestamp.toNumber()
-              ),
-            };
-          }
-          return { message: msg };
-        },
-      },
-      level: "info",
+      level: "error",
       transport: {
         target: "pino-pretty",
         options: {
@@ -65,7 +37,7 @@ export const connect: () => Promise<WASocket> = async () => {
     auth: state,
     shouldIgnoreJid: (jid) => {
       if (process.env.NODE_ENV?.toLocaleLowerCase() === "development") {
-        if(isJidGroup(jid)) {
+        if (isJidGroup(jid)) {
           return !general.GROUP_SECURE.includes(jid);
         }
         return !general.NUMBERS_HOSTS.includes(jid);

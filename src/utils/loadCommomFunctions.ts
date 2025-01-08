@@ -24,6 +24,7 @@ export default function (
 
   const isImage = baileysIs(baileysMessage, "image");
   const isVideo = baileysIs(baileysMessage, "video");
+  const isFileSTL = baileysIs(baileysMessage, "document");
   const isSticker = baileysIs(baileysMessage, "sticker");
 
   const user = isGroup
@@ -212,6 +213,7 @@ export default function (
     args,
     isImage,
     isVideo,
+    isDocumentFile: isFileSTL,
     isSticker,
     idMessage,
     participant,

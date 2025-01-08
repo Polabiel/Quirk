@@ -9,6 +9,7 @@ export interface IBotData {
     emoji?: boolean
   ) => Promise<any>;
   sendReply: (text: string, emoji?: boolean) => Promise<any>;
+  isDocumentFile: boolean;
   sendReplyWithMentions: (
     text: string,
     mentions: string[],

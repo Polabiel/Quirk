@@ -6,35 +6,45 @@ import { DangerError } from "./DangerError";
 import { Forbidden } from "./Forbidden";
 import { general } from "../configuration/general";
 
-export const logCreate = (erro: any) => {
-  const dataAtual = new Date().toISOString().split("T")[0];
-  const nomeArquivo = `${dataAtual}_${erro.message.replace(/\s/g, "_")}.log`;
-  const caminhoPastaLogs = path.join(__dirname, "..", "logs");
-  const caminhoArquivo = path.join(caminhoPastaLogs, nomeArquivo);
-  const mensagem = `[${new Date().toISOString()}] Ocorreu um erro: ${
-    erro.stack
-  }\n Erro completo: ${erro}`;
-
-  if (!fs.existsSync(caminhoPastaLogs)) {
-    fs.mkdirSync(caminhoPastaLogs, { recursive: true });
-  }
-
-  fs.appendFile(caminhoArquivo, mensagem, (err: any) => {
-    if (err) {
-      console.error("Erro ao criar o log de erro:", err);
+export function createLogFile(error: Error): void {
+  try {
+    // Criar diretório de logs se não existir
+    const logDir = path.join(__dirname, "..", "logs");
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
     }
-  });
-};
+
+    // Sanitizar nome do arquivo
+    const date = new Date().toISOString().split("T")[0];
+    const sanitizedError = error.message.replace(/[^a-z0-9]/gi, "_");
+    const filename = `${date}_${sanitizedError.substring(0, 50)}.log`;
+    const logPath = path.join(logDir, filename);
+
+    // Criar conteúdo do log
+    const logContent = `
+Timestamp: ${new Date().toISOString()}
+Error: ${error.message}
+Stack: ${error.stack}
+    `;
+
+    // Escrever arquivo de log
+    fs.writeFileSync(logPath, logContent);
+  } catch (err) {
+    console.error("Falha ao criar arquivo de log:", err);
+  }
+}
 
 export async function handleError(error: any, data: any, command: any) {
   if (error instanceof InvalidParameterError) {
     await data.sendWarningReply(
-      `Parâmetros inválidos!\n\n${error.message}\n\nUse o comando assim \n\`${command?.default.usage!}\``
+      `Parâmetros inválidos!\n\n${
+        error.message
+      }\n\nUse o comando assim \n\`${command?.default.usage!}\``
     );
   } else if (error instanceof WarningError) {
     await data.sendWarningReply(error.message);
   } else if (error instanceof DangerError) {
-    logCreate(error);
+    createLogFile(error);
     await data.sendErrorReply(error.message);
   } else if (
     error.message === "forbidden" ||
@@ -46,7 +56,7 @@ export async function handleError(error: any, data: any, command: any) {
       `Eu não tenho permissão para fazer isso!\n\n📄 *Solução*: Colocar o ${general.BOT_NAME} como administrador do grupo`
     );
   } else {
-    logCreate(error);
+    createLogFile(error);
     await data.sendErrorReply(
       `Ocorreu um erro não identificado ao executar o comando ${command?.default.name}!\n\n💻 O desenvolvedor foi notificado!`
     );
