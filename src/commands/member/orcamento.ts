@@ -80,35 +80,20 @@ const command: ICommand = {
 
     // Gerar imagem do modelo 3D usando Puppeteer
     try {
+      const imagePath = await renderSTLToImage(inputPath);
+
       await data.sendReply(
         "🔍 *Visualização do Modelo 3D*\n------------------------"
       );
 
-      const imagePath = await renderSTLToImage(inputPath);
-
-      const outputPath = path.resolve(general.TEMP_DIR, `${uuidv4()}.webp`);
-
-      exec(
-        `ffmpeg -i ${imagePath} -vf scale=512:512 ${outputPath}`,
-        async (error: any) => {
-          if (error) {
-            await data.sendErrorReply("Ocorreu um erro ao criar a figurinha");
-            throw new Error(error);
-          }
-
-          await data.sendSuccessReact();
-
-          await data.sendStickerFromFile(outputPath);
-        }
-      );
+      data.sendImageFromFile(imagePath);
 
       await fs.unlink(imagePath);
-      await fs.unlink(inputPath);
-      await fs.unlink(outputPath);
     } catch (error) {
       console.error("Erro ao gerar ou enviar a imagem do STL:", error);
       throw new DangerError("Erro ao gerar ou enviar a imagem do modelo 3D.");
     }
+    await fs.unlink(inputPath);
   },
 };
 

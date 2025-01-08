@@ -1,5 +1,4 @@
 import puppeteer from "puppeteer";
-import path from "path";
 import fs from "fs";
 
 /**
@@ -32,6 +31,9 @@ export async function renderSTLToImage(stlPath: string): Promise<string> {
   if (!inputUploadHandle) {
     throw new Error("Could not find file input element");
   }
+  
+  await page.click('input[value="front"][name="or"]');
+
   await inputUploadHandle.uploadFile(stlPath);
 
   // Aguarde a renderização e a geração da imagem
