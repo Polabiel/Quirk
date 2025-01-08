@@ -35,6 +35,7 @@
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
     "pm2": "^5.4.1",
+    "puppeteer": "^23.11.1",
     "stl-parser": "^0.11.1",
     "three": "^0.172.0",
     "three-stl-loader": "^1.0.6",
@@ -43,6 +44,7 @@
   "devDependencies": {
     "@gradio/client": "^0.17.0",
     "@types/node-fetch": "^2.6.4",
+    "@types/puppeteer": "^5.4.7",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "eslint": "^8.47.0",
