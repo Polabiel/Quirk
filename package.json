@@ -4,15 +4,13 @@
   "description": "Quirk bot, desenvolvido nas aulas da saga: desenvolvendo um bot de WhatsApp do zero.",
   "main": "./src/start.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev ./src/start.ts",
-    "prod:start": "tsc && node ./dist/start.js",
-    "prod:pm2": "tsc && pm2 start ./dist/start.js --name \"Quirk\" --cron-restart=\"0 3 * * *\"",
-    "generate": "npx prisma generate",
-    "prod:prisma": "npx prisma db push",
-    "start": "node ./dist/start.js",
+    "dev": "ts-node-dev --respawn --transpile-only ./src/start.ts --watch",
     "build": "tsc",
-    "lint": "eslint . --ext .ts"
+    "start": "npm run build && node ./dist/start.js",
+    "prisma:generate": "npx prisma generate",
+    "prisma:push": "npx prisma db push",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "npm run lint -- --fix"
   },
   "keywords": [],
   "author": "",
