@@ -15,15 +15,9 @@ export const randomMessageViewOnce: () => string = () => {
   return randomMessage[Math.floor(Math.random() * randomMessage.length)];
 };
 
-export const getCommandsFromFolder: (folderName: string) => Promise<
-  | {
-      name: string | null;
-      description: string | null;
-    }[]
-  | null
-> = async (folderName: string) => {
+export const getCommandsFromFolder = async (folderName: string) => {
   const commandFiles = await readCommandImports();
-  const filteredCommandFiles = commandFiles[folderName];
+  const filteredCommandFiles = commandFiles[folderName] || [];
   const commandList = filteredCommandFiles.map((command) => ({
     name: command.default?.commands[0] || null,
     description: command.default?.description || null,
