@@ -24,7 +24,7 @@ export const connect: () => Promise<WASocket> = async () => {
   const bot = makeWASocket({
     version,
     logger: pino({
-      level: "error",
+      level: "warn",
       transport: {
         target: "pino-pretty",
         options: {
