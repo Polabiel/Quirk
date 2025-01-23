@@ -35,6 +35,7 @@ export const connect: () => Promise<WASocket> = async () => {
     printQRInTerminal: true,
     defaultQueryTimeoutMs: 60 * 1000,
     auth: state,
+    syncFullHistory: true,
     shouldIgnoreJid: (jid) => {
       if (process.env.NODE_ENV?.toLocaleLowerCase() === "development") {
         if (isJidGroup(jid)) {
