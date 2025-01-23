@@ -15,7 +15,13 @@ export const randomMessageViewOnce: () => string = () => {
   return randomMessage[Math.floor(Math.random() * randomMessage.length)];
 };
 
-export const getCommandsFromFolder = async (folderName: string) => {
+export const getCommandsFromFolder: (folderName: string) => Promise<
+  | {
+      name: string | null;
+      description: string | null;
+    }[]
+  | null
+> = async (folderName: string) => {
   const commandFiles = await readCommandImports();
   const filteredCommandFiles = commandFiles[folderName];
   const commandList = filteredCommandFiles.map((command) => ({
@@ -43,13 +49,13 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
     general.BOT_NAME.charAt(0).toUpperCase() + general.BOT_NAME.slice(1);
 
   const commandListSecure = await getCommandsFromFolder("secure");
-  const commandListTextSecure = commandListSecure
+  const commandListTextSecure = (commandListSecure ?? [])
     .filter((command) => command.name && command.description)
     .map((command) => `  ▢ • /${command.name} - ${command.description}`)
     .join("\n");
 
   const commandList = await getCommandsFromFolder("member");
-  const commandListText = commandList
+  const commandListText = (commandList ?? [])
     .filter((command) => command.name && command.description)
     .map((command) => `  ▢ • /${command.name} - ${command.description}`)
     .join("\n");
@@ -66,20 +72,20 @@ export const menuMessage: (secure?: boolean) => Promise<string> = async (
   ╰━━─「🤖」─━━
     
   ╭━━⪩ *Comandos* ⪨━━
-  ▢\n${commandListText}
-  ${secure ? commandListTextSecure : "▢"}
+  ▢\n${commandListText ?? "Não há comandos disponíveis."}
+  ${secure ? commandListTextSecure ?? "Não há comandos disponíveis" : "▢"}
   ╰━━─「🚀」─━━`;
 };
 
 export const menuAdminMessage = async () => {
   const commandList = await getCommandsFromFolder("admin");
-  const commandListText = commandList
+  const commandListText = (commandList ?? [])
     .filter((command) => command.name && command.description)
     .map((command) => `  ▢ • /${command.name} - ${command.description}`)
     .join("\n");
   return `╭━━─「🔐」─━━
   ╭━━⪩ *MENU DE ADMINISTRADORES* ⪨━━
-  ▢\n${commandListText}
+  ▢\n${commandListText ?? "Não há comandos disponíveis."}
   ▢
   ╰━━─「🚀」─━━`;
 };
