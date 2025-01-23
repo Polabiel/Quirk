@@ -26,7 +26,7 @@ const command: ICommand = {
 
     const Message = `📢 *COMUNICADO IMPORTANTE* 📢\n\n✉️ Mensagem do proprietário do ${
       general.BOT_NAME
-    }:\n\n${data.args.join(" ")}\n\n🤖 Enviado via ${general.BOT_NAME}`;
+    }:\n\n${data.argsJoined}\n\n🤖 Enviado via ${general.BOT_NAME}`;
 
     const groups = await prisma.group.findMany();
     const users = await prisma.user.findMany();
