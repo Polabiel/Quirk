@@ -1,4 +1,4 @@
-const {facebook} = require('betabotz-tools');
+const {facebook} = require('betabotz-toolsbetabotz-tools');
 import axios from 'axios';
 import { promises as fs } from 'fs';
 import path from 'path';
