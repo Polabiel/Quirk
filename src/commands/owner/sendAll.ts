@@ -29,11 +29,11 @@ const command: ICommand = {
     const groups = await prisma.group.findMany();
     const users = await prisma.user.findMany();
 
-    // for (const group of groups) {
-    //   await data.sendTextWithRemotejid(Message, group.number);
-    // }
+    for (const group of groups) {
+      await data.sendTextWithRemotejid(Message, group.number);
+    }
     for (const user of users) {
-      await data.sendTextWithRemotejid(Message, general.NUMBERS_HOSTS[0]);
+      await data.sendTextWithRemotejid(Message, user.number);
     }
     return data.sendSuccessReply("Mensagem enviada com sucesso!");
   },
