@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'quirk-bot',
-      script: 'dist/start.js',
+      script: 'dist/src/start.js',
       instances: 1,
       autorestart: true,
       watch: false,

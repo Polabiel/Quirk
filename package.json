@@ -9,11 +9,10 @@
   "main": "./src/start.ts",
   "scripts": {
     "prebuild": "prisma generate && prisma migrate deploy",
-    "build:1-next": "cross-env NODE_ENV=production",
     "build:2-server": "tsc",
     "build": "run-s build:*",
     "dev:whatsapp": "tsx watch src/start.ts",
-    "dev": "npm run dx && npm run dev:whatsapp",
+    "dev": "run-s db-up db-migrate-dev db-seed dev:whatsapp",
     "db-up": "docker-compose up -d",
     "db-seed": "prisma db seed",
     "db-migrate-dev": "prisma migrate dev",
@@ -23,7 +22,7 @@
     "generate": "prisma generate",
     "migrate-dev": "prisma migrate dev",
     "migrate": "prisma migrate deploy",
-    "start": "run-s db-up start:pm2",
+    "start": "run-s db-up build start:pm2",
     "start:pm2": "pm2 start ecosystem.config.js --env production && pm2 logs",
     "studio": "prisma studio",
     "lint": "eslint --cache src",
@@ -60,11 +59,11 @@
     "singleQuote": true
   },
   "devDependencies": {
-    "correios-brasil": "^3.0.6",
     "@gradio/client": "^0.17.0",
     "@types/node-fetch": "^2.6.4",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "correios-brasil": "^3.0.6",
     "cross-env": "^7.0.3",
     "eslint": "^8.47.0",
     "eslint-config-standard-with-typescript": "^37.0.0",
@@ -72,7 +71,7 @@
     "eslint-plugin-n": "^16.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "npm-run-all": "^4.1.5",
-    "prisma": "^5.1.1",
+    "prisma": "^5.22.0",
     "qrcode-terminal": "^0.12.0",
     "tsx": "^4.19.2",
     "typescript": "^5.1.6"
