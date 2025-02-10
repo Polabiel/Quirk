@@ -38,7 +38,6 @@ export const connect: () => Promise<WASocket> = async () => {
     printQRInTerminal: true,
     defaultQueryTimeoutMs: 60 * 1000,
     auth: state,
-    syncFullHistory: true,
     shouldIgnoreJid: (jid) => {
       if (process.env.NODE_ENV?.toLocaleLowerCase() === 'development') {
         if (isJidGroup(jid)) {
@@ -54,9 +53,11 @@ export const connect: () => Promise<WASocket> = async () => {
   });
 
   bot.ev.on('connection.update', (update) => {
-    console.log('🔥 Aproxime o celular no QRCODE 🔥');
-
     const { connection, lastDisconnect } = update;
+
+    if (connection === 'open' && update.qr !== undefined) {
+      console.log('🔥 Aproxime o celular no QRCODE 🔥');
+    }
 
     if (connection === 'close') {
       const shouldReconnect =
@@ -66,6 +67,7 @@ export const connect: () => Promise<WASocket> = async () => {
       if (shouldReconnect) {
         connect();
       }
+
     }
   });
 
