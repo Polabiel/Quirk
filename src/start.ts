@@ -3,9 +3,8 @@ require("dotenv").config();
 
 async function start(): Promise<void> {
   console.clear();
-  console.log("🤖 Bot Conectado!\n");
+  console.log("🟡 Iniciando...\n");
   await onMessagesUpsert();
-  console.log("💻 Eventos Carregados!\n");
 
   setTimeout(() => {
     restart();

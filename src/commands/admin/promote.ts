@@ -24,7 +24,7 @@ const command: ICommand = {
 
     try {
       for (const element of userList) {
-        await data.bot!.groupParticipantsUpdate(
+        await data.bot.groupParticipantsUpdate(
           data.remoteJid!,
           [element.id],
           "promote"

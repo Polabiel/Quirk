@@ -7,6 +7,8 @@ import repositories from "../database";
 export default async () => {
   const bot = await connect();
 
+  console.log('💻 Eventos e comandos carregados!\n');
+
   bot.ev.on(
     "messages.upsert",
     async (message: {

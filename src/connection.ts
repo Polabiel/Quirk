@@ -15,8 +15,11 @@ import { general } from "./configuration/general";
 const msgRetryCounterCache = new NodeCache();
 
 export const connect: () => Promise<WASocket> = async () => {
+
+  console.log('🟢 Iniciando conexão com Whatsapp\n');
+
   const { state, saveCreds } = await useMultiFileAuthState(
-    "./assets/auth/baileys"
+    './assets/auth/baileys',
   );
 
   const { version } = await fetchLatestBaileysVersion();
@@ -24,9 +27,9 @@ export const connect: () => Promise<WASocket> = async () => {
   const bot = makeWASocket({
     version,
     logger: pino({
-      level: "warn",
+      level: 'warn',
       transport: {
-        target: "pino-pretty",
+        target: 'pino-pretty',
         options: {
           colorize: true,
         },
@@ -37,7 +40,7 @@ export const connect: () => Promise<WASocket> = async () => {
     auth: state,
     syncFullHistory: true,
     shouldIgnoreJid: (jid) => {
-      if (process.env.NODE_ENV?.toLocaleLowerCase() === "development") {
+      if (process.env.NODE_ENV?.toLocaleLowerCase() === 'development') {
         if (isJidGroup(jid)) {
           return !general.GROUP_SECURE.includes(jid);
         }
@@ -50,10 +53,12 @@ export const connect: () => Promise<WASocket> = async () => {
     msgRetryCounterCache,
   });
 
-  bot.ev.on("connection.update", (update) => {
+  bot.ev.on('connection.update', (update) => {
+    console.log('🔥 Aproxime o celular no QRCODE 🔥');
+
     const { connection, lastDisconnect } = update;
 
-    if (connection === "close") {
+    if (connection === 'close') {
       const shouldReconnect =
         (lastDisconnect?.error as Boom).output?.statusCode !==
         DisconnectReason.loggedOut;

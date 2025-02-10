@@ -14,7 +14,7 @@ const command: ICommand = {
       case "grupos":
       case "group":
         try {
-          const metadata = await data.bot!.groupMetadata(data.remoteJid!);
+          const metadata = await data.bot.groupMetadata(data.remoteJid!);
           for (const i of metadata.participants) {
             console.log(i.id);
             return i.id;
