@@ -1,4 +1,4 @@
-import { isJidGroup } from "@whiskeysockets/baileys";
+import { isJidGroup } from "baileys";
 import { general } from "../../configuration/general";
 import { ICommand } from "../../interfaces/ICommand";
 import { PrismaClient } from "@prisma/client";

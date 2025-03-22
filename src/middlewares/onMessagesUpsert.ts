@@ -1,4 +1,4 @@
-import { MessageUpsertType, proto } from '@whiskeysockets/baileys';
+import { MessageUpsertType, proto } from 'baileys';
 import { connect } from '../connection';
 import InstanceCommand from '../utils/InstanceCommand';
 import autoCommand from '../utils/autoCommand';

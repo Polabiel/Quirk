@@ -1,4 +1,4 @@
-import { WASocket, proto } from "@whiskeysockets/baileys";
+import { WASocket, proto } from "baileys";
 import loadCommomFunctions from "../utils/loadCommomFunctions";
 import { PrismaClient } from "@prisma/client";
 import checkCache, { addCache } from "./checkCache";

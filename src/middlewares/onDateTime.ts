@@ -1,4 +1,4 @@
-import { WASocket } from "@whiskeysockets/baileys";
+import { WASocket } from "baileys";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 

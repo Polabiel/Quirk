@@ -1,4 +1,4 @@
-import { proto, WASocket } from "@whiskeysockets/baileys";
+import { proto, WASocket } from "baileys";
 import { baileysIs, extractDataFromMessage } from ".";
 import { general } from "../configuration/general";
 import { IBotData } from "../interfaces/IBotData";
