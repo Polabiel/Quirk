@@ -1,5 +1,6 @@
 import { Boom } from "@hapi/boom";
 import makeWASocket, {
+  Browsers,
   DisconnectReason,
   WASocket,
   fetchLatestBaileysVersion,
@@ -7,12 +8,12 @@ import makeWASocket, {
   isJidGroup,
   isJidStatusBroadcast,
   useMultiFileAuthState,
-} from "@whiskeysockets/baileys";
+} from "baileys";
 import pino from "pino";
-import NodeCache from "node-cache";
 import { general } from "./configuration/general";
-
-const msgRetryCounterCache = new NodeCache();
+// @ts-ignore
+import qrcode from "qrcode-terminal";
+import { logger } from "./utils/logger";
 
 export const connect: () => Promise<WASocket> = async () => {
 
@@ -24,10 +25,12 @@ export const connect: () => Promise<WASocket> = async () => {
 
   const { version } = await fetchLatestBaileysVersion();
 
+  // @ts-ignore
   const bot = makeWASocket({
+    browser: Browsers.appropriate("Desktop"),
     version,
     logger: pino({
-      level: 'warn',
+      level: 'debug',
       transport: {
         target: 'pino-pretty',
         options: {
@@ -35,7 +38,7 @@ export const connect: () => Promise<WASocket> = async () => {
         },
       },
     }) as any,
-    printQRInTerminal: true,
+    printQRInTerminal: false,
     defaultQueryTimeoutMs: 60 * 1000,
     auth: state,
     shouldIgnoreJid: (jid) => {
@@ -49,27 +52,35 @@ export const connect: () => Promise<WASocket> = async () => {
     },
     keepAliveIntervalMs: 60 * 1000,
     markOnlineOnConnect: true,
-    msgRetryCounterCache,
   });
 
   bot.ev.on('connection.update', (update) => {
-    const { connection, lastDisconnect } = update;
+    const { connection, lastDisconnect, qr} = update;
 
-    if (connection === 'open' && update.qr !== undefined) {
-      console.log('🔥 Aproxime o celular no QRCODE 🔥');
+    switch (connection) {
+      case "close":
+        logger.error("🔒 Conexão fechada");
+        // Remover o bot/deletar dados se necessário
+        const shouldReconnect =
+          (lastDisconnect?.error as Boom)?.output?.statusCode !==
+          DisconnectReason.loggedOut;
+
+        if (shouldReconnect) {
+          connect();
+        }
+        break;
+      case "open":
+        logger.info("🔥 Bot Conectado");
+        break;
+      case "connecting":
+        logger.info('🫸 Conectando o bot, aguarde...')
     }
 
-    if (connection === 'close') {
-      const shouldReconnect =
-        (lastDisconnect?.error as Boom).output?.statusCode !==
-        DisconnectReason.loggedOut;
-
-      if (shouldReconnect) {
-        connect();
-      }
-
+    if (qr !== undefined) {
+      qrcode.generate(qr, { small: true });
     }
   });
+
 
   bot.ev.on("creds.update", saveCreds);
 

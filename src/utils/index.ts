@@ -4,7 +4,7 @@ import {
   MediaType,
   proto,
   WASocket,
-} from "@whiskeysockets/baileys";
+} from "baileys";
 import { general } from "../configuration/general";
 import path from "path";
 import {
