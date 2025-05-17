@@ -23,8 +23,18 @@ export default async function (
         text: `🎉 Bem-vindos ao grupo Quirk! 🤖\nEstamos animados em ter vocês aqui! Para começar a explorar tudo, basta digitar */menu*`,
       });
 
+      const metadata = await bot.groupMetadata(baileysMessage.key.remoteJid!);
+      const groupName = metadata.subject;
+      const groupDescription = metadata.desc
+        ? metadata.desc
+        : "";
+
       await prisma.group.create({
-        data: { number: baileysMessage.key.remoteJid! },
+        data: {
+          number: baileysMessage.key.remoteJid!,
+          groupName: groupName,
+          groupDescription: groupDescription,
+        },
       });
     }
 
