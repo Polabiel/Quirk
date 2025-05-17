@@ -134,9 +134,8 @@ dist
 /cache/*
 
 # .env
-.env
-.env.*
 .env.local
+
 # database prisma
 prisma/dev.db
 prisma/migrations
