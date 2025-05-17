@@ -1,21 +1,7 @@
 import path from "path";
 require("dotenv").config();
 
-interface GeneralConfig {
-  BOT_NAME: string;
-  PREFIX: string;
-  PREFIX_EMOJI: string;
-  COMMANDS_DIR: string;
-  TEMP_DIR: string;
-  CACHE_DIR: string;
-  TIMEOUT_IN_MILLISECONDS_BY_EVENT: number;
-  NUMBERS_HOSTS: string[];
-  NUMBER_BOT: string;
-  OPENAI_API_KEY: string | undefined;
-  GROUP_SECURE: string[];
-}
-
-export const general: GeneralConfig = {
+export const general = {
   BOT_NAME: "Quirk",
   PREFIX: "/",
   PREFIX_EMOJI: "🤖",
@@ -23,9 +9,9 @@ export const general: GeneralConfig = {
   TEMP_DIR: path.resolve(__dirname, "..", "..", "assets", "temp"),
   CACHE_DIR: path.resolve(__dirname, "..", "..", "cache"),
   TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
-  NUMBERS_HOSTS: [process.env.NUMBER_HOST ?? ""],
-  NUMBER_BOT: "554797010769@s.whatsapp.net",
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  NUMBERS_HOSTS: (process.env.NUMBERS_HOSTS ? process.env.NUMBERS_HOSTS.split(",").map(host => `${host}@s.whatsapp.net`) : []),
+  NUMBER_BOT: `${process.env.NUMBER_BOT ?? null}@s.whatsapp.net`,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? null,
   GROUP_SECURE: [
     "120363360525817583@g.us",
     "5519987529732-1625550643@g.us",
