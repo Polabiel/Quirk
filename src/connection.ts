@@ -24,15 +24,7 @@ export const connect: () => Promise<WASocket> = async () => {
 
   const bot = makeWASocket({
     browser: Browsers.appropriate("Desktop"),
-    logger: pino({
-      level: 'silent',
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-        },
-      },
-    }),
+    logger: logger,
     printQRInTerminal: false,
     defaultQueryTimeoutMs: 60 * 1000,
     auth: state,
