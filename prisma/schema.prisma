@@ -7,50 +7,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model fatos {
-  id      Int     @id @default(autoincrement())
-  fato    String  @unique
-  criador String?
+model facts {
+  id     String  @id @default(cuid())
+  fact   String  @unique @map("fato")
+  author String? @map("criador")
 }
 
 model user {
-  number    String        @id @unique
-  name      String
-  blacklist Boolean       @default(false)
-  sugger    suggestions[]
-  stats     PlayerStats?
+  id     String @id @default(cuid())
+  number String @unique
+  name   String
+
+  blacklist Boolean @default(false)
+
+  suggestions  suggestions[]
+  stats        PlayerStats?
+  inventory    PlayerInventory[]
+  quests       PlayerQuests[]
+  achievements PlayerAchievements[]
+  skills       PlayerSkills[]
+  friends      PlayerFriends[]
+  class        PlayerClass?
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  GroupMember GroupMember[]
 }
 
 model suggestions {
-  id       Int    @id @default(autoincrement())
-  sugestao String @unique
+  id         String @id @default(cuid())
+  suggestion String @unique @map("sugestao")
 
-  userNumber String
-  user       user   @relation(fields: [userNumber], references: [number])
+  userPhoneNumber String @map("userNumber")
+  user            user   @relation(fields: [userPhoneNumber], references: [number])
 }
 
 model group {
-  number        String  @id @unique
+  id String @id @default(cuid())
+
+  number        String  @unique
   enable        Boolean @default(false)
   blacklist     Boolean @default(false)
   TOKEN_OPEANAI String? @unique
+
+  groupName        String
+  groupDescription String
+
+  members GroupMember[]
+
+  CreatedAt DateTime @default(now())
+  UpdatedAt DateTime @updatedAt
+}
+
+model GroupMember {
+  id         String   @id @default(cuid())
+  user       user     @relation(fields: [userNumber], references: [number])
+  userNumber String
+  group      group    @relation(fields: [groupId], references: [id])
+  groupId    String
+  role       String   @default("member")
+  joinedAt   DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userNumber, groupId])
 }
 
 model links {
-  id      Int     @id @default(autoincrement())
+  id      String  @id @default(cuid())
   link    String  @unique
   criador String?
 }
 
 model stickers {
-  id          Int    @id @default(autoincrement())
+  id          String @id @default(cuid())
   url_sticker String
   name        String
   criador     String
 }
 
 model PlayerStats {
-  number    String   @id @unique
+  number    String   @id @default(cuid())
   user      user     @relation(fields: [number], references: [number])
   hp        Int      @default(100)
   maxHp     Int      @default(100)
@@ -62,4 +98,91 @@ model PlayerStats {
   potions   Int      @default(3)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PlayerInventory {
+  id         String   @id @default(cuid())
+  user       user     @relation(fields: [userNumber], references: [number])
+  userNumber String
+  item       String
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PlayerQuests {
+  id         String   @id @default(cuid())
+  user       user     @relation(fields: [userNumber], references: [number])
+  userNumber String
+  quest      String
+  status     String   @default("incomplete")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PlayerAchievements {
+  id          String   @id @default(cuid())
+  user        user     @relation(fields: [userNumber], references: [number])
+  userNumber  String
+  achievement String
+  status      String   @default("incomplete")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PlayerSkills {
+  id         String   @id @default(cuid())
+  user       user     @relation(fields: [userNumber], references: [number])
+  userNumber String
+  skill      String
+  level      Int      @default(1)
+  experience Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PlayerFriends {
+  id         String   @id @default(cuid())
+  user       user     @relation(fields: [userNumber], references: [number])
+  userNumber String
+  friend     String
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PlayerClass {
+  id         String   @id @default(cuid())
+  user       user     @relation(fields: [userNumber], references: [number])
+  userNumber String   @unique
+  className  String
+  level      Int      @default(1)
+  experience Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relação com os atributos base da classe
+  classType ClassBaseStats @relation(fields: [className], references: [className])
+}
+
+model ClassBaseStats {
+  id          String @id @default(cuid())
+  className   String @unique
+  description String
+
+  // Atributos base de cada classe
+  baseHp       Int @default(100)
+  baseMaxHp    Int @default(100)
+  baseMagic    Int @default(10)
+  baseStrength Int @default(10)
+  baseDefense  Int @default(5)
+
+  // Modificadores de crescimento por nível
+  hpPerLevel       Float @default(10.0)
+  magicPerLevel    Float @default(2.0)
+  strengthPerLevel Float @default(2.0)
+  defensePerLevel  Float @default(1.0)
+
+  // Classes que usam esses atributos base
+  playerClasses PlayerClass[]
 }
