@@ -18,6 +18,7 @@ model user {
   name      String
   blacklist Boolean       @default(false)
   sugger    suggestions[]
+  stats     PlayerStats?
 }
 
 model suggestions {
@@ -46,4 +47,19 @@ model stickers {
   url_sticker String
   name        String
   criador     String
+}
+
+model PlayerStats {
+  number    String   @id @unique
+  user      user     @relation(fields: [number], references: [number])
+  hp        Int      @default(100)
+  maxHp     Int      @default(100)
+  xp        Int      @default(0)
+  level     Int      @default(1)
+  magic     Int      @default(10)
+  strength  Int      @default(10)
+  defense   Int      @default(5)
+  potions   Int      @default(3)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
