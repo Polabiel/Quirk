@@ -11,6 +11,7 @@ import hasTypeOrCommand from "../middlewares/hasTypeOrCommand";
 import verifyPrefix from "../middlewares/verifyPrefix";
 import loadCommomFunctions from "./loadCommomFunctions";
 import { addFilter, isFiltered } from "../middlewares/onAntiSpam";
+import { logger } from "./logger";
 
 export default async function (
   bot: WASocket,
@@ -33,6 +34,17 @@ export default async function (
   try {
     addFilter(data.user);
     await command?.default.handle(data);
+    logger.info(
+      {
+        Grupo: data.isGroup ? `👥 ${data.remoteJid}` : "Privado",
+        Mensagem: `💬 ${data.fullMessage}`,
+        Usuario: `👤 ${data.user}`,
+        Data: `📅 ${new Date().toLocaleString("pt-BR", {
+          timeZone: "America/Sao_Paulo",
+        })}`,
+      },
+      "🤖 Comando"
+    );
   } catch (error: any) {
     await handleError(error, data, command);
   }

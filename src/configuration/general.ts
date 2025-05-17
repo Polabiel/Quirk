@@ -27,6 +27,7 @@ export const general: GeneralConfig = {
   NUMBER_BOT: "554797010769@s.whatsapp.net",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   GROUP_SECURE: [
+    "120363360525817583@g.us",
     "5519987529732-1625550643@g.us",
     "120363126503356308@g.us",
     "5519987207781-1552075231@g.us",
