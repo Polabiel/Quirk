@@ -44,6 +44,7 @@
     "axios": "^1.4.0",
     "baileys": "^6.7.16",
     "child_process": "^1.0.2",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "node-cache": "^5.1.2",
     "pino": "^9.4.0",
