@@ -46,7 +46,7 @@ export const connect: () => Promise<WASocket> = async () => {
       }
       return isJidBroadcast(jid) || isJidStatusBroadcast(jid);
     },
-    keepAliveIntervalMs: 60 * 1000,
+    keepAliveIntervalMs: 30 * 1000,
     markOnlineOnConnect: true,
   });
 
@@ -55,7 +55,7 @@ export const connect: () => Promise<WASocket> = async () => {
 
     switch (connection) {
       case "close":
-        logger.error("🔒 Conexão fechada");
+        logger.debug("🔒 Conexão fechada");
         const shouldReconnect =
           (lastDisconnect?.error as Boom)?.output?.statusCode !==
           DisconnectReason.loggedOut;
@@ -65,13 +65,14 @@ export const connect: () => Promise<WASocket> = async () => {
         }
         break;
       case "open":
-        logger.info("🔥 Bot Conectado");
+        logger.debug("🔥 Bot Conectado");
         break;
       case "connecting":
         logger.debug('🫸 Conectando o bot, aguarde...')
     }
 
     if (qr !== undefined) {
+      logger.debug("🔑 QR Code gerado");
       qrcode.generate(qr, { small: true });
     }
   });
