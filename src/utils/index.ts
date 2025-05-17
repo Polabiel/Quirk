@@ -255,18 +255,34 @@ export const findCommandImport: (commandName: string) => Promise<{
 }> = async (commandName: string) => {
   const command = await readCommandImports();
 
+  logger.info(
+    `Comandos carregados: ${Object.entries(command)
+      .map(
+        ([key, value]) =>
+          `${key}: [${value
+            .map((cmd: IDefaultCommand) => cmd?.default?.commands?.[0])
+            .join("; ")}]`
+      )
+      .join(", ")}`
+  );
+
   let typeReturn = "";
   let targetCommandReturn: IDefaultCommand | null = null;
 
   for (const [type, commands] of Object.entries(command)) {
-    if (!commands.length || type == "auto") {
+    // Ignora tipo vazio ou tipo "auto"
+    if (!commands.length || type === "auto") {
       continue;
     }
 
-    const targetCommand: IDefaultCommand | undefined = commands.find((cmd) =>
-      cmd?.default?.commands
-        .map((cmd: string) => formatCommand(cmd))
-        .includes(commandName)
+    // Evita erro se cmd?.default?.commands não existir ou estiver vazio
+    const targetCommand: IDefaultCommand | undefined = commands.find(
+      (loadedCmd) =>
+        Array.isArray(loadedCmd?.default?.commands) &&
+        loadedCmd.default.commands.length > 0 &&
+        loadedCmd.default.commands
+          .map((c: string) => formatCommand(c))
+          .includes(commandName)
     );
 
     if (targetCommand) {
@@ -287,25 +303,19 @@ export const choiceRandomCommand: () => Promise<{
   command: ICommand | null;
 }> = async () => {
   const command = await readCommandImports();
-
   let typeReturn = "auto";
+  const autoCommands = command[typeReturn] ?? [];
 
-  const autoCommands = command[typeReturn];
-
-  if (autoCommands && autoCommands.length > 0) {
+  if (autoCommands.length > 0) {
     const randomIndex = Math.floor(Math.random() * autoCommands.length);
-    const randomAutoCommand: ICommand = autoCommands[randomIndex].default;
-
-    return {
-      type: typeReturn,
-      command: randomAutoCommand,
-    };
-  } else {
-    return {
-      type: typeReturn,
-      command: null,
-    };
+    const randomAutoCommand = autoCommands[randomIndex]?.default;
+    if (!randomAutoCommand || !randomAutoCommand.commands?.length) {
+      return { type: typeReturn, command: null };
+    }
+    return { type: typeReturn, command: randomAutoCommand };
   }
+
+  return { type: typeReturn, command: null };
 };
 
 async function readCommandsRecursively(dir: string): Promise<any[]> {
