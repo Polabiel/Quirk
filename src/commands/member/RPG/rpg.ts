@@ -20,3 +20,5 @@ const command: ICommand = {
    return await data.sendSuccessReply(await menuRPGMessage());
  }
 }
+
+export default command;
