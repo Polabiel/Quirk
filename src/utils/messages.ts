@@ -1,6 +1,7 @@
 import { general } from "../configuration/general";
 import { readCommandImports } from ".";
 import { PrismaClient } from "@prisma/client";
+import { logger } from "./logger";
 const prisma = new PrismaClient();
 
 export const waitMessage: string = "Carregando dados...";
@@ -18,21 +19,28 @@ export const randomMessageViewOnce: () => string = () => {
 export const getCommandsFromFolder = async (folderName: string) => {
   const commandFiles = await readCommandImports();
   const filteredCommandFiles = commandFiles[folderName] || [];
+  logger.info(
+    `Comandos do ${folderName} carregados: ${filteredCommandFiles.length}, ${JSON.stringify(
+      filteredCommandFiles.map((command) => command.default?.commands[0])
+        .slice(0, 10)
+        .join(", ")
+    )}`
+  );
   const commandList = filteredCommandFiles.map((command) => ({
-    name: command.default?.commands[0] || null,
+    name: command.default?.commands[0] ?? null,
     description: command.default?.description || null,
   }));
   return commandList;
 };
 
 export const randomText = async (): Promise<string> => {
-  const totalFacts = await prisma.fatos.count();
+  const totalFacts = await prisma.facts.count();
   const randomIndex = Math.floor(Math.random() * totalFacts);
-  const randomFact = await prisma.fatos.findFirst({
+  const randomFact = await prisma.facts.findFirst({
     skip: randomIndex,
     take: 1,
   });
-  return randomFact ? randomFact.fato : "Forever volta...";
+  return randomFact ? randomFact.fact : "Forever volta...";
 };
 
 export const menuMessage: (secure?: boolean) => Promise<string> = async (
@@ -102,7 +110,7 @@ export const menuRPGMessage = async () => {
     .filter((command) => command.name && command.description)
     .map((command) => `  ▢ • /${command.name} - ${command.description}`)
     .join("\n");
-    
+
   return `╭━━─「⚔️」─━━
 ▢ • *MENU DE RPG*
 ▢
