@@ -4,11 +4,12 @@
  * @see https://www.prisma.io/docs/guides/database/seed-database
  */
 import { PrismaClient } from '@prisma/client';
+import { logger } from '../src/utils/logger';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log(`Adicionando dados para teste... 🌱`);
+  logger.info(`Adicionando dados para teste... 🌱`);
 
   const existingUser = await prisma.user.findUnique({
     where: { number: '556699054430@s.whatsapp.net' },
@@ -21,12 +22,12 @@ async function main() {
         number: '556699054430@s.whatsapp.net',
       },
     });
-    console.log(`Usuário criado: ${user.number}`);
+    logger.info(`Usuário criado: ${user.number}`);
   } else {
-    console.log(`Usuário já existe: ${existingUser.number}`);
+    logger.info(`Usuário já existe: ${existingUser.number}`);
   }
 
-  console.log(`🔥 Dados inseridos 🔥`);
+  logger.info(`🔥 Dados inseridos 🔥`);
 }
 
 main()

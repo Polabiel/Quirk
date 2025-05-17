@@ -40,7 +40,7 @@ export const connect: () => Promise<WASocket> = async () => {
       logger.debug(`Ignoring JID: ${jid}`);
       if (process.env.NODE_ENV?.toLocaleLowerCase() === 'development') {
         if (isJidGroup(jid)) {
-          return !general.GROUP_SECURE.includes(jid);
+          return !general.GROUP_SECURE.includes(jid as any);
         }
         return !general.NUMBERS_HOSTS.includes(jid);
       }
