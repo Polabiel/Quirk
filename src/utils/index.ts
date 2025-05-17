@@ -14,6 +14,9 @@ import {
 } from "../interfaces/ICommand";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
+import { logger } from "./logger";
+
+let commandCache: ICommandImports | null = null;
 
 export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   const textMessage: string =
@@ -305,30 +308,40 @@ export const choiceRandomCommand: () => Promise<{
   }
 };
 
-export const readCommandImports = async () => {
-  const subdirectories: string[] = fs
-    .readdirSync(general.COMMANDS_DIR, { withFileTypes: true })
-    .filter((directory: { isDirectory: () => unknown }) =>
-      directory.isDirectory()
-    )
-    .map((directory: { name: any }) => directory.name);
+async function readCommandsRecursively(dir: string): Promise<any[]> {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const results: any[] = [];
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...await readCommandsRecursively(fullPath));
+    } else if (!entry.name.startsWith("_") && (entry.name.endsWith(".js") || entry.name.endsWith(".ts"))) {
+      try {
+        const mod = await import(fullPath);
+        results.push(mod);
+      } catch (err) {
+        logger.error(`📛 Failed to load command ${fullPath}: ${err}`);
+      }
+    }
+  }
+  return results;
+}
 
+export const readCommandImports = async (): Promise<ICommandImports> => {
+  if (commandCache) return commandCache;
   const commandImports: ICommandImports = {};
+  const subdirectories = fs
+    .readdirSync(general.COMMANDS_DIR, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => d.name);
 
   for (const subdir of subdirectories) {
     const subdirectoryPath = path.join(general.COMMANDS_DIR, subdir);
-    const files = fs
-      .readdirSync(subdirectoryPath)
-      .filter(
-        (file: string) =>
-          !file.startsWith("_") &&
-          (file.endsWith(".js") || file.endsWith(".ts"))
-      )
-      .map((file: string) => require(path.join(subdirectoryPath, file)));
-
-    commandImports[subdir] = files;
+    const modules = await readCommandsRecursively(subdirectoryPath);
+    commandImports[subdir] = modules;
   }
 
+  commandCache = commandImports;
   return commandImports;
 };
 
