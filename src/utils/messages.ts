@@ -96,6 +96,38 @@ export const ownerMessage = async () => {
 ╰━━─「」─━━`;
 };
 
+export const menuRPGMessage = async () => {
+  const commandList = await getCommandsFromFolder("rpg");
+  const commandListText = (commandList ?? [])
+    .filter((command) => command.name && command.description)
+    .map((command) => `  ▢ • /${command.name} - ${command.description}`)
+    .join("\n");
+    
+  return `╭━━─「⚔️」─━━
+▢ • *MENU DE RPG*
+▢
+▢ • RPG de texto para WhatsApp
+▢ • Criado por: *wa.me/${general.NUMBERS_HOSTS[0].slice(0, 13)}*
+▢ • Github: *github.com/polabiel*
+▢ • Alguma sugestão? - */sugestao [mensagem]*
+▢
+▢ • Versão: 2.0.0
+▢ • Data: ${new Date().toLocaleDateString("pt-br")}
+▢ • Hora: ${new Date()
+    .toLocaleTimeString("pt-br")
+    .slice(0, 5)}
+▢ • Prefixo: 「 ${general.PREFIX} 」
+▢
+▢ • Comandos:
+▢\n${commandListText ?? "Não há comandos disponíveis."}
+▢
+▢ • Para mais informações, use: */ajuda*
+▢ • Para mais informações sobre o bot, use: */menu*
+▢
+╰━━─「」─━━`;
+
+}
+
 //•ㅤㅤ•.ㅤ.🪐    .  •      🌖ㅤㅤ  •.•ㅤㅤ. •
 //•   .       • ..ㅤ ㅤ. •.ㅤㅤㅤ.•ㅤㅤㅤ. •ㅤ🌠ㅤ
 //🚀   .  ㅤㅤ•ㅤㅤ• .ㅤ.ㅤ⭐ㅤ. •ㅤ.•ㅤㅤ. •
