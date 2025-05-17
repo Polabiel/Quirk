@@ -133,6 +133,10 @@ dist
 /assets/auth_bot
 /cache/*
 
+# .env
+.env
+.env.*
+.env.local
 # database prisma
 prisma/dev.db
 prisma/migrations
