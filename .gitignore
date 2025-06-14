@@ -136,3 +136,6 @@ dist
 # database prisma
 prisma/dev.db
 prisma/migrations
+
+# env
+.env
