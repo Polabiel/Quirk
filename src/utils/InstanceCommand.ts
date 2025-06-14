@@ -9,15 +9,27 @@ import {
 import { handleError } from "../errors";
 import hasTypeOrCommand from "../middlewares/hasTypeOrCommand";
 import verifyPrefix from "../middlewares/verifyPrefix";
+import { shouldSendSpamWarning, markSpamWarningSent } from "../middlewares/onAntiSpam";
 import loadCommomFunctions from "./loadCommomFunctions";
-import { addFilter, isFiltered } from "../middlewares/onAntiSpam";
 import { logger } from "./logger";
+import { general } from "../configuration/general";
 
 export default async function (
   bot: WASocket,
   baileysMessage: proto.IWebMessageInfo
 ) {
   const { ...data } = loadCommomFunctions(bot, baileysMessage);
+  
+  if (shouldSendSpamWarning(data.remoteJid!)) {
+    await data.sendWarningReply(
+      `${data.nickName} está enviando mensagens muito rápido! Aguarde ${
+        general.TIMEOUT_IN_MILLISECONDS_BY_EVENT / 1000
+      } segundos para enviar novamente!`
+    );
+    markSpamWarningSent(data.remoteJid!);
+    return; 
+  }
+  
   const { type, command } = await findCommandImport(data.commandName!);
 
   if (
@@ -29,10 +41,8 @@ export default async function (
   }
 
   if (!(await checkPermissions(type, bot, baileysMessage, data))) return;
-  if (isFiltered(data)) return;
 
   try {
-    addFilter(data.user);
     await command?.default.handle(data);
     logger.info(
       {

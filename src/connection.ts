@@ -3,7 +3,6 @@ import makeWASocket, {
   Browsers,
   DisconnectReason,
   WASocket,
-  fetchLatestBaileysVersion,
   isJidBroadcast,
   isJidGroup,
   isJidNewsletter,
@@ -13,7 +12,8 @@ import makeWASocket, {
 import { general } from "./configuration/general";
 import qrcode from "qrcode-terminal";
 import { logger } from "./utils/logger";
-import fs from "fs"
+import fs from "fs";
+import { shouldIgnoreSpamHard } from "./middlewares/onAntiSpam";
 
 export const connect: () => Promise<WASocket> = async () => {
   try {
@@ -28,15 +28,21 @@ export const connect: () => Promise<WASocket> = async () => {
     logger: logger,
     printQRInTerminal: false,
     defaultQueryTimeoutMs: 30 * 1000,
-    auth: state,
-    shouldIgnoreJid: (jid) => {
-      logger.debug(`Ignoring JID: ${jid}`);
+    auth: state,    shouldIgnoreJid: (jid) => {
+      logger.debug(`Checking JID: ${jid}`);
+      
+      if (shouldIgnoreSpamHard(jid)) {
+        logger.debug(`Anti-spam: Ignoring JID ${jid} due to spam detection (warning already sent)`);
+        return true;
+      }
+      
       if (process.env.NODE_ENV?.toLocaleLowerCase() === 'development') {
         if (isJidGroup(jid)) {
           return !general.GROUP_SECURE.includes(jid);
         }
         return !general.NUMBERS_HOSTS.includes(jid) || jid !== general.NUMBER_BOT;
       }
+      
       return isJidBroadcast(jid) || isJidStatusBroadcast(jid) || jid === general.NUMBER_BOT || isJidNewsletter(jid)
     },
     keepAliveIntervalMs: 30 * 1000,
@@ -44,11 +50,8 @@ export const connect: () => Promise<WASocket> = async () => {
   });
 
   bot.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect, qr } = update;
-
-    switch (connection) {
-      case "close":
-
+    const { connection, lastDisconnect, qr } = update;    switch (connection) {
+      case "close": {
         const statusCode = (lastDisconnect?.error instanceof Boom)
           ? lastDisconnect.error.output?.statusCode
           : undefined;
@@ -102,11 +105,11 @@ export const connect: () => Promise<WASocket> = async () => {
                 logger.error("❌ Erro na reconexão:", error);
                 process.exit(1); 
               });
-            }, 5000);
-          }
+            }, 5000);          }
           break;
         }
         break;
+      }
       case "open":
         logger.debug("🔥 Bot Conectado");
         break;
