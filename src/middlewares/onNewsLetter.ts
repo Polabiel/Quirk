@@ -26,23 +26,26 @@ function getNewsletterContent(
   type: string,
 ) {
   const message = baileysMessage.message;
-
+  
+  // Verificar as estruturas principais de mensagem
   let content = message?.[`${type}Message` as keyof typeof message];
-
-  content ??=
-    message?.extendedTextMessage?.contextInfo?.quotedMessage?.[
-      `${type}Message` as keyof typeof message
-    ];
-
-  content ??=
-    message?.viewOnceMessage?.message?.[
-      `${type}Message` as keyof typeof message
-    ];
-
-  content ??=
-    message?.ephemeralMessage?.message?.[
-      `${type}Message` as keyof typeof message
-    ];
+  
+  // Verificar em mensagens estendidas
+  content ??= message?.extendedTextMessage?.contextInfo?.quotedMessage?.[`${type}Message` as keyof typeof message];
+  
+  // Verificar em mensagens de visualização única
+  content ??= message?.viewOnceMessage?.message?.[`${type}Message` as keyof typeof message];
+  content ??= message?.viewOnceMessageV2?.message?.[`${type}Message` as keyof typeof message];
+  
+  // Verificar em mensagens efêmeras
+  content ??= message?.ephemeralMessage?.message?.[`${type}Message` as keyof typeof message];
+  
+  // Log para debug
+  if (content) {
+    logger.debug(`📰 Conteúdo ${type} encontrado em newsletter:`, JSON.stringify(content, null, 2));
+  } else {
+    logger.debug(`📰 Conteúdo ${type} NÃO encontrado em newsletter. Estrutura da mensagem:`, JSON.stringify(message, null, 2));
+  }
 
   return content;
 }
@@ -92,22 +95,119 @@ async function downloadNewsletterContent(
   }
 }
 
+// Função para análise detalhada da estrutura de mensagens de newsletter
+function analyzeNewsletterStructure(baileysMessage: proto.IWebMessageInfo) {
+  const message = baileysMessage.message;
+  const analysis = {
+    messageKeys: Object.keys(message || {}),
+    hasDirectMedia: false,
+    hasNestedMedia: false,
+    possibleStructures: [] as string[],
+    mediaTypes: [] as string[],
+  };
+
+  if (!message) return analysis;
+
+  // Verificar tipos de mídia diretamente na mensagem
+  const mediaTypes = ['image', 'video', 'audio', 'document', 'sticker'];
+  
+  for (const type of mediaTypes) {
+    const typeKey = `${type}Message`;
+    
+    // Verificar diretamente
+    if (message[typeKey as keyof typeof message]) {
+      analysis.hasDirectMedia = true;
+      analysis.mediaTypes.push(type);
+      analysis.possibleStructures.push(`message.${typeKey}`);
+    }
+    
+    // Verificar em extendedTextMessage
+    if (message.extendedTextMessage?.contextInfo?.quotedMessage?.[typeKey as keyof typeof message]) {
+      analysis.hasNestedMedia = true;
+      analysis.mediaTypes.push(`quoted-${type}`);
+      analysis.possibleStructures.push(`message.extendedTextMessage.contextInfo.quotedMessage.${typeKey}`);
+    }
+    
+    // Verificar em viewOnceMessage
+    if (message.viewOnceMessage?.message?.[typeKey as keyof typeof message]) {
+      analysis.hasNestedMedia = true;
+      analysis.mediaTypes.push(`viewonce-${type}`);
+      analysis.possibleStructures.push(`message.viewOnceMessage.message.${typeKey}`);
+    }
+    
+    // Verificar em viewOnceMessageV2
+    if (message.viewOnceMessageV2?.message?.[typeKey as keyof typeof message]) {
+      analysis.hasNestedMedia = true;
+      analysis.mediaTypes.push(`viewoncev2-${type}`);
+      analysis.possibleStructures.push(`message.viewOnceMessageV2.message.${typeKey}`);
+    }
+    
+    // Verificar em ephemeralMessage
+    if (message.ephemeralMessage?.message?.[typeKey as keyof typeof message]) {
+      analysis.hasNestedMedia = true;
+      analysis.mediaTypes.push(`ephemeral-${type}`);
+      analysis.possibleStructures.push(`message.ephemeralMessage.message.${typeKey}`);
+    }
+  }
+
+  return analysis;
+}
+
 export default async (bot: WASocket, baileysMessage: proto.IWebMessageInfo) => {
   if (!baileysMessage?.key?.remoteJid) return;
   if (!isJidNewsletter(baileysMessage.key.remoteJid)) return;
 
   logger.info('📰 Newsletter detectada! Reenviando para todos os usuários...');
+  
+  // Análise detalhada da estrutura da mensagem
+  const structureAnalysis = analyzeNewsletterStructure(baileysMessage);
+  logger.debug('📰 Análise da estrutura da newsletter:', structureAnalysis);
+  
   logger.debug(
     '📰 Estrutura completa da mensagem de newsletter:',
     JSON.stringify(baileysMessage, null, 2),
   );
 
-  logger.debug('📰 Tipos de mensagem detectados:');
+  // Análise detalhada da estrutura
+  logger.debug('📰 Análise detalhada da estrutura:');
+  logger.debug(`- message keys: ${Object.keys(baileysMessage.message || {})}`);
+  logger.debug(`- message: ${JSON.stringify(baileysMessage.message, null, 2)}`);
+  
+  // Verificar se há mensagem aninhada
+  if (baileysMessage.message?.extendedTextMessage?.contextInfo?.quotedMessage) {
+    logger.debug('📰 Mensagem quotada encontrada:', JSON.stringify(baileysMessage.message.extendedTextMessage.contextInfo.quotedMessage, null, 2));
+  }
+  
+  if (baileysMessage.message?.viewOnceMessage?.message) {
+    logger.debug('📰 ViewOnceMessage encontrada:', JSON.stringify(baileysMessage.message.viewOnceMessage.message, null, 2));
+  }
+  
+  if (baileysMessage.message?.ephemeralMessage?.message) {
+    logger.debug('📰 EphemeralMessage encontrada:', JSON.stringify(baileysMessage.message.ephemeralMessage.message, null, 2));
+  }
+
+  logger.debug('📰 Tipos de mensagem detectados (baileysIs):');
   logger.debug(`- É imagem: ${baileysIs(baileysMessage, 'image')}`);
   logger.debug(`- É vídeo: ${baileysIs(baileysMessage, 'video')}`);
   logger.debug(`- É sticker: ${baileysIs(baileysMessage, 'sticker')}`);
   logger.debug(`- É documento: ${baileysIs(baileysMessage, 'document')}`);
   logger.debug(`- É áudio: ${baileysIs(baileysMessage, 'audio')}`);
+  
+  // Testar getContent para cada tipo
+  logger.debug('📰 Testando getContent:');
+  logger.debug(`- getContent(image): ${JSON.stringify(getContent(baileysMessage, 'image'), null, 2)}`);
+  logger.debug(`- getContent(video): ${JSON.stringify(getContent(baileysMessage, 'video'), null, 2)}`);
+  logger.debug(`- getContent(sticker): ${JSON.stringify(getContent(baileysMessage, 'sticker'), null, 2)}`);
+  logger.debug(`- getContent(document): ${JSON.stringify(getContent(baileysMessage, 'document'), null, 2)}`);
+  logger.debug(`- getContent(audio): ${JSON.stringify(getContent(baileysMessage, 'audio'), null, 2)}`);
+  
+  // Testar getNewsletterContent
+  logger.debug('📰 Testando getNewsletterContent:');
+  logger.debug(`- getNewsletterContent(image): ${JSON.stringify(getNewsletterContent(baileysMessage, 'image'), null, 2)}`);
+  logger.debug(`- getNewsletterContent(video): ${JSON.stringify(getNewsletterContent(baileysMessage, 'video'), null, 2)}`);
+  logger.debug(`- getNewsletterContent(sticker): ${JSON.stringify(getNewsletterContent(baileysMessage, 'sticker'), null, 2)}`);
+  logger.debug(`- getNewsletterContent(document): ${JSON.stringify(getNewsletterContent(baileysMessage, 'document'), null, 2)}`);
+  logger.debug(`- getNewsletterContent(audio): ${JSON.stringify(getNewsletterContent(baileysMessage, 'audio'), null, 2)}`);
 
   try {
     const isHealthy = await PrismaSingleton.healthCheck();
@@ -257,19 +357,37 @@ async function handleImageContent(
   fullMessage: string | undefined,
 ) {
   let imagePath: string | null = null;
-  try {
-    logger.info('📷 Baixando imagem da newsletter...');
+  try {    logger.info('📷 Baixando imagem da newsletter...');
     logger.debug(
       '📷 Estrutura da mensagem:',
       JSON.stringify(baileysMessage.message, null, 2),
     );
+    
+    // Tentar download padrão primeiro
+    logger.debug('📷 Tentando download padrão...');
     imagePath = (await downloadImage(baileysMessage)) ?? null;
-    logger.debug(`📷 Caminho da imagem baixada: ${imagePath}`);    if (!imagePath) {
+    logger.debug(`📷 Resultado do download padrão: ${imagePath}`);
+
+    if (!imagePath) {
+      // Analisar o conteúdo da imagem
       const imageContent = getContent(baileysMessage, 'image') as proto.Message.IImageMessage | undefined;
       logger.debug(
-        '📷 Conteúdo da imagem encontrado:',
+        '📷 Conteúdo da imagem (getContent):',
         JSON.stringify(imageContent, null, 2),
       );
+      
+      const newsletterImageContent = getNewsletterContent(baileysMessage, 'image');
+      logger.debug(
+        '📷 Conteúdo da imagem (getNewsletterContent):',
+        JSON.stringify(newsletterImageContent, null, 2),
+      );
+      
+      // Tentar download específico de newsletter
+      if (newsletterImageContent) {
+        logger.debug('📷 Tentando download específico de newsletter...');
+        imagePath = await downloadNewsletterContent(baileysMessage, 'newsletter_image', 'image', 'png');
+        logger.debug(`📷 Resultado do download específico: ${imagePath}`);
+      }
     }
 
     if (!imagePath) {
