@@ -1,10 +1,20 @@
 import { WASocket, isJidNewsletter, proto } from 'baileys';
 import { general } from '../configuration/general';
-import { extractDataFromMessage, baileysIs, getContent } from '../utils';
-import loadCommomFunctions from '../utils/loadCommomFunctions';
+import {
+ extractDataFromMessage,
+ baileysIs,
+ getContent,
+ downloadImage,
+ downloadVideo,
+ downloadSticker,
+ downloadAudio,
+ downloadFile
+} from '../utils';
 import { logger } from '../utils/logger';
 import PrismaSingleton from '../utils/PrismaSingleton';
 import RateLimiter, { DataValidator, ErrorRecovery } from '../utils/SafetyUtils';
+import fs from 'fs';
+import path from 'path';
 
 const prisma = PrismaSingleton.getInstance();
 
@@ -16,19 +26,11 @@ export default async (bot: WASocket, baileysMessage: proto.IWebMessageInfo) => {
  logger.info('📰 Newsletter detectada! Reenviando para todos os usuários...');
 
  try {
-
   const isHealthy = await PrismaSingleton.healthCheck();
   if (!isHealthy) {
    logger.error('❌ Banco de dados não está saudável. Pulando newsletter.');
    return;
   }
-
-  const {
-   sendTextWithRemotejid,
-   sendImageFromFile,
-   sendVideoFromFile,
-   sendStickerFromFile,
-  } = loadCommomFunctions(bot, baileysMessage);
 
 
   const [groups, users] = await Promise.allSettled([
@@ -75,15 +77,9 @@ export default async (bot: WASocket, baileysMessage: proto.IWebMessageInfo) => {
 
   logger.info(`📰 Newsletter será enviada para ${validGroups.length} grupos e ${validUsers.length} usuários.`);
 
-
   const delay = RateLimiter.getDelay(validRecipients.length);
 
-  await processNewsletterContent(baileysMessage, validRecipients, delay, {
-   sendTextWithRemotejid,
-   sendImageFromFile,
-   sendVideoFromFile,
-   sendStickerFromFile,
-  });
+  await processNewsletterContent(baileysMessage, validRecipients, delay, bot);
 
   logger.info('✅ Newsletter reenviada com sucesso para todos os usuários!');
  } catch (error) {
@@ -106,124 +102,165 @@ async function processNewsletterContent(
  baileysMessage: proto.IWebMessageInfo,
  recipients: string[],
  delay: number,
- senders: {
-  sendTextWithRemotejid: (text: string, remoteJid: string) => Promise<any>;
-  sendImageFromFile: (file: string, caption?: string) => Promise<any>;
-  sendVideoFromFile: (file: string, caption: string) => Promise<any>;
-  sendStickerFromFile: (file: string) => Promise<any>;
- },
+ bot: WASocket,
 ) {
  const { fullMessage } = extractDataFromMessage(baileysMessage);
 
  if (baileysIs(baileysMessage, 'image')) {
-  await handleImageContent(
-   baileysMessage,
-   recipients,
-   delay,
-   senders.sendTextWithRemotejid,
-   fullMessage,
-  );
+  await handleImageContent(baileysMessage, recipients, delay, bot, fullMessage);
   return;
  }
 
  if (baileysIs(baileysMessage, 'video')) {
-  await handleVideoContent(
-   baileysMessage,
-   recipients,
-   delay,
-   senders.sendTextWithRemotejid,
-   fullMessage,
-  );
+  await handleVideoContent(baileysMessage, recipients, delay, bot, fullMessage);
   return;
  }
 
  if (baileysIs(baileysMessage, 'sticker')) {
-  await handleStickerContent(recipients, delay, senders.sendTextWithRemotejid);
+  await handleStickerContent(baileysMessage, recipients, delay, bot);
   return;
  }
 
  if (baileysIs(baileysMessage, 'document')) {
-  await handleDocumentContent(
-   baileysMessage,
-   recipients,
-   delay,
-   senders.sendTextWithRemotejid,
-   fullMessage,
-  );
+  await handleDocumentContent(baileysMessage, recipients, delay, bot, fullMessage);
   return;
  }
 
  if (baileysIs(baileysMessage, 'audio')) {
-  await handleAudioContent(recipients, delay, senders.sendTextWithRemotejid);
+  await handleAudioContent(baileysMessage, recipients, delay, bot, fullMessage);
   return;
  }
+
 
  if (fullMessage) {
   const sanitizedMessage = DataValidator.sanitizeText(fullMessage);
-  const formattedMessage = `📰 *NEWSLETTER RECEBIDA* 📰\n\n${sanitizedMessage}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
-  await sendToAllRecipients(
-   recipients,
-   delay,
-   senders.sendTextWithRemotejid,
-   formattedMessage,
-  );
-  return;
+  const formattedMessage = `📰 *NEWSLETTER* 📰\n\n${sanitizedMessage}`;
+  await sendTextToAllRecipients(recipients, delay, bot, formattedMessage);
  }
-
- await sendToAllRecipients(
-  recipients,
-  delay,
-  senders.sendTextWithRemotejid,
-  `📰 *NEWSLETTER RECEBIDA* 📰\n\n📱 Conteúdo recebido do newsletter (tipo não suportado para reenvio)\n\n🤖 Reencaminhado via ${general.BOT_NAME}`,
- );
 }
-
 
 async function handleImageContent(
  baileysMessage: proto.IWebMessageInfo,
  recipients: string[],
  delay: number,
- sendFunction: (text: string, remoteJid: string) => Promise<any>,
+ bot: WASocket,
  fullMessage: string | undefined,
 ) {
- const imageContent = getContent(baileysMessage, 'image') as any;
- if (imageContent) {
-  const caption = imageContent.caption ?? fullMessage ?? '';
-  const sanitizedCaption = DataValidator.sanitizeText(caption);
-  const captionText = sanitizedCaption ? `\nLegenda: ${sanitizedCaption}` : '';
-  const message = `📰 *NEWSLETTER - IMAGEM RECEBIDA* 📰\n\n📷 Uma imagem foi recebida do newsletter${captionText}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
+ let imagePath: string | null = null;
 
-  await sendToAllRecipients(recipients, delay, sendFunction, message);
+ try {
+  logger.info('📷 Baixando imagem da newsletter...');
+
+  imagePath = await downloadImage(baileysMessage) ?? null;
+  if (!imagePath) {
+   logger.warn('⚠️ Falha ao baixar imagem da newsletter');
+   const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+   await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+   return;
+  }
+
+  const imageContent = getContent(baileysMessage, 'image') as any;
+  const caption = imageContent?.caption ?? fullMessage ?? '';
+  const sanitizedCaption = DataValidator.sanitizeText(caption);
+  const formattedCaption = `${sanitizedCaption}`;
+
+  await sendImageToAllRecipients(recipients, delay, bot, imagePath, formattedCaption);
+ } catch (error) {
+  logger.error('❌ Erro ao processar imagem da newsletter:', error);
+  const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+  await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+ } finally {
+
+  if (imagePath && fs.existsSync(imagePath)) {
+   try {
+    fs.unlinkSync(imagePath);
+    logger.debug(`🗑️ Arquivo temporário removido: ${imagePath}`);
+   } catch (cleanupError) {
+    logger.warn('⚠️ Erro ao limpar arquivo temporário:', cleanupError);
+   }
+  }
  }
 }
+
 
 
 async function handleVideoContent(
  baileysMessage: proto.IWebMessageInfo,
  recipients: string[],
  delay: number,
- sendFunction: (text: string, remoteJid: string) => Promise<any>,
+ bot: WASocket,
  fullMessage: string | undefined,
 ) {
- const videoContent = getContent(baileysMessage, 'video') as any;
- if (videoContent) {
-  const caption = videoContent.caption ?? fullMessage ?? '';
-  const sanitizedCaption = DataValidator.sanitizeText(caption);
-  const captionText = sanitizedCaption ? `\nLegenda: ${sanitizedCaption}` : '';
-  const message = `📰 *NEWSLETTER - VÍDEO RECEBIDO* 📰\n\n🎥 Um vídeo foi recebido do newsletter${captionText}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
+ let videoPath: string | null = null;
 
-  await sendToAllRecipients(recipients, delay, sendFunction, message);
+ try {
+  logger.info('🎥 Baixando vídeo da newsletter...');
+
+  videoPath = await downloadVideo(baileysMessage) ?? null;
+  if (!videoPath) {
+   logger.warn('⚠️ Falha ao baixar vídeo da newsletter');
+   const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+   await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+   return;
+  }
+
+  const videoContent = getContent(baileysMessage, 'video') as any;
+  const caption = videoContent?.caption ?? fullMessage ?? '';
+  const sanitizedCaption = DataValidator.sanitizeText(caption);
+  const formattedCaption = `${sanitizedCaption}`;
+
+  await sendVideoToAllRecipients(recipients, delay, bot, videoPath, formattedCaption);
+ } catch (error) {
+  logger.error('❌ Erro ao processar vídeo da newsletter:', error);
+  const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+  await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+ } finally {
+
+  if (videoPath && fs.existsSync(videoPath)) {
+   try {
+    fs.unlinkSync(videoPath);
+    logger.debug(`🗑️ Arquivo temporário removido: ${videoPath}`);
+   } catch (cleanupError) {
+    logger.warn('⚠️ Erro ao limpar arquivo temporário:', cleanupError);
+   }
+  }
  }
 }
 
 
 async function handleStickerContent(
+ baileysMessage: proto.IWebMessageInfo,
  recipients: string[],
  delay: number,
- sendFunction: (text: string, remoteJid: string) => Promise<any>,
+ bot: WASocket,
 ) {
- const message = `📰 *NEWSLETTER - STICKER RECEBIDO* 📰\n\n🎭 Um sticker foi recebido do newsletter\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
- await sendToAllRecipients(recipients, delay, sendFunction, message);
+ let stickerPath: string | null = null;
+
+ try {
+  logger.info('🏷️ Baixando sticker da newsletter...');
+
+  stickerPath = await downloadSticker(baileysMessage) ?? null;
+  if (!stickerPath) {
+   logger.warn('⚠️ Falha ao baixar sticker da newsletter');
+   await sendTextToAllRecipients(recipients, delay, bot);
+   return;
+  }
+
+  await sendStickerToAllRecipients(recipients, delay, bot, stickerPath);
+ } catch (error) {
+  logger.error('❌ Erro ao processar sticker da newsletter:', error);
+  await sendTextToAllRecipients(recipients, delay, bot);
+ } finally {
+
+  if (stickerPath && fs.existsSync(stickerPath)) {
+   try {
+    fs.unlinkSync(stickerPath);
+    logger.debug(`🗑️ Arquivo temporário removido: ${stickerPath}`);
+   } catch (cleanupError) {
+    logger.warn('⚠️ Erro ao limpar arquivo temporário:', cleanupError);
+   }
+  }
+ }
 }
 
 
@@ -231,48 +268,109 @@ async function handleDocumentContent(
  baileysMessage: proto.IWebMessageInfo,
  recipients: string[],
  delay: number,
- sendFunction: (text: string, remoteJid: string) => Promise<any>,
+ bot: WASocket,
  fullMessage: string | undefined,
 ) {
- const documentContent = getContent(baileysMessage, 'document') as any;
- const fileName = DataValidator.sanitizeText(documentContent?.fileName ?? 'documento');
- const caption = documentContent?.caption ?? fullMessage ?? '';
- const sanitizedCaption = DataValidator.sanitizeText(caption);
- const captionText = sanitizedCaption ? `\nDescrição: ${sanitizedCaption}` : '';
- const message = `📰 *NEWSLETTER - DOCUMENTO RECEBIDO* 📰\n\n📎 Documento: ${fileName}${captionText}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
+ let documentPath: string | null = null;
 
- await sendToAllRecipients(recipients, delay, sendFunction, message);
+ try {
+  logger.info('📄 Baixando documento da newsletter...');
+
+  const documentContent = getContent(baileysMessage, 'document') as any; const fileName = documentContent?.fileName ?? 'documento';
+  const fileExtension = path.extname(fileName) ?? '.pdf';
+
+  documentPath = await downloadFile(baileysMessage, fileExtension.replace('.', '')) ?? null;
+  if (!documentPath) {
+   logger.warn('⚠️ Falha ao baixar documento da newsletter');
+   const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+   await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+   return;
+  }
+
+  const caption = documentContent?.caption ?? fullMessage ?? '';
+  const sanitizedCaption = DataValidator.sanitizeText(caption);
+  const formattedCaption = `${sanitizedCaption}`;
+
+  await sendDocumentToAllRecipients(recipients, delay, bot, documentPath, fileName, formattedCaption);
+ } catch (error) {
+  logger.error('❌ Erro ao processar documento da newsletter:', error);
+  const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+  await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+ } finally {
+
+  if (documentPath && fs.existsSync(documentPath)) {
+   try {
+    fs.unlinkSync(documentPath);
+    logger.debug(`🗑️ Arquivo temporário removido: ${documentPath}`);
+   } catch (cleanupError) {
+    logger.warn('⚠️ Erro ao limpar arquivo temporário:', cleanupError);
+   }
+  }
+ }
 }
 
 
 async function handleAudioContent(
+ baileysMessage: proto.IWebMessageInfo,
  recipients: string[],
  delay: number,
- sendFunction: (text: string, remoteJid: string) => Promise<any>,
+ bot: WASocket,
+ fullMessage: string | undefined,
 ) {
- const message = `📰 *NEWSLETTER - ÁUDIO RECEBIDO* 📰\n\n🎵 Um áudio foi recebido do newsletter\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
- await sendToAllRecipients(recipients, delay, sendFunction, message);
+ let audioPath: string | null = null;
+
+ try {
+  logger.info('🎵 Baixando áudio da newsletter...');
+
+  audioPath = await downloadAudio(baileysMessage) ?? null;
+  if (!audioPath) {
+   logger.warn('⚠️ Falha ao baixar áudio da newsletter');
+   const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+   await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+   return;
+  }
+
+  const audioContent = getContent(baileysMessage, 'audio') as any;
+  const caption = fullMessage ?? '';
+  const sanitizedCaption = DataValidator.sanitizeText(caption);
+  const formattedCaption = sanitizedCaption ? `📰 *NEWSLETTER - ÁUDIO* 📰\n\n${sanitizedCaption}` : undefined;
+
+  await sendAudioToAllRecipients(recipients, delay, bot, audioPath, audioContent?.ptt ?? false, formattedCaption);
+ } catch (error) {
+  logger.error('❌ Erro ao processar áudio da newsletter:', error);
+  const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+  await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
+ } finally {
+
+  if (audioPath && fs.existsSync(audioPath)) {
+   try {
+    fs.unlinkSync(audioPath);
+    logger.debug(`🗑️ Arquivo temporário removido: ${audioPath}`);
+   } catch (cleanupError) {
+    logger.warn('⚠️ Erro ao limpar arquivo temporário:', cleanupError);
+   }
+  }
+ }
 }
 
 
-async function sendToAllRecipients(
+async function sendTextToAllRecipients(
  recipients: string[],
  delay: number,
- sendFunction: (message: string, remoteJid: string) => Promise<any>,
- message: string,
+ bot: WASocket,
+ message?: string,
 ) {
+ message ??= '';
  const sanitizedMessage = DataValidator.sanitizeText(message);
  let successCount = 0;
  let failureCount = 0;
 
  for (const recipient of recipients) {
-
   if (!DataValidator.isValidJid(recipient)) {
    logger.warn(`⚠️ JID inválido ignorado: ${recipient}`);
    failureCount++;
    continue;
   }
-
 
   if (!RateLimiter.canSend(recipient)) {
    logger.warn(`🚫 Rate limit atingido para ${recipient}`);
@@ -282,24 +380,270 @@ async function sendToAllRecipients(
 
   try {
    await ErrorRecovery.retryOperation(
-    () => sendFunction(sanitizedMessage, recipient),
+    () => bot.sendMessage(recipient, { text: sanitizedMessage }),
     2,
     1000
    );
 
    successCount++;
-   logger.debug(`✅ Enviado para ${recipient}`);
+   logger.debug(`✅ Texto enviado para ${recipient}`);
   } catch (error) {
    failureCount++;
-   logger.error(`❌ Falha definitiva ao enviar para ${recipient}:`, error);
+   logger.error(`❌ Falha definitiva ao enviar texto para ${recipient}:`, error);
   }
-
 
   await new Promise((resolve) => setTimeout(resolve, delay));
  }
 
- logger.info(`📊 Resumo do envio: ${successCount} sucessos, ${failureCount} falhas`);
+ logger.info(`📊 Resumo do envio de texto: ${successCount} sucessos, ${failureCount} falhas`);
+ RateLimiter.cleanup();
+}
 
 
+async function sendImageToAllRecipients(
+ recipients: string[],
+ delay: number,
+ bot: WASocket,
+ imagePath: string,
+ caption?: string,
+) {
+ let successCount = 0;
+ let failureCount = 0;
+
+ for (const recipient of recipients) {
+  if (!DataValidator.isValidJid(recipient)) {
+   logger.warn(`⚠️ JID inválido ignorado: ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  if (!RateLimiter.canSend(recipient)) {
+   logger.warn(`🚫 Rate limit atingido para ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  try {
+   await ErrorRecovery.retryOperation(
+    () => bot.sendMessage(recipient, {
+     image: { url: imagePath },
+     caption: caption,
+    }),
+    2,
+    1000
+   );
+
+   successCount++;
+   logger.debug(`✅ Imagem enviada para ${recipient}`);
+  } catch (error) {
+   failureCount++;
+   logger.error(`❌ Falha definitiva ao enviar imagem para ${recipient}:`, error);
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, delay));
+ }
+
+ logger.info(`📊 Resumo do envio de imagem: ${successCount} sucessos, ${failureCount} falhas`);
+ RateLimiter.cleanup();
+}
+
+
+async function sendVideoToAllRecipients(
+ recipients: string[],
+ delay: number,
+ bot: WASocket,
+ videoPath: string,
+ caption?: string,
+) {
+ let successCount = 0;
+ let failureCount = 0;
+
+ for (const recipient of recipients) {
+  if (!DataValidator.isValidJid(recipient)) {
+   logger.warn(`⚠️ JID inválido ignorado: ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  if (!RateLimiter.canSend(recipient)) {
+   logger.warn(`🚫 Rate limit atingido para ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  try {
+   await ErrorRecovery.retryOperation(
+    () => bot.sendMessage(recipient, {
+     video: { url: videoPath },
+     caption: caption,
+    }),
+    2,
+    1000
+   );
+
+   successCount++;
+   logger.debug(`✅ Vídeo enviado para ${recipient}`);
+  } catch (error) {
+   failureCount++;
+   logger.error(`❌ Falha definitiva ao enviar vídeo para ${recipient}:`, error);
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, delay));
+ }
+
+ logger.info(`📊 Resumo do envio de vídeo: ${successCount} sucessos, ${failureCount} falhas`);
+ RateLimiter.cleanup();
+}
+
+
+async function sendStickerToAllRecipients(
+ recipients: string[],
+ delay: number,
+ bot: WASocket,
+ stickerPath: string,
+) {
+ let successCount = 0;
+ let failureCount = 0;
+
+ for (const recipient of recipients) {
+  if (!DataValidator.isValidJid(recipient)) {
+   logger.warn(`⚠️ JID inválido ignorado: ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  if (!RateLimiter.canSend(recipient)) {
+   logger.warn(`🚫 Rate limit atingido para ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  try {
+   await ErrorRecovery.retryOperation(
+    () => bot.sendMessage(recipient, {
+     sticker: { url: stickerPath },
+    }),
+    2,
+    1000
+   );
+
+   successCount++;
+   logger.debug(`✅ Sticker enviado para ${recipient}`);
+  } catch (error) {
+   failureCount++;
+   logger.error(`❌ Falha definitiva ao enviar sticker para ${recipient}:`, error);
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, delay));
+ }
+
+ logger.info(`📊 Resumo do envio de sticker: ${successCount} sucessos, ${failureCount} falhas`);
+ RateLimiter.cleanup();
+}
+
+
+async function sendDocumentToAllRecipients(
+ recipients: string[],
+ delay: number,
+ bot: WASocket,
+ documentPath: string,
+ fileName: string,
+ caption?: string,
+) {
+ let successCount = 0;
+ let failureCount = 0;
+
+ for (const recipient of recipients) {
+  if (!DataValidator.isValidJid(recipient)) {
+   logger.warn(`⚠️ JID inválido ignorado: ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  if (!RateLimiter.canSend(recipient)) {
+   logger.warn(`🚫 Rate limit atingido para ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  try {
+   await ErrorRecovery.retryOperation(
+    () => bot.sendMessage(recipient, {
+     document: { url: documentPath },
+     fileName: fileName,
+     caption: caption,
+     mimetype: 'application/octet-stream',
+    }),
+    2,
+    1000
+   );
+
+   successCount++;
+   logger.debug(`✅ Documento enviado para ${recipient}`);
+  } catch (error) {
+   failureCount++;
+   logger.error(`❌ Falha definitiva ao enviar documento para ${recipient}:`, error);
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, delay));
+ }
+
+ logger.info(`📊 Resumo do envio de documento: ${successCount} sucessos, ${failureCount} falhas`);
+ RateLimiter.cleanup();
+}
+
+
+async function sendAudioToAllRecipients(
+ recipients: string[],
+ delay: number,
+ bot: WASocket,
+ audioPath: string,
+ ptt: boolean = false,
+ caption?: string,
+) {
+ let successCount = 0;
+ let failureCount = 0;
+
+ for (const recipient of recipients) {
+  if (!DataValidator.isValidJid(recipient)) {
+   logger.warn(`⚠️ JID inválido ignorado: ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  if (!RateLimiter.canSend(recipient)) {
+   logger.warn(`🚫 Rate limit atingido para ${recipient}`);
+   failureCount++;
+   continue;
+  }
+
+  try {
+   const audioMessage: any = {
+    audio: { url: audioPath },
+    ptt: ptt,
+   };
+
+
+   if (!ptt && caption) {
+    audioMessage.caption = caption;
+   }
+
+   await ErrorRecovery.retryOperation(
+    () => bot.sendMessage(recipient, audioMessage),
+    2,
+    1000
+   );
+
+   successCount++;
+   logger.debug(`✅ Áudio enviado para ${recipient}`);
+  } catch (error) {
+   failureCount++;
+   logger.error(`❌ Falha definitiva ao enviar áudio para ${recipient}:`, error);
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, delay));
+ }
+
+ logger.info(`📊 Resumo do envio de áudio: ${successCount} sucessos, ${failureCount} falhas`);
  RateLimiter.cleanup();
 }
