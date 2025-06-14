@@ -34,9 +34,9 @@ export const connect: () => Promise<WASocket> = async () => {
         if (isJidGroup(jid)) {
           return !general.GROUP_SECURE.includes(jid);
         }
-        return !general.NUMBERS_HOSTS.includes(jid);
+        return !general.NUMBERS_HOSTS.includes(jid) || jid !== general.NUMBER_BOT;
       }
-      return isJidBroadcast(jid) || isJidStatusBroadcast(jid)
+      return isJidBroadcast(jid) || isJidStatusBroadcast(jid) || jid === general.NUMBER_BOT;
     },
     keepAliveIntervalMs: 30 * 1000,
     markOnlineOnConnect: true,
