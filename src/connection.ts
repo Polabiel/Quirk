@@ -6,6 +6,7 @@ import makeWASocket, {
   fetchLatestBaileysVersion,
   isJidBroadcast,
   isJidGroup,
+  isJidNewsletter,
   isJidStatusBroadcast,
   useMultiFileAuthState,
 } from "baileys";
@@ -36,7 +37,7 @@ export const connect: () => Promise<WASocket> = async () => {
         }
         return !general.NUMBERS_HOSTS.includes(jid) || jid !== general.NUMBER_BOT;
       }
-      return isJidBroadcast(jid) || isJidStatusBroadcast(jid) || jid === general.NUMBER_BOT;
+      return isJidBroadcast(jid) || isJidStatusBroadcast(jid) || jid === general.NUMBER_BOT || isJidNewsletter(jid)
     },
     keepAliveIntervalMs: 30 * 1000,
     markOnlineOnConnect: true,
