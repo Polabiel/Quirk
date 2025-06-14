@@ -127,6 +127,19 @@ export const connect: () => Promise<WASocket> = async () => {
 
   bot.ev.on("creds.update", saveCreds);
 
+  bot.ev.on('call', async (calls) => {
+    for (const call of calls) {
+      if (call.status === 'offer') {
+        try {
+          await bot.rejectCall(call.id, call.from);
+          logger.info(`📞❌ Chamada recusada automaticamente de: ${call.from}`);
+        } catch (error) {
+          logger.error(`❌ Erro ao recusar chamada de ${call.from}:`, error);
+        }
+      }
+    }
+  });
+
   return bot;
   } catch (error) {
     logger.error("❌ Erro na conexão com WhatsApp:", error);
