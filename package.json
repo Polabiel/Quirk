@@ -23,7 +23,7 @@
     "generate": "prisma generate",
     "migrate-dev": "prisma migrate dev",
     "migrate": "prisma migrate deploy",
-    "start": "run-s db-up build start:pm2",
+    "start": "run-s build start:pm2",
     "start:pm2": "pm2 start ecosystem.config.js --env production",
     "pm2:logs": "pm2 logs quirk-bot",
     "pm2:stop": "pm2 stop quirk-bot",
