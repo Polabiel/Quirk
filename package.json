@@ -24,7 +24,13 @@
     "migrate-dev": "prisma migrate dev",
     "migrate": "prisma migrate deploy",
     "start": "run-s db-up build start:pm2",
-    "start:pm2": "pm2 start ecosystem.config.js --env production && pm2 logs",
+    "start:pm2": "pm2 start ecosystem.config.js --env production",
+    "pm2:logs": "pm2 logs quirk-bot",
+    "pm2:stop": "pm2 stop quirk-bot",
+    "pm2:restart": "pm2 restart quirk-bot",
+    "pm2:delete": "pm2 delete quirk-bot",
+    "pm2:status": "pm2 status",
+    "pm2:monit": "pm2 monit",
     "studio": "prisma studio",
     "lint": "eslint --cache src",
     "lint-fix": "eslint --cache src --fix",
@@ -50,7 +56,7 @@
     "node-cache": "^5.1.2",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
-    "pm2": "^5.4.1",
+    "pm2": "^6.0.8",
     "uuid": "^10.0.0"
   },
   "prisma": {

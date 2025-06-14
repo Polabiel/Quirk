@@ -7,7 +7,10 @@ module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: '1G',
-      cron_restart: '0 */2 * * *',
+      cron_restart: '0 * * * *',
+      restart_delay: 1000,
+      max_restarts: 24,
+      min_uptime: '10s',
       env: {
         NODE_ENV: 'development',
       },
