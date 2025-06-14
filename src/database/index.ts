@@ -1,4 +1,4 @@
-import { WASocket, proto } from "baileys";
+import { WASocket, isJidNewsletter, proto } from "baileys";
 import loadCommomFunctions from "../utils/loadCommomFunctions";
 import { PrismaClient } from "@prisma/client";
 import checkCache, { addCache } from "./checkCache";
@@ -36,13 +36,13 @@ export default async function (
       where: { number: baileysMessage.key.remoteJid! },
     });
 
-    if (!user) {
+    if (!user && nickName && !isJidNewsletter(baileysMessage.key.remoteJid!)) {
       await bot.sendMessage(baileysMessage.key.remoteJid!, {
         text: `🤖 ${general.BOT_NAME} te dá as boas-vindas ${nickName}!🎉\nDigite */menu* para começar e explorar todas as funcionalidades que oferecemos.`,
       });
 
       await prisma.user.create({
-        data: { number: baileysMessage.key.remoteJid!, name: nickName! },
+        data: { number: baileysMessage.key.remoteJid!, name: nickName },
       });
     }
 

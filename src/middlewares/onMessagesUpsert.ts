@@ -3,6 +3,7 @@ import { connect } from '../connection';
 import InstanceCommand from '../utils/InstanceCommand';
 import autoCommand from '../utils/autoCommand';
 import repositories from '../database';
+import onNewsLetter from './onNewsLetter';
 
 let init: number = 0;
 
@@ -24,6 +25,7 @@ export default async () => {
       if (!baileysMessage) return;
       await bot.readMessages([baileysMessage.key]);
       await repositories(bot, baileysMessage);
+      await onNewsLetter(bot, baileysMessage);
       await InstanceCommand(bot, baileysMessage);
       await autoCommand(bot, baileysMessage);
     },

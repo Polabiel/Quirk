@@ -14,10 +14,11 @@ model fatos {
 }
 
 model user {
-  number    String        @id @unique
-  name      String
-  blacklist Boolean       @default(false)
-  sugger    suggestions[]
+  number     String        @id @unique
+  name       String
+  blacklist  Boolean       @default(false)
+  newsletter Boolean       @default(true)
+  sugger     suggestions[]
 }
 
 model suggestions {
@@ -32,6 +33,7 @@ model group {
   number        String  @id @unique
   enable        Boolean @default(false)
   blacklist     Boolean @default(false)
+  newsletter    Boolean @default(true)
   TOKEN_OPEANAI String? @unique
 }
 
