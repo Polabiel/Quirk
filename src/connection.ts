@@ -16,12 +16,12 @@ import { logger } from "./utils/logger";
 import fs from "fs"
 
 export const connect: () => Promise<WASocket> = async () => {
+  try {
+    console.log('🟢 Iniciando conexão com Whatsapp\n');
 
-  console.log('🟢 Iniciando conexão com Whatsapp\n');
-
-  const { state, saveCreds } = await useMultiFileAuthState(
-    './assets/auth/baileys',
-  );
+    const { state, saveCreds } = await useMultiFileAuthState(
+      './assets/auth/baileys',
+    );
 
   const bot = makeWASocket({
     browser: Browsers.appropriate("Desktop"),
@@ -96,7 +96,13 @@ export const connect: () => Promise<WASocket> = async () => {
             DisconnectReason.loggedOut;
 
           if (shouldReconnect) {
-            connect();
+            logger.info("🔄 Tentando reconectar...");
+            setTimeout(() => {
+              connect().catch((error) => {
+                logger.error("❌ Erro na reconexão:", error);
+                process.exit(1); 
+              });
+            }, 5000);
           }
           break;
         }
@@ -119,4 +125,8 @@ export const connect: () => Promise<WASocket> = async () => {
   bot.ev.on("creds.update", saveCreds);
 
   return bot;
+  } catch (error) {
+    logger.error("❌ Erro na conexão com WhatsApp:", error);
+    throw error;
+  }
 };

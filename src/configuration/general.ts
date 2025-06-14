@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 require("dotenv").config();
 
 interface GeneralConfig {
@@ -15,13 +16,37 @@ interface GeneralConfig {
   GROUP_SECURE: string[];
 }
 
+const getProjectRoot = (): string => {
+  let currentDir = __dirname;
+
+  while (!fs.existsSync(path.join(currentDir, "package.json"))) {
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      break;
+    }
+    currentDir = parentDir;
+  }
+
+  return currentDir;
+};
+
+const ensureDirectoryExists = (dirPath: string): string => {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+  return dirPath;
+};
+
+const projectRoot = getProjectRoot();
+const isProduction = process.env.NODE_ENV === "production";
+
 export const general: GeneralConfig = {
   BOT_NAME: "Quirk",
   PREFIX: "/",
   PREFIX_EMOJI: "🤖",
   COMMANDS_DIR: path.join(__dirname, "..", "commands"),
-  TEMP_DIR: path.resolve(__dirname, "..", "..", "assets", "temp"),
-  CACHE_DIR: path.resolve(__dirname, "..", "..", "cache"),
+  TEMP_DIR: ensureDirectoryExists(path.join(projectRoot, "assets", "temp")),
+  CACHE_DIR: ensureDirectoryExists(path.join(projectRoot, "cache")),
   TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
   NUMBERS_HOSTS: [process.env.NUMBER_HOST ?? ""],
   NUMBER_BOT: "554797010769@s.whatsapp.net",
