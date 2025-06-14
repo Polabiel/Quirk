@@ -1,4 +1,4 @@
-import { WASocket, isJidNewsletter, proto } from 'baileys';
+import { WASocket, isJidNewsletter, proto, DownloadableMessage, MediaType } from 'baileys';
 import { general } from '../configuration/general';
 import {
   extractDataFromMessage,
@@ -62,12 +62,10 @@ async function downloadNewsletterContent(
       logger.debug(
         `📥 Tentando download específico de newsletter para ${context}`,
       );
-      const { downloadContentFromMessage } = await import('baileys');
-
-      if (typeof content === 'object' && content !== null && 'url' in content) {
+      const { downloadContentFromMessage } = await import('baileys');      if (typeof content === 'object' && content !== null && 'url' in content) {
         const stream = await downloadContentFromMessage(
-          content as any,
-          context as any,
+          content as DownloadableMessage,
+          context as MediaType,
         );
 
         let buffer = Buffer.from([]);
@@ -266,10 +264,8 @@ async function handleImageContent(
       JSON.stringify(baileysMessage.message, null, 2),
     );
     imagePath = (await downloadImage(baileysMessage)) ?? null;
-    logger.debug(`📷 Caminho da imagem baixada: ${imagePath}`);
-
-    if (!imagePath) {
-      const imageContent = getContent(baileysMessage, 'image');
+    logger.debug(`📷 Caminho da imagem baixada: ${imagePath}`);    if (!imagePath) {
+      const imageContent = getContent(baileysMessage, 'image') as proto.Message.IImageMessage | undefined;
       logger.debug(
         '📷 Conteúdo da imagem encontrado:',
         JSON.stringify(imageContent, null, 2),
@@ -278,19 +274,29 @@ async function handleImageContent(
 
     if (!imagePath) {
       logger.warn('⚠️ Falha ao baixar imagem da newsletter');
-      const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+      const imageContent = getContent(baileysMessage, 'image') as proto.Message.IImageMessage | undefined;
+      const caption = imageContent?.caption ?? fullMessage ?? '';
+      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const fallbackMessage = sanitizedCaption
+        ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
+        : `📰 *NEWSLETTER* 📰`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
     }
 
     if (!fs.existsSync(imagePath)) {
       logger.warn('⚠️ Arquivo de imagem não existe no caminho especificado');
-      const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+      const imageContent = getContent(baileysMessage, 'image') as proto.Message.IImageMessage | undefined;
+      const caption = imageContent?.caption ?? fullMessage ?? '';
+      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const fallbackMessage = sanitizedCaption
+        ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
+        : `📰 *NEWSLETTER* 📰`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
     }
 
-    const imageContent = getContent(baileysMessage, 'image') as any;
+    const imageContent = getContent(baileysMessage, 'image') as proto.Message.IImageMessage | undefined;
     const caption = imageContent?.caption ?? fullMessage ?? '';
     const sanitizedCaption = DataValidator.sanitizeText(caption);
     const formattedCaption = `📰 *NEWSLETTER - IMAGEM* 📰\n\n${sanitizedCaption}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
@@ -305,7 +311,12 @@ async function handleImageContent(
     );
   } catch (error) {
     logger.error('❌ Erro ao processar imagem da newsletter:', error);
-    const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+    const imageContent = getContent(baileysMessage, 'image') as proto.Message.IImageMessage | undefined;
+    const caption = imageContent?.caption ?? fullMessage ?? '';
+    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const fallbackMessage = sanitizedCaption
+      ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
+      : `📰 *NEWSLETTER* 📰`;
     await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
   } finally {
     if (imagePath && fs.existsSync(imagePath)) {
@@ -331,18 +342,22 @@ async function handleVideoContent(
   try {
     logger.info('🎥 Baixando vídeo da newsletter...');
 
-    videoPath = (await downloadVideo(baileysMessage)) ?? null;
-    if (!videoPath) {
+    videoPath = (await downloadVideo(baileysMessage)) ?? null;    if (!videoPath) {
       logger.warn('⚠️ Falha ao baixar vídeo da newsletter');
-      const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+      const videoContent = getContent(baileysMessage, 'video') as proto.Message.IVideoMessage | undefined;
+      const caption = videoContent?.caption ?? fullMessage ?? '';
+      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const fallbackMessage = sanitizedCaption
+        ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
+        : `📰 *NEWSLETTER* 📰`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
     }
 
-    const videoContent = getContent(baileysMessage, 'video') as any;
+    const videoContent = getContent(baileysMessage, 'video') as proto.Message.IVideoMessage | undefined;
     const caption = videoContent?.caption ?? fullMessage ?? '';
     const sanitizedCaption = DataValidator.sanitizeText(caption);
-    const formattedCaption = `${sanitizedCaption}`;
+    const formattedCaption = `📰 *NEWSLETTER - VÍDEO* 📰\n\n${sanitizedCaption}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
 
     await sendVideoToAllRecipients(
       recipients,
@@ -353,7 +368,12 @@ async function handleVideoContent(
     );
   } catch (error) {
     logger.error('❌ Erro ao processar vídeo da newsletter:', error);
-    const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+    const videoContent = getContent(baileysMessage, 'video') as proto.Message.IVideoMessage | undefined;
+    const caption = videoContent?.caption ?? fullMessage ?? '';
+    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const fallbackMessage = sanitizedCaption
+      ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
+      : `📰 *NEWSLETTER* 📰`;
     await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
   } finally {
     if (videoPath && fs.existsSync(videoPath)) {
@@ -374,6 +394,8 @@ async function handleStickerContent(
   bot: WASocket,
 ) {
   let stickerPath: string | null = null;
+  const { fullMessage } = extractDataFromMessage(baileysMessage);
+
   try {
     logger.info('🏷️ Baixando sticker da newsletter...');
     logger.debug(
@@ -381,10 +403,8 @@ async function handleStickerContent(
       JSON.stringify(baileysMessage.message, null, 2),
     );
     stickerPath = (await downloadSticker(baileysMessage)) ?? null;
-    logger.debug(`🏷️ Caminho do sticker baixado: ${stickerPath}`);
-
-    if (!stickerPath) {
-      const stickerContent = getContent(baileysMessage, 'sticker');
+    logger.debug(`🏷️ Caminho do sticker baixado: ${stickerPath}`);    if (!stickerPath) {
+      const stickerContent = getContent(baileysMessage, 'sticker') as proto.Message.IStickerMessage | undefined;
       logger.debug(
         '🏷️ Conteúdo do sticker encontrado:',
         JSON.stringify(stickerContent, null, 2),
@@ -393,23 +413,39 @@ async function handleStickerContent(
 
     if (!stickerPath) {
       logger.warn('⚠️ Falha ao baixar sticker da newsletter');
-      const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+
+      const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+      const fallbackMessage = sanitizedMessage
+        ? `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker + ${sanitizedMessage}`
+        : `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker recebido`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
     }
 
     if (!fs.existsSync(stickerPath)) {
       logger.warn('⚠️ Arquivo de sticker não existe no caminho especificado');
-      const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+      const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+      const fallbackMessage = sanitizedMessage
+        ? `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker + ${sanitizedMessage}`
+        : `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker recebido`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
     }
 
     logger.info(`🏷️ Enviando sticker para ${recipients.length} destinatários`);
     await sendStickerToAllRecipients(recipients, delay, bot, stickerPath);
+
+    if (fullMessage) {
+      const sanitizedMessage = DataValidator.sanitizeText(fullMessage);
+      const textMessage = `📰 *NEWSLETTER* 📰\n\n${sanitizedMessage}`;
+      await sendTextToAllRecipients(recipients, delay, bot, textMessage);
+    }
   } catch (error) {
     logger.error('❌ Erro ao processar sticker da newsletter:', error);
-    const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+    const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+    const fallbackMessage = sanitizedMessage
+      ? `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker + ${sanitizedMessage}`
+      : `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker recebido`;
     await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
   } finally {
     if (stickerPath && fs.existsSync(stickerPath)) {
@@ -433,25 +469,28 @@ async function handleDocumentContent(
   let documentPath: string | null = null;
 
   try {
-    logger.info('📄 Baixando documento da newsletter...');
-
-    const documentContent = getContent(baileysMessage, 'document') as any;
+    logger.info('📄 Baixando documento da newsletter...');    const documentContent = getContent(baileysMessage, 'document') as proto.Message.IDocumentMessage | undefined;
     const fileName = documentContent?.fileName ?? 'documento';
     const fileExtension = path.extname(fileName) ?? '.pdf';
 
     documentPath =
       (await downloadFile(baileysMessage, fileExtension.replace('.', ''))) ??
       null;
+
     if (!documentPath) {
       logger.warn('⚠️ Falha ao baixar documento da newsletter');
-      const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+      const caption = documentContent?.caption ?? fullMessage ?? '';
+      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const fallbackMessage = sanitizedCaption
+        ? `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}\n\n${sanitizedCaption}`
+        : `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
     }
 
     const caption = documentContent?.caption ?? fullMessage ?? '';
     const sanitizedCaption = DataValidator.sanitizeText(caption);
-    const formattedCaption = `${sanitizedCaption}`;
+    const formattedCaption = `📰 *NEWSLETTER - DOCUMENTO* 📰\n\n${sanitizedCaption}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
 
     await sendDocumentToAllRecipients(
       recipients,
@@ -463,7 +502,13 @@ async function handleDocumentContent(
     );
   } catch (error) {
     logger.error('❌ Erro ao processar documento da newsletter:', error);
-    const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+    const documentContent = getContent(baileysMessage, 'document') as proto.Message.IDocumentMessage | undefined;
+    const fileName = documentContent?.fileName ?? 'documento';
+    const caption = documentContent?.caption ?? fullMessage ?? '';
+    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const fallbackMessage = sanitizedCaption
+      ? `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}\n\n${sanitizedCaption}`
+      : `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}`;
     await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
   } finally {
     if (documentPath && fs.existsSync(documentPath)) {
@@ -490,31 +535,30 @@ async function handleAudioContent(
     logger.info('🎵 Baixando áudio da newsletter...');
 
     audioPath = (await downloadAudio(baileysMessage)) ?? null;
+
     if (!audioPath) {
       logger.warn('⚠️ Falha ao baixar áudio da newsletter');
-      const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+      const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+      const fallbackMessage = sanitizedMessage
+        ? `📰 *NEWSLETTER* 📰\n\n🎵 Áudio + ${sanitizedMessage}`
+        : `📰 *NEWSLETTER* 📰\n\n🎵 Áudio recebido`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
+    }    const audioContent = getContent(baileysMessage, 'audio') as proto.Message.IAudioMessage | undefined;
+    const isPtt = audioContent?.ptt ?? false;
+    await sendAudioToAllRecipients(recipients, delay, bot, audioPath, isPtt);
+
+    if (fullMessage) {
+      const sanitizedMessage = DataValidator.sanitizeText(fullMessage);
+      const textMessage = `📰 *NEWSLETTER* 📰\n\n${sanitizedMessage}`;
+      await sendTextToAllRecipients(recipients, delay, bot, textMessage);
     }
-
-    const audioContent = getContent(baileysMessage, 'audio') as any;
-    const caption = fullMessage ?? '';
-    const sanitizedCaption = DataValidator.sanitizeText(caption);
-    const formattedCaption = sanitizedCaption
-      ? `📰 *NEWSLETTER - ÁUDIO* 📰\n\n${sanitizedCaption}`
-      : undefined;
-
-    await sendAudioToAllRecipients(
-      recipients,
-      delay,
-      bot,
-      audioPath,
-      audioContent?.ptt ?? false,
-      formattedCaption,
-    );
   } catch (error) {
     logger.error('❌ Erro ao processar áudio da newsletter:', error);
-    const fallbackMessage = `📰 *NEWSLETTER* 📰`;
+    const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+    const fallbackMessage = sanitizedMessage
+      ? `📰 *NEWSLETTER* 📰\n\n🎵 Áudio + ${sanitizedMessage}`
+      : `📰 *NEWSLETTER* 📰\n\n🎵 Áudio recebido`;
     await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
   } finally {
     if (audioPath && fs.existsSync(audioPath)) {

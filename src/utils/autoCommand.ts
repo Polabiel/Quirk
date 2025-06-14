@@ -10,9 +10,10 @@ import simsimi from "../services/simsimi";
 import { general } from "../configuration/general";
 import { IBotData } from "../interfaces/IBotData";
 import verifyPrefix from "../middlewares/verifyPrefix";
-import { PrismaClient } from "@prisma/client";
 import { randomMessageViewOnce } from "./messages";
-const prisma = new PrismaClient();
+import PrismaSingleton from "./PrismaSingleton";
+
+const prisma = PrismaSingleton.getInstance();
 
 export default async function (
   bot: WASocket,
@@ -46,11 +47,14 @@ export default async function (
     },
   });
 
-  const isDisabled = group?.enable === false;
+  if(!group?.enable) {
+    return;
+  }
+
   const isCommandMessage = data.fullMessage && isCommand(data.fullMessage);
   const hasValidPrefix = data.prefix && verifyPrefix(data.prefix);
 
-  if (isDisabled || isCommandMessage || hasValidPrefix || data.fromMe) {
+  if (isCommandMessage || hasValidPrefix || data.fromMe) {
     return;
   }
 
@@ -75,15 +79,15 @@ async function processMessage(
 
   const shouldUseSimsimi = keywordsRegex.test(
     data.fullMessage! ??
-      data.baileysMessage.message?.ephemeralMessage?.message
-        ?.extendedTextMessage?.text!
+    data.baileysMessage.message?.ephemeralMessage?.message
+      ?.extendedTextMessage?.text!
   );
 
   const mentionedMessage =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.participant ===
-      general.NUMBER_BOT ||
+    general.NUMBER_BOT ||
     baileysMessage.message?.extendedTextMessage?.text ===
-      `@${general.NUMBER_BOT.slice(0, 11)}`;
+    `@${general.NUMBER_BOT.slice(0, 11)}`;
 
   const mentionedJid =
     baileysMessage.message?.extendedTextMessage?.contextInfo?.mentionedJid ||
@@ -105,8 +109,8 @@ async function processMessage(
     return data.sendText(
       await simsimi(
         data.fullMessage! ??
-          data.baileysMessage.message?.ephemeralMessage?.message
-            ?.extendedTextMessage?.text!
+        data.baileysMessage.message?.ephemeralMessage?.message
+          ?.extendedTextMessage?.text!
       )
     );
   }
