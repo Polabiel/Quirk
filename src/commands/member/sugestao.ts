@@ -1,22 +1,30 @@
-import { isJidGroup } from "baileys";
-import { general } from "../../configuration/general";
-import { ICommand } from "../../interfaces/ICommand";
-import { PrismaClient } from "@prisma/client";
-import { DangerError } from "../../errors/DangerError";
+import { isJidGroup } from 'baileys';
+import { general } from '../../configuration/general';
+import { ICommand } from '../../interfaces/ICommand';
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const command: ICommand = {
-  name: "Sugestão",
+  name: 'Sugestão',
   description: `Comando para sugestão de melhorias do ${general.BOT_NAME}`,
-  commands: ["sugestão", "sugestao", "sugestões", "sugestoes"],
+  commands: ['sugestão', 'sugestao', 'sugestões', 'sugestoes'],
   usage: `${general.PREFIX}sugestao [texto]`,
   handle: async (data) => {
-    await data.sendWaitReact();
-    if (data.args[0].length > 0 && data.args[0].length < 10) {
-      await prisma.suggestions
-        .create({
+    try {
+      await data.sendWaitReact();
+
+      if (data.args && data.args.length > 0) {
+        const userSuggestion = data.args.join(' ');
+
+        if (userSuggestion.length < 10) {
+          return data.sendWarningReply(
+            'Sua sugestão deve ter no mínimo 10 caracteres!',
+          );
+        }
+
+        await prisma.suggestions.create({
           data: {
-            sugestao: data.args[0],
+            sugestao: userSuggestion,
             user: {
               connectOrCreate: {
                 where: {
@@ -33,32 +41,36 @@ const command: ICommand = {
               },
             },
           },
-        })
-        .catch((e: any) => {
-          throw new DangerError(
-            "Erro ao tentar inserir a sugestão no banco de dados!"
-          );
         });
-      return data.sendSuccessReply("Sugestão inserida com sucesso!");
+
+        return data.sendSuccessReply('Sugestão inserida com sucesso!');
+      }
+
+      const suggestions = await prisma.suggestions.findMany({});
+
+      if (!suggestions || suggestions.length === 0) {
+        return data.sendWarningReply('Não existem sugestões pendentes!');
+      }
+
+      const users = await prisma.user.findMany({});
+      let formattedSuggestion = '';
+
+      suggestions.forEach((suggestion) => {
+        const user = users.find(
+          (user) => user.number === suggestion.userNumber,
+        );
+        formattedSuggestion += `👤 Usuário: ${
+          user?.name ?? 'Desconhecido'
+        }\n💡 Sugestão: ${suggestion.sugestao}\n\n`;
+      });
+
+      return data.sendSuccessReply(formattedSuggestion);
+    } catch (error) {
+      console.error('Erro no comando sugestão:', error);
+      return data.sendErrorReply(
+        'Erro interno do sistema. Tente novamente mais tarde.',
+      );
     }
-    const suggestions = await prisma.suggestions.findMany({});
-
-    if (suggestions.length === 0) {
-      return data.sendWarningReply("Não existem sugestões pendentes!");
-    }
-
-    const users = await prisma.user.findMany({});
-
-    let formattedSuggestion = "";
-
-    suggestions.forEach((suggestion) => {
-      const user = users.find((user) => user.number === suggestion.userNumber);
-      formattedSuggestion += `👤 Usuário: ${
-        user?.name ?? "Desconhecido"
-      }\n💡 Sugestão: ${suggestion.sugestao}\n\n`;
-    });
-
-    return data.sendSuccessReply(formattedSuggestion);
   },
 };
 
