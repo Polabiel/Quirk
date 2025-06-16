@@ -1,7 +1,6 @@
-{
-  "compilerOptions": {
+{  "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "rootDir": "./",
     "typeRoots": ["./node_modules/@types", "./types"],
@@ -18,12 +17,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "prisma/**/*"],
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node",
+  "include": ["src/**/*", "prisma/**/*"],  "ts-node": {
     "compilerOptions": {
-      "module": "ESNext",
+      "module": "CommonJS",
       "target": "ES2022"
     }
   }
