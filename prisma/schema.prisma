@@ -17,7 +17,7 @@ model user {
   number     String        @id @unique
   name       String
   blacklist  Boolean       @default(false)
-  newsletter Boolean       @default(true)
+  newsletter Boolean       @default(false)
   sugger     suggestions[]
 }
 
