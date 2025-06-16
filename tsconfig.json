@@ -1,16 +1,30 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "rootDir": "./",
     "typeRoots": ["./node_modules/@types", "./types"],
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
     "removeComments": true,
     "esModuleInterop": true,
+    "allowImportingTsExtensions": false,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "prisma/**/*"]
+  "include": ["src/**/*", "prisma/**/*"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "compilerOptions": {
+      "module": "ESNext",
+      "target": "ES2022"
+    }
+  }
 }
