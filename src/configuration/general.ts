@@ -40,11 +40,31 @@ const ensureDirectoryExists = (dirPath: string): string => {
 const projectRoot = getProjectRoot();
 const isProduction = process.env.NODE_ENV === "production";
 
+console.log(`🔧 Environment: NODE_ENV = "${process.env.NODE_ENV}"`);
+console.log(`🔧 Is Production: ${isProduction}`);
+console.log(`🔧 Project Root: ${projectRoot}`);
+
+const getCommandsDir = (): string => {
+  if (isProduction) {
+    const commandsDir = path.join(__dirname, "..", "commands");
+    console.log(`🔧 Production mode - Commands directory: ${commandsDir}`);
+    console.log(`🔧 __dirname: ${__dirname}`);
+    console.log(`🔧 Directory exists: ${fs.existsSync(commandsDir)}`);
+    return commandsDir;
+  } else {
+    const commandsDir = path.join(projectRoot, "src", "commands");
+    console.log(`🔧 Development mode - Commands directory: ${commandsDir}`);
+    console.log(`🔧 Project root: ${projectRoot}`);
+    console.log(`🔧 Directory exists: ${fs.existsSync(commandsDir)}`);
+    return commandsDir;
+  }
+};
+
 export const general: GeneralConfig = {
   BOT_NAME: "Quirk",
   PREFIX: "/",
   PREFIX_EMOJI: "🤖",
-  COMMANDS_DIR: path.join(__dirname, "..", "commands"),
+  COMMANDS_DIR: getCommandsDir(),
   TEMP_DIR: ensureDirectoryExists(path.join(projectRoot, "assets", "temp")),
   CACHE_DIR: ensureDirectoryExists(path.join(projectRoot, "cache")),  TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
   NUMBERS_HOSTS: [process.env.NUMBER_HOST ?? ""],
@@ -58,3 +78,14 @@ export const general: GeneralConfig = {
     "120363166422910155@g.us",
   ],
 };
+
+try {
+  if (fs.existsSync(general.COMMANDS_DIR)) {
+    const commandFiles = fs.readdirSync(general.COMMANDS_DIR, { recursive: true });
+    console.log(`🔧 Files found in commands directory:`, commandFiles);
+  } else {
+    console.log(`❌ Commands directory does not exist: ${general.COMMANDS_DIR}`);
+  }
+} catch (error) {
+  console.log(`❌ Error reading commands directory:`, error);
+}
