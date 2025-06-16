@@ -29,21 +29,55 @@ export const connect: () => Promise<WASocket> = async () => {
     printQRInTerminal: false,
     defaultQueryTimeoutMs: 30 * 1000,
     auth: state,    shouldIgnoreJid: (jid) => {
-      logger.debug(`Checking JID: ${jid}`);
+      const timestamp = new Date().toISOString();
+      logger.debug(`🔍 [${timestamp}] shouldIgnoreJid called with: ${jid} | general.NUMBER_BOT: ${general.NUMBER_BOT}`);
       
       if (shouldIgnoreSpamHard(jid)) {
-        logger.debug(`Anti-spam: Ignoring JID ${jid} due to spam detection (warning already sent)`);
+        logger.debug(`🚫 Anti-spam: Ignoring JID ${jid} due to spam detection (warning already sent)`);
         return true;
       }
-      
-      if (process.env.NODE_ENV?.toLocaleLowerCase() === 'development') {
-        if (isJidGroup(jid)) {
-          return !general.GROUP_SECURE.includes(jid);
-        }
-        return !general.NUMBERS_HOSTS.includes(jid) || jid !== general.NUMBER_BOT;
+
+      if (isJidBroadcast(jid) || isJidStatusBroadcast(jid)) {
+        logger.debug(`🚫 Ignoring broadcast/status JID: ${jid}`);
+        return true;
       }
-      
-      return isJidBroadcast(jid) || isJidStatusBroadcast(jid) || jid === general.NUMBER_BOT
+
+      if (jid === general.NUMBER_BOT) {
+        if (process.env.NODE_ENV?.toLowerCase() === 'development') {
+          logger.debug(`✅ Development mode: Processing self message from: ${jid}`);
+          return false;
+        } else {
+          logger.debug(`🚫 Production mode: Ignoring self message from: ${jid}`);
+          return true;
+        }
+      }
+
+      if (isJidNewsletter(jid)) {
+        logger.debug(`✅ Processing newsletter JID: ${jid} - NEVER IGNORE`);
+        return false;
+      }
+
+      if (process.env.NODE_ENV?.toLowerCase() === 'development') {
+        logger.debug(`🔧 Development mode: Processing JID ${jid}`);
+
+        if (isJidGroup(jid)) {
+          const shouldProcess = general.GROUP_SECURE.includes(jid);
+          logger.debug(`👥 Group JID ${jid} - Should process (not ignore): ${shouldProcess}`);
+          const result = !shouldProcess;
+          logger.debug(`🔍 shouldIgnoreJid returning: ${result} (true=ignore, false=process)`);
+          return result;
+        }
+
+        const isAuthorizedHost = general.NUMBERS_HOSTS.includes(jid);
+        logger.debug(`👤 Individual JID ${jid} - Is authorized host: ${isAuthorizedHost}, Should ignore: ${!isAuthorizedHost}`);
+        const result = !isAuthorizedHost;
+        logger.debug(`🔍 shouldIgnoreJid returning: ${result} (true=ignore, false=process)`);
+        return result;
+      }
+
+      logger.debug(`🚀 Production mode: Processing JID ${jid}`);
+      logger.debug(`🔍 shouldIgnoreJid returning: false (production mode - process everything)`);
+      return false;
     },
     keepAliveIntervalMs: 30 * 1000,
     markOnlineOnConnect: true,
