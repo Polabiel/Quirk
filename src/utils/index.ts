@@ -4,17 +4,17 @@ import {
   MediaType,
   proto,
   WASocket,
-} from "baileys";
-import { general } from "../configuration/general";
-import path from "path";
+} from 'baileys';
+import { general } from '../configuration/general';
+import path from 'path';
 import {
   IDefaultCommand,
   ICommandImports,
   ICommand,
-} from "../interfaces/ICommand";
-import { v4 as uuidv4 } from "uuid";
-import fs from "fs";
-import { logger } from "./logger";
+} from '../interfaces/ICommand';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import { logger } from './logger';
 
 let commandCache: ICommandImports | null = null;
 
@@ -39,48 +39,48 @@ export function extractDataFromMessage(baileysMessage: proto.IWebMessageInfo) {
   if (!fullMessage) {
     return {
       remoteJid: baileysMessage?.key?.remoteJid,
-      prefix: "",
-      isGroup: baileysMessage?.key?.remoteJid?.endsWith("@g.us"),
+      prefix: '',
+      isGroup: baileysMessage?.key?.remoteJid?.endsWith('@g.us'),
       nickName: baileysMessage?.pushName,
       fromMe: baileysMessage?.key?.fromMe,
-      commandName: "",
+      commandName: '',
       idMessage: baileysMessage?.key?.id,
       participant: baileysMessage?.key?.participant,
       args: [],
-      argsJoined: "",
+      argsJoined: '',
     };
   }
 
-  const [command, ...args] = fullMessage.split(" ");
+  const [command, ...args] = fullMessage.split(' ');
 
   const prefix = command.charAt(0);
-  const arg = args.reduce((acc, arg) => acc + " " + arg, "").trim();
+  const arg = args.reduce((acc, arg) => acc + ' ' + arg, '').trim();
 
   const commandWithoutPrefix = command.replace(
     new RegExp(`^[${general.PREFIX}]+`),
-    ""
+    '',
   );
 
   return {
     fullMessage,
     remoteJid: baileysMessage?.key?.remoteJid!,
     prefix,
-    isGroup: baileysMessage?.key?.remoteJid?.endsWith("@g.us")!,
+    isGroup: baileysMessage?.key?.remoteJid?.endsWith('@g.us')!,
     nickName: baileysMessage?.pushName!,
     fromMe: baileysMessage?.key?.fromMe!,
     commandName: formatCommand(commandWithoutPrefix),
     idMessage: baileysMessage?.key?.id!,
     participant: baileysMessage?.key?.participant!,
-    args: splitByCharacters(args.join(" "), ["\\", "|", "/"]),
+    args: splitByCharacters(args.join(' '), ['\\', '|', '/']),
     argsJoined: arg,
   };
 }
 
 export const splitByCharacters = (str: string, characters: string[]) => {
   characters = characters.map((char: string) =>
-    char === "\\" ? "\\\\" : char
+    char === '\\' ? '\\\\' : char,
   );
-  const regex = new RegExp(`[${characters.join("")}]`);
+  const regex = new RegExp(`[${characters.join('')}]`);
 
   return str
     .split(regex)
@@ -90,23 +90,23 @@ export const splitByCharacters = (str: string, characters: string[]) => {
 
 export const formatCommand = (text: string) => {
   return onlyLettersAndNumbers(
-    removeAccentsAndSpecialCharacters(text.toLocaleLowerCase().trim())
+    removeAccentsAndSpecialCharacters(text.toLocaleLowerCase().trim()),
   );
 };
 
 export const onlyLettersAndNumbers = (text: string) => {
-  return text.replace(/[^a-zA-Z0-9]/g, "");
+  return text.replace(/[^a-zA-Z0-9]/g, '');
 };
 
 export const removeAccentsAndSpecialCharacters = (text: string) => {
-  if (!text) return "";
+  if (!text) return '';
 
-  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
 export const baileysIs = (
   baileysMessage: proto.IWebMessageInfo,
-  context: string
+  context: string,
 ) => {
   return (
     !!baileysMessage.message?.[
@@ -120,7 +120,7 @@ export const baileysIs = (
 
 export const getContent = (
   baileysMessage: proto.IWebMessageInfo,
-  type: string
+  type: string,
 ) => {
   return (
     baileysMessage.message?.[
@@ -134,7 +134,7 @@ export const getContent = (
 
 export const getContentUnique = (
   baileysMessage: proto.IWebMessageInfo,
-  type: string
+  type: string,
 ) => {
   return (
     baileysMessage.message?.viewOnceMessageV2?.message?.[
@@ -147,50 +147,50 @@ export const getContentUnique = (
 };
 
 export const downloadVideo = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, `${uuidv4()}`, "video", "mp4");
+  return await downloadContent(baileysMessage, `${uuidv4()}`, 'video', 'mp4');
 };
 
 export const downloadImage = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, `${uuidv4()}`, "image", "png");
+  return await downloadContent(baileysMessage, `${uuidv4()}`, 'image', 'png');
 };
 
 export const downloadSticker = async (
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => {
   return await downloadContent(
     baileysMessage,
     `${uuidv4()}`,
-    "sticker",
-    "webp"
+    'sticker',
+    'webp',
   );
 };
 
 export const downloadFile = async (
   baileysMessage: proto.IWebMessageInfo,
-  fileType: string
+  fileType: string,
 ) => {
   return await downloadContent(
     baileysMessage,
     `${uuidv4()}`,
-    "document",
-    fileType
+    'document',
+    fileType,
   );
 };
 
 export const downloadAudio = async (baileysMessage: proto.IWebMessageInfo) => {
-  return await downloadContent(baileysMessage, `${uuidv4()}`, "audio", "mp3");
+  return await downloadContent(baileysMessage, `${uuidv4()}`, 'audio', 'mp3');
 };
 
 const downloadContent = async (
   baileysMessage: proto.IWebMessageInfo,
   fileName: string,
   context: MediaType,
-  extension: string
+  extension: string,
 ) => {
   const content = getContent(baileysMessage, context) as DownloadableMessage;
   const contentUnique = getContentUnique(
     baileysMessage,
-    context
+    context,
   ) as DownloadableMessage;
 
   if (content) {
@@ -203,7 +203,7 @@ const downloadContent = async (
     }
 
     const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
-    fs.writeFileSync(filePath, buffer, { encoding: "binary" });
+    fs.writeFileSync(filePath, buffer, { encoding: 'binary' });
 
     return filePath;
   }
@@ -218,7 +218,7 @@ const downloadContent = async (
     }
 
     const filePath = path.resolve(general.TEMP_DIR, `${fileName}.${extension}`);
-    fs.writeFileSync(filePath, buffer, { encoding: "binary" });
+    fs.writeFileSync(filePath, buffer, { encoding: 'binary' });
 
     return filePath;
   }
@@ -227,17 +227,17 @@ const downloadContent = async (
 };
 
 export const extractCommandAndArgs = (message: string) => {
-  if (!message) return { command: "", args: "" };
+  if (!message) return { command: '', args: '' };
 
-  const [command, ...tempArgs] = message.trim().split(" ");
+  const [command, ...tempArgs] = message.trim().split(' ');
 
-  const args = tempArgs.reduce((acc, arg) => acc + " " + arg, "").trim();
+  const args = tempArgs.reduce((acc, arg) => acc + ' ' + arg, '').trim();
 
   return { command, args };
 };
 
 export const isCommand = (message: string): boolean => {
-  if (typeof message !== "string") return false;
+  if (typeof message !== 'string') return false;
   return message.length > 1 && message.startsWith(general.PREFIX);
 };
 
@@ -255,18 +255,18 @@ export const findCommandImport: (commandName: string) => Promise<{
 }> = async (commandName: string) => {
   const command = await readCommandImports();
 
-  let typeReturn = "";
+  let typeReturn = '';
   let targetCommandReturn: IDefaultCommand | null = null;
 
   for (const [type, commands] of Object.entries(command)) {
-    if (!commands.length || type == "auto") {
+    if (!commands.length || type == 'auto') {
       continue;
     }
 
     const targetCommand: IDefaultCommand | undefined = commands.find((cmd) =>
       cmd?.default?.commands
         .map((cmd: string) => formatCommand(cmd))
-        .includes(commandName)
+        .includes(commandName),
     );
 
     if (targetCommand) {
@@ -288,7 +288,7 @@ export const choiceRandomCommand: () => Promise<{
 }> = async () => {
   const command = await readCommandImports();
 
-  let typeReturn = "auto";
+  let typeReturn = 'auto';
 
   const autoCommands = command[typeReturn];
 
@@ -311,21 +311,23 @@ export const choiceRandomCommand: () => Promise<{
 async function readCommandsRecursively(dir: string): Promise<any[]> {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   const results: any[] = [];
+
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
+
     if (entry.isDirectory()) {
-      results.push(...await readCommandsRecursively(fullPath));    } else if (!entry.name.startsWith("_") && (entry.name.endsWith(".js") || entry.name.endsWith(".ts"))) {      try {
-        let modulePath: string;
-        
-        if (process.platform === 'win32') {
-          const normalizedPath = path.resolve(fullPath).replace(/\\/g, '/');
-          modulePath = `file:///${normalizedPath}`;
-        } else {
-          modulePath = `file://${path.resolve(fullPath)}`;
-        }
-        
-        const mod = await import(modulePath);
+      results.push(...(await readCommandsRecursively(fullPath)));
+    } else if (
+      !entry.name.startsWith('_') &&
+      (entry.name.endsWith('.js') || entry.name.endsWith('.ts'))
+    ) {
+      try {
+        delete require.cache[require.resolve(fullPath)];
+
+        const mod = require(fullPath);
         results.push(mod);
+
+        logger.debug(`✅ Command loaded successfully: ${fullPath}`);
       } catch (err) {
         logger.error(`📛 Failed to load command ${fullPath}: ${err}`);
       }
@@ -339,8 +341,8 @@ export const readCommandImports = async (): Promise<ICommandImports> => {
   const commandImports: ICommandImports = {};
   const subdirectories = fs
     .readdirSync(general.COMMANDS_DIR, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => d.name);
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
 
   for (const subdir of subdirectories) {
     const subdirectoryPath = path.join(general.COMMANDS_DIR, subdir);
@@ -354,21 +356,21 @@ export const readCommandImports = async (): Promise<ICommandImports> => {
 
 export const isAdminGroup: (
   bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => Promise<boolean> = async (
   bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => {
   if (extractDataFromMessage(baileysMessage).isGroup!) {
     const metadata = await bot.groupMetadata(
-      extractDataFromMessage(baileysMessage).remoteJid!
+      extractDataFromMessage(baileysMessage).remoteJid!,
     );
     const admins = metadata.participants.filter(
-      (participant) => participant?.admin != null
+      (participant) => participant?.admin != null,
     );
     const adminsIds = admins.map((admin) => admin.id);
     const isAdmin = adminsIds.includes(
-      extractDataFromMessage(baileysMessage).participant!
+      extractDataFromMessage(baileysMessage).participant!,
     );
     return isAdmin;
   }
@@ -378,21 +380,21 @@ export const isAdminGroup: (
 export const verifyIfIsAdmin: (
   type: string,
   bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => Promise<boolean> = async (
   type: string,
   bot: WASocket,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => {
-  if (type === "admin") {
+  if (type === 'admin') {
     const isAdmin = await isAdminGroup(bot, baileysMessage);
     return (
       !!isAdmin ||
       general.NUMBERS_HOSTS.includes(
-        extractDataFromMessage(baileysMessage).participant!
+        extractDataFromMessage(baileysMessage).participant!,
       ) ||
       general.NUMBER_BOT.includes(
-        extractDataFromMessage(baileysMessage).remoteJid!
+        extractDataFromMessage(baileysMessage).remoteJid!,
       )
     );
   }
@@ -401,19 +403,19 @@ export const verifyIfIsAdmin: (
 
 export const verifyIfIsOwner: (
   type: string,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => Promise<boolean> = async (
   type: string,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => {
-  if (type === "owner") {
+  if (type === 'owner') {
     if (extractDataFromMessage(baileysMessage).isGroup!) {
       return general.NUMBERS_HOSTS.includes(
-        extractDataFromMessage(baileysMessage).participant!
+        extractDataFromMessage(baileysMessage).participant!,
       );
     }
     return general.NUMBERS_HOSTS.includes(
-      extractDataFromMessage(baileysMessage).remoteJid!
+      extractDataFromMessage(baileysMessage).remoteJid!,
     );
   }
   return true;
@@ -421,14 +423,14 @@ export const verifyIfIsOwner: (
 
 export const verifyIfIsGroupSecure: (
   type: string,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => Promise<boolean> = async (
   type: string,
-  baileysMessage: proto.IWebMessageInfo
+  baileysMessage: proto.IWebMessageInfo,
 ) => {
-  if (type === "secure" && extractDataFromMessage(baileysMessage).isGroup!) {
+  if (type === 'secure' && extractDataFromMessage(baileysMessage).isGroup!) {
     return general.GROUP_SECURE.includes(
-      extractDataFromMessage(baileysMessage).remoteJid!
+      extractDataFromMessage(baileysMessage).remoteJid!,
     );
   }
   return true;
