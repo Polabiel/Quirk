@@ -1,7 +1,8 @@
+import { debug } from "node:console";
 import pino from "pino";
 
 const logger = pino({
-  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+  level: "debug",
   transport: {
     target: 'pino-pretty',
     options: {
