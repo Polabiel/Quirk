@@ -1,26 +1,15 @@
-{  "compilerOptions": {
-    "target": "ES2022",
+{
+  "compilerOptions": {
+    "target": "ES2017",
     "module": "CommonJS",
-    "moduleResolution": "node",
-    "rootDir": "./",
-    "typeRoots": ["./node_modules/@types", "./types"],
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "outDir": "./dist",
-    "removeComments": true,
-    "esModuleInterop": true,
-    "allowImportingTsExtensions": false,
-    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
     "strict": true,
-    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "declaration": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "skipLibCheck": true,
+    "lib": ["ESNext"],
+    "outDir": "dist/"
   },
-  "include": ["src/**/*", "prisma/**/*"],  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS",
-      "target": "ES2022"
-    }
-  }
+  "include": ["src/**/*.ts"]
 }
