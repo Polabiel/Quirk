@@ -314,14 +314,14 @@ async function readCommandsRecursively(dir: string): Promise<any[]> {
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...await readCommandsRecursively(fullPath));    } else if (!entry.name.startsWith("_") && (entry.name.endsWith(".js") || entry.name.endsWith(".ts"))) {
-      try {
+      results.push(...await readCommandsRecursively(fullPath));    } else if (!entry.name.startsWith("_") && (entry.name.endsWith(".js") || entry.name.endsWith(".ts"))) {      try {
         let modulePath: string;
         
         if (process.platform === 'win32') {
-          modulePath = `file://${fullPath.replace(/\\/g, '/')}`;
+          const normalizedPath = path.resolve(fullPath).replace(/\\/g, '/');
+          modulePath = `file:///${normalizedPath}`;
         } else {
-          modulePath = `file://${fullPath}`;
+          modulePath = `file://${path.resolve(fullPath)}`;
         }
         
         const mod = await import(modulePath);

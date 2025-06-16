@@ -46,10 +46,9 @@ export const general: GeneralConfig = {
   PREFIX_EMOJI: "🤖",
   COMMANDS_DIR: path.join(__dirname, "..", "commands"),
   TEMP_DIR: ensureDirectoryExists(path.join(projectRoot, "assets", "temp")),
-  CACHE_DIR: ensureDirectoryExists(path.join(projectRoot, "cache")),
-  TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
+  CACHE_DIR: ensureDirectoryExists(path.join(projectRoot, "cache")),  TIMEOUT_IN_MILLISECONDS_BY_EVENT: 15000,
   NUMBERS_HOSTS: [process.env.NUMBER_HOST ?? ""],
-  NUMBER_BOT: "554797010769@s.whatsapp.net",
+  NUMBER_BOT: process.env.NUMBER_BOT ? `${process.env.NUMBER_BOT}@s.whatsapp.net` : "",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   GROUP_SECURE: [
     "120363360525817583@g.us",
