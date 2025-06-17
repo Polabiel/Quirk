@@ -27,6 +27,17 @@ import path from 'path';
 
 const prisma = PrismaSingleton.getInstance();
 
+// Função para sanitizar texto preservando emojis
+function sanitizeNewsletterText(text: string): string {
+  if (!text || typeof text !== 'string') return '';
+  
+  // Remove apenas caracteres de controle perigosos, mas preserva emojis
+  return text
+    .replace(/[\x00-\x1F\x7F]/g, '') // Remove caracteres de controle
+    .substring(0, 4096)
+    .trim();
+}
+
 function getNewsletterContent(
   baileysMessage: proto.IWebMessageInfo,
   type: string,
@@ -440,9 +451,8 @@ async function processNewsletterContent(
     );
     return;
   }
-
   if (fullMessage) {
-    const sanitizedMessage = DataValidator.sanitizeText(fullMessage);
+    const sanitizedMessage = sanitizeNewsletterText(fullMessage);
     const formattedMessage = `📰 *NEWSLETTER* 📰\n\n${sanitizedMessage}`;
     await sendTextToAllRecipients(recipients, delay, bot, formattedMessage);
   }
@@ -468,13 +478,13 @@ async function handleImageContent(
       logger.debug('📷 URL da imagem:', imageContentDirect.url);
       logger.debug('📷 Tipo de arquivo:', imageContentDirect.mimetype);
       logger.debug('📷 Dimensões:', `${imageContentDirect.width}x${imageContentDirect.height}`);
-      logger.debug('📷 Caption:', imageContentDirect.caption);
-
-      const caption = imageContentDirect.caption ?? fullMessage ?? '';
-      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      logger.debug('📷 Caption:', imageContentDirect.caption);      const caption = imageContentDirect.caption ?? fullMessage ?? '';
+      const sanitizedCaption = sanitizeNewsletterText(caption);
       const formattedCaption = sanitizedCaption
         ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
         : `📰 *NEWSLETTER* 📰`;
+
+      logger.debug('📷 Caption processada:', formattedCaption);
 
       await sendImageDirectToAllRecipients(recipients, delay, bot, imageContentDirect, formattedCaption);
       return;
@@ -521,41 +531,39 @@ async function handleImageContent(
     }
 
     if (!imagePath) {
-      logger.warn('⚠️ Falha ao baixar imagem da newsletter');
-      const imageContentFallback = getContent(baileysMessage, 'image') as
+      logger.warn('⚠️ Falha ao baixar imagem da newsletter');      const imageContentFallback = getContent(baileysMessage, 'image') as
         | proto.Message.IImageMessage
         | undefined;
       const caption = imageContentFallback?.caption ?? fullMessage ?? '';
-      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const sanitizedCaption = sanitizeNewsletterText(caption);
       const fallbackMessage = sanitizedCaption
         ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
         : `📰 *NEWSLETTER* 📰`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
-    }
-
-    if (!fs.existsSync(imagePath)) {
+    }    if (!fs.existsSync(imagePath)) {
       logger.warn('⚠️ Arquivo de imagem não existe no caminho especificado');
       const imageContent = getContent(baileysMessage, 'image') as
         | proto.Message.IImageMessage
         | undefined;
       const caption = imageContent?.caption ?? fullMessage ?? '';
-      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const sanitizedCaption = sanitizeNewsletterText(caption);
       const fallbackMessage = sanitizedCaption
         ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
         : `📰 *NEWSLETTER* 📰`;
       await sendTextToAllRecipients(recipients, delay, bot, fallbackMessage);
       return;
-    }
-
-    const imageContent = getContent(baileysMessage, 'image') as
+    }    const imageContent = getContent(baileysMessage, 'image') as
       | proto.Message.IImageMessage
       | undefined;
     const caption = imageContent?.caption ?? fullMessage ?? '';
-    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const sanitizedCaption = sanitizeNewsletterText(caption);
     const formattedCaption = `📰 *NEWSLETTER - IMAGEM* 📰\n\n${sanitizedCaption}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
 
     logger.info(`📷 Enviando imagem para ${recipients.length} destinatários`);
+    logger.debug('📷 Caminho da imagem:', imagePath);
+    logger.debug('📷 Caption formatada:', formattedCaption);
+    
     await sendImageToAllRecipients(
       recipients,
       delay,
@@ -564,12 +572,11 @@ async function handleImageContent(
       formattedCaption,
     );
   } catch (error) {
-    logger.error('❌ Erro ao processar imagem da newsletter:', error);
-    const imageContent = getContent(baileysMessage, 'image') as
+    logger.error('❌ Erro ao processar imagem da newsletter:', error);    const imageContent = getContent(baileysMessage, 'image') as
       | proto.Message.IImageMessage
       | undefined;
     const caption = imageContent?.caption ?? fullMessage ?? '';
-    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const sanitizedCaption = sanitizeNewsletterText(caption);
     const fallbackMessage = sanitizedCaption
       ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
       : `📰 *NEWSLETTER* 📰`;
@@ -609,7 +616,7 @@ async function handleVideoContent(
       logger.debug('🎥 Caption:', videoContentDirect.caption);
 
       const caption = videoContentDirect.caption ?? fullMessage ?? '';
-      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const sanitizedCaption = sanitizeNewsletterText(caption);
       const formattedCaption = sanitizedCaption
         ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
         : `📰 *NEWSLETTER* 📰`;
@@ -627,7 +634,7 @@ async function handleVideoContent(
         | proto.Message.IVideoMessage
         | undefined;
       const caption = videoContent?.caption ?? fullMessage ?? '';
-      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const sanitizedCaption = sanitizeNewsletterText(caption);
       const fallbackMessage = sanitizedCaption
         ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
         : `📰 *NEWSLETTER* 📰`;
@@ -639,7 +646,7 @@ async function handleVideoContent(
       | proto.Message.IVideoMessage
       | undefined;
     const caption = videoContent?.caption ?? fullMessage ?? '';
-    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const sanitizedCaption = sanitizeNewsletterText(caption);
     const formattedCaption = `📰 *NEWSLETTER - VÍDEO* 📰\n\n${sanitizedCaption}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
 
     await sendVideoToAllRecipients(
@@ -655,7 +662,7 @@ async function handleVideoContent(
       | proto.Message.IVideoMessage
       | undefined;
     const caption = videoContent?.caption ?? fullMessage ?? '';
-    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const sanitizedCaption = sanitizeNewsletterText(caption);
     const fallbackMessage = sanitizedCaption
       ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
       : `📰 *NEWSLETTER* 📰`;
@@ -709,7 +716,7 @@ async function handleStickerContent(
 
     if (!stickerPath) {
       logger.warn('⚠️ Falha ao baixar sticker da newsletter');
-      const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+      const sanitizedMessage = sanitizeNewsletterText(fullMessage ?? '');
       const fallbackMessage = sanitizedMessage
         ? `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker + ${sanitizedMessage}`
         : `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker recebido`;
@@ -719,7 +726,7 @@ async function handleStickerContent(
 
     if (!fs.existsSync(stickerPath)) {
       logger.warn('⚠️ Arquivo de sticker não existe no caminho especificado');
-      const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+      const sanitizedMessage = sanitizeNewsletterText(fullMessage ?? '');
       const fallbackMessage = sanitizedMessage
         ? `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker + ${sanitizedMessage}`
         : `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker recebido`;
@@ -731,13 +738,13 @@ async function handleStickerContent(
     await sendStickerToAllRecipients(recipients, delay, bot, stickerPath);
 
     if (fullMessage) {
-      const sanitizedMessage = DataValidator.sanitizeText(fullMessage);
+      const sanitizedMessage = sanitizeNewsletterText(fullMessage);
       const textMessage = `📰 *NEWSLETTER* 📰\n\n${sanitizedMessage}`;
       await sendTextToAllRecipients(recipients, delay, bot, textMessage);
     }
   } catch (error) {
     logger.error('❌ Erro ao processar sticker da newsletter:', error);
-    const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+    const sanitizedMessage = sanitizeNewsletterText(fullMessage ?? '');
     const fallbackMessage = sanitizedMessage
       ? `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker + ${sanitizedMessage}`
       : `📰 *NEWSLETTER* 📰\n\n🏷️ Sticker recebido`;
@@ -778,7 +785,7 @@ async function handleDocumentContent(
     if (!documentPath) {
       logger.warn('⚠️ Falha ao baixar documento da newsletter');
       const caption = documentContent?.caption ?? fullMessage ?? '';
-      const sanitizedCaption = DataValidator.sanitizeText(caption);
+      const sanitizedCaption = sanitizeNewsletterText(caption);
       const fallbackMessage = sanitizedCaption
         ? `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}\n\n${sanitizedCaption}`
         : `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}`;
@@ -787,7 +794,7 @@ async function handleDocumentContent(
     }
 
     const caption = documentContent?.caption ?? fullMessage ?? '';
-    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const sanitizedCaption = sanitizeNewsletterText(caption);
     const formattedCaption = `📰 *NEWSLETTER - DOCUMENTO* 📰\n\n${sanitizedCaption}\n\n🤖 Reencaminhado via ${general.BOT_NAME}`;
 
     await sendDocumentToAllRecipients(
@@ -805,7 +812,7 @@ async function handleDocumentContent(
       | undefined;
     const fileName = documentContent?.fileName ?? 'documento';
     const caption = documentContent?.caption ?? fullMessage ?? '';
-    const sanitizedCaption = DataValidator.sanitizeText(caption);
+    const sanitizedCaption = sanitizeNewsletterText(caption);
     const fallbackMessage = sanitizedCaption
       ? `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}\n\n${sanitizedCaption}`
       : `📰 *NEWSLETTER* 📰\n\n📄 Documento: ${fileName}`;
@@ -838,7 +845,7 @@ async function handleAudioContent(
 
     if (!audioPath) {
       logger.warn('⚠️ Falha ao baixar áudio da newsletter');
-      const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+      const sanitizedMessage = sanitizeNewsletterText(fullMessage ?? '');
       const fallbackMessage = sanitizedMessage
         ? `📰 *NEWSLETTER* 📰\n\n🎵 Áudio + ${sanitizedMessage}`
         : `📰 *NEWSLETTER* 📰\n\n🎵 Áudio recebido`;
@@ -852,13 +859,13 @@ async function handleAudioContent(
     await sendAudioToAllRecipients(recipients, delay, bot, audioPath, isPtt);
 
     if (fullMessage) {
-      const sanitizedMessage = DataValidator.sanitizeText(fullMessage);
+      const sanitizedMessage = sanitizeNewsletterText(fullMessage);
       const textMessage = `📰 *NEWSLETTER* 📰\n\n${sanitizedMessage}`;
       await sendTextToAllRecipients(recipients, delay, bot, textMessage);
     }
   } catch (error) {
     logger.error('❌ Erro ao processar áudio da newsletter:', error);
-    const sanitizedMessage = DataValidator.sanitizeText(fullMessage ?? '');
+    const sanitizedMessage = sanitizeNewsletterText(fullMessage ?? '');
     const fallbackMessage = sanitizedMessage
       ? `📰 *NEWSLETTER* 📰\n\n🎵 Áudio + ${sanitizedMessage}`
       : `📰 *NEWSLETTER* 📰\n\n🎵 Áudio recebido`;
@@ -882,7 +889,7 @@ async function sendTextToAllRecipients(
   message?: string,
 ) {
   message ??= '';
-  const sanitizedMessage = DataValidator.sanitizeText(message);
+  const sanitizedMessage = sanitizeNewsletterText(message);
   let successCount = 0;
   let failureCount = 0;
 
@@ -946,13 +953,18 @@ async function sendImageToAllRecipients(
       logger.warn(`🚫 Rate limit atingido para ${recipient}`);
       failureCount++;
       continue;
-    }
+    }    try {
+      // Verifica se o arquivo existe antes de tentar enviar
+      if (!fs.existsSync(imagePath)) {
+        logger.error(`❌ Arquivo de imagem não encontrado: ${imagePath}`);
+        failureCount++;
+        continue;
+      }
 
-    try {
       await ErrorRecovery.retryOperation(
         () =>
           bot.sendMessage(recipient, {
-            image: { url: imagePath },
+            image: fs.readFileSync(imagePath),
             caption: caption,
           }),
         2,
@@ -1281,21 +1293,23 @@ async function sendImageDirectToAllRecipients(
       logger.warn(`🚫 Rate limit atingido para ${recipient}`);
       failureCount++;
       continue;
-    }
-
-    try {
+    }    try {
       await ErrorRecovery.retryOperation(
         async () => {
-          try {
-            await bot.sendMessage(recipient, {
-              image: { url: imageData.url },
-              caption: caption,
-            });
-            return;
-          } catch (error) {
-            logger.debug(`Tentativa com URL simples falhou, tentando com estrutura completa:`, error);
+          // Tenta primeiro enviar usando a URL se disponível
+          if (imageData.url) {
+            try {
+              await bot.sendMessage(recipient, {
+                image: { url: imageData.url },
+                caption: caption,
+              });
+              return;
+            } catch (error) {
+              logger.debug(`Tentativa com URL falhou, tentando com buffer:`, error);
+            }
           }
 
+          // Se não tem URL ou falhou, tenta com o objeto completo
           const imageMessage = {
             image: imageData,
             caption: caption,
