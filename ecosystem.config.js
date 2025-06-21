@@ -8,10 +8,10 @@ module.exports = {
       watch: false,
       ignore_watch: ['node_modules', 'logs', '.git', 'dist'],
       max_memory_restart: '1G',
-      cron_restart: '0 2 * * *', // Restart diário às 2h da manhã
+      cron_restart: '0 * * * *',
       restart_delay: 2000,
       max_restarts: 10,
-      min_uptime: '30s',
+      min_uptime: '5s',
       exp_backoff_restart_delay: 100,
       error_file: './logs/error.log',
       out_file: './logs/out.log',

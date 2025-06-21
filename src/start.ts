@@ -1,3 +1,5 @@
+import "./polyfill-crypto";
+
 import onMessagesUpsert from "./middlewares/onMessagesUpsert";
 import { logger } from "./utils/logger";
 require("dotenv").config();
