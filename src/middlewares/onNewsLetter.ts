@@ -16,6 +16,7 @@ import {
   downloadAudio,
   downloadFile,
 } from '../utils';
+import loadCommomFunctions from '../utils/loadCommomFunctions';
 import { logger } from '../utils/logger';
 import PrismaSingleton from '../utils/PrismaSingleton';
 import RateLimiter, {
@@ -190,6 +191,7 @@ function analyzeNewsletterStructure(baileysMessage: proto.IWebMessageInfo) {
 }
 
 export default async (bot: WASocket, baileysMessage: proto.IWebMessageInfo) => {
+  const commonFunctions = loadCommomFunctions(bot, baileysMessage);
   if (!baileysMessage?.key?.remoteJid) return;
   if (!isJidNewsletter(baileysMessage.key.remoteJid)) return;
 
@@ -397,7 +399,6 @@ async function processNewsletterContent(
 ) {
   const { fullMessage } = extractDataFromMessage(baileysMessage);
 
-  // Verifica se é uma poll (enquete)
   if (baileysMessage.message?.pollCreationMessageV3) {
     await handlePollContent(baileysMessage, recipients, delay, bot);
     return;
@@ -430,31 +431,9 @@ async function processNewsletterContent(
     return;
   }
 
-  if (baileysIs(baileysMessage, 'document')) {
-    await handleDocumentContent(
-      baileysMessage,
-      recipients,
-      delay,
-      bot,
-      fullMessage,
-    );
-    return;
-  }
-
-  if (baileysIs(baileysMessage, 'audio')) {
-    await handleAudioContent(
-      baileysMessage,
-      recipients,
-      delay,
-      bot,
-      fullMessage,
-    );
-    return;
-  }
+ 
   if (fullMessage) {
-    const sanitizedMessage = sanitizeNewsletterText(fullMessage);
-    const formattedMessage = `📰 *NEWSLETTER* 📰\n\n${sanitizedMessage}`;
-    await sendTextToAllRecipients(recipients, delay, bot, formattedMessage);
+    await sendTextToAllRecipients(recipients, delay, bot, fullMessage);
   }
 }
 
@@ -481,7 +460,7 @@ async function handleImageContent(
       logger.debug('📷 Caption:', imageContentDirect.caption);      const caption = imageContentDirect.caption ?? fullMessage ?? '';
       const sanitizedCaption = sanitizeNewsletterText(caption);
       const formattedCaption = sanitizedCaption
-        ? `📰 *NEWSLETTER* 📰\n\n${sanitizedCaption}`
+        ? `${sanitizedCaption}`
         : `📰 *NEWSLETTER* 📰`;
 
       logger.debug('📷 Caption processada:', formattedCaption);
@@ -908,7 +887,10 @@ async function sendTextToAllRecipients(
 
     try {
       await ErrorRecovery.retryOperation(
-        () => bot.sendMessage(recipient, { text: sanitizedMessage }),
+        async () => {
+          await bot.sendMessage(recipient, { text: "📰 NewsLetters 📰" })
+          await bot.sendMessage(recipient, { text: sanitizedMessage })
+        },
         2,
         1000,
       );
@@ -954,7 +936,6 @@ async function sendImageToAllRecipients(
       failureCount++;
       continue;
     }    try {
-      // Verifica se o arquivo existe antes de tentar enviar
       if (!fs.existsSync(imagePath)) {
         logger.error(`❌ Arquivo de imagem não encontrado: ${imagePath}`);
         failureCount++;
