@@ -22,7 +22,7 @@ async function start(): Promise<void> {
     const bot = await connect();
 
     function scheduleRandomExecution() {
-      const min = 60_000;
+      const min = 1_500_000;
       const max = 3_600_000;
       const randomDelay = Math.floor(Math.random() * (max - min)) + min;
       setTimeout(async () => {
