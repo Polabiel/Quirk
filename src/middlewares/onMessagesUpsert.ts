@@ -1,5 +1,4 @@
-import { MessageUpsertType, proto } from 'baileys';
-import { connect } from '../connection';
+import { MessageUpsertType, proto, WASocket } from 'baileys';
 import InstanceCommand from '../utils/InstanceCommand';
 import autoCommand from '../utils/autoCommand';
 import repositories from '../database';
@@ -7,8 +6,7 @@ import { ensureGroupCache } from '../database/RAG';
 
 let init: number = 0;
 
-export default async () => {
-  const bot = await connect();
+export default async (bot: WASocket) => {
 
   if (init === 0) {
     console.log('🧾Seus comandos estão prontos para ser usado\n');
