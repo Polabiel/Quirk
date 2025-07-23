@@ -42,6 +42,20 @@ module.exports = {
         FORCE_COLOR: '0'
       },
     },
+    {
+      name: 'ollama',
+      script: 'ollama',
+      args: 'serve',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '512M',
+      env: {
+        NODE_ENV: 'development',
+      },
+      env_production: {
+        NODE_ENV: 'production',
+      },
+    },
   ],
   deploy: {
     production: {
