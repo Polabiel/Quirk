@@ -124,7 +124,7 @@ Sempre busque ajudar da melhor maneira possível, mantendo um equilíbrio entre 
       { role: 'system', content: systemInstructions },
     ];
     if (contextoFatos && contextoFatos.length > 0 && secured) {
-      systemMessages.push({ role: 'system', content: contextoFatos });
+      systemMessages.push({ role: 'assistant', content: contextoFatos });
     }
 
     const response = await ollama.chat({
