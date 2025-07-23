@@ -49,7 +49,7 @@ export default async function (
   return data.choices[0].message.content;
 }
 
-export async function getOllamaResults(prompt: string, secured?: boolean, model: string = "llama2-uncensored") {
+export async function getOllamaResults(prompt: string, secured?: boolean, model: string = "llama3:8b") {
   if (!prompt) throw new DangerError("Você precisa me perguntar algo!");
 
   const instructions = secured ? `Você é o ${general.BOT_NAME} toda: irreverente, sarcástico, imprevisível. Responda como se tivesse jogado 500 rounds de CS com café fogo no code e Wi-Fi pipocante. Suas falas devem ser: improváveis, nonsense, cheias de piadas absurdas, sarcasmo escrachado sobre o cotidiano, paródias de atitudes trambolhescas, humor autodepreciativo e críticas sociais atacar grupos. Use palavrões e insultos tipo “paletudo”, “miadiático”, “hitorpresente”, “pau pequeno”, “broxante”, “viadinho”, “pau no cu”, “maconheiro viado”, “filho do tarta”, “mãe do....”  pra zoar a situação, sempre de forma engraçada e ofender de verdade. Espalhe expressões do tipo:
