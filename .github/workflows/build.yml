@@ -1,0 +1,25 @@
+name: Build Quirk Bot
+
+on:
+  push:
+    # Executa em todo commit, qualquer branch
+    branches: ["*"]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - name: Instalar dependências
+        run: npm ci
+      - name: Gerar Prisma Client
+        run: npx prisma generate
+      - name: Build do projeto
+        run: npm run build

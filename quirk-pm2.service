@@ -1,0 +1,17 @@
+[Unit]
+Description=Quirk PM2 Service
+After=network.target
+
+[Service]
+Type=simple
+User=gabriel
+WorkingDirectory=/home/gabriel/Trabalho/Quirk
+ExecStart=/home/gabriel/.nvm/versions/node/v20.19.2/bin/pm2 start ecosystem.config.js --env production
+ExecReload=/home/gabriel/.nvm/versions/node/v20.19.2/bin/pm2 reload ecosystem.config.js --env production
+ExecStop=/home/gabriel/.nvm/versions/node/v20.19.2/bin/pm2 stop ecosystem.config.js
+Restart=always
+RestartSec=10
+Environment=PATH=/home/gabriel/.nvm/versions/node/v20.19.2/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin
+
+[Install]
+WantedBy=multi-user.target

@@ -6,7 +6,7 @@ import {
   isCommand,
 } from ".";
 import loadCommomFunctions from "./loadCommomFunctions";
-import simsimi from "../services/simsimi";
+import { getOllamaResults } from "../services/gpt";
 import { general } from "../configuration/general";
 import { IBotData } from "../interfaces/IBotData";
 import verifyPrefix from "../middlewares/verifyPrefix";
@@ -106,12 +106,14 @@ async function processMessage(
     false;
 
   if (shouldUseSimsimi || mentionedMessage || mentionedBot) {
-    return data.sendText(
-      await simsimi(
-        data.fullMessage! ??
-        data.baileysMessage.message?.ephemeralMessage?.message
-          ?.extendedTextMessage?.text!
-      )
-    );
+    const prompt =
+      data.fullMessage! ??
+      data.baileysMessage.message?.ephemeralMessage?.message?.extendedTextMessage?.text!;
+    try {
+      const response = await getOllamaResults(prompt);
+      return data.sendText(response);
+    } catch (err: any) {
+      return data.sendLogOwner("[Ollama] Erro ao gerar resposta: " + (err));
+    }
   }
 }
