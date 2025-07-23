@@ -17,7 +17,11 @@ const command: ICommand = {
         "Você precisa informar uma pergunta com mais de 10 caracteres"
       );
 
-    const responseText = await getOllamaResults(data.argsJoined)
+    const remoteJid = data.remoteJid ?? "";
+    const isGroupSecure = general.GROUP_SECURE.includes(remoteJid);
+    const isHostNumber = general.NUMBERS_HOSTS.includes(remoteJid);
+    const secured = isGroupSecure || isHostNumber;
+    const responseText = await getOllamaResults(data.argsJoined, secured)
 
     if (!responseText)
       throw new WarningError("Não foi possível obter uma resposta da IA");

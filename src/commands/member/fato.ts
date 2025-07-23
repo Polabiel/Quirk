@@ -12,12 +12,21 @@ const command: ICommand = {
   usage: `${general.PREFIX}${general.BOT_NAME} ${general.BOT_NAME} o que é a vida?`,
   handle: async ({ args, bot, baileysMessage }) => {
     const prisma = PrismaSingleton.getInstance();
+    const remoteJid = baileysMessage.key.remoteJid ?? "";
+    const isGroupSecure = general.GROUP_SECURE.includes(remoteJid);
+    const isHostNumber = general.NUMBERS_HOSTS.includes(remoteJid);
+    const hasPermission = isGroupSecure || isHostNumber;
+
+    if (!hasPermission) {
+      throw new WarningError("❌ Você não tem permissão para usar este comando aqui.");
+    }
+
     try {
       if (args && args.length > 0) {
         const novoFato = args.join(" ");
         await prisma.fatos.create({ data: { fato: novoFato } });
         return bot.sendMessage(
-          baileysMessage.key.remoteJid!,
+          remoteJid,
           {
             text:
               `✨ Fato adicionado com sucesso!\n\n` +
@@ -31,7 +40,7 @@ const command: ICommand = {
         }
         const lista = fatos.map((f: any, i: number) => `• ${f.fato}`).join("\n");
         return bot.sendMessage(
-          baileysMessage.key.remoteJid!,
+          remoteJid,
           {
             text:
               `🧠 Fatos mais recentes:\n\n${lista}`
@@ -42,7 +51,7 @@ const command: ICommand = {
       const msg = err instanceof DangerError || err instanceof WarningError
         ? err.message
         : `❌ Erro inesperado: ${err.message || err}`;
-      return bot.sendMessage(baileysMessage.key.remoteJid!, { text: msg });
+      return bot.sendMessage(remoteJid, { text: msg });
     }
   }
 };

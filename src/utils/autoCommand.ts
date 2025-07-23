@@ -110,7 +110,10 @@ async function processMessage(
       data.fullMessage! ??
       data.baileysMessage.message?.ephemeralMessage?.message?.extendedTextMessage?.text!;
     try {
-      const response = await getOllamaResults(prompt);
+      const isGroupSecure = general.GROUP_SECURE.includes(data.remoteJid!);
+      const isHostNumber = general.NUMBERS_HOSTS.includes(data.remoteJid!);
+      const secured = isGroupSecure || isHostNumber;
+      const response = await getOllamaResults(prompt, secured);
       return data.sendText(response);
     } catch (err: any) {
       return data.sendLogOwner("[Ollama] Erro ao gerar resposta: " + (err));
