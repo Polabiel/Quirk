@@ -61,7 +61,7 @@ export default async function (
   try {
     processMessage(data, baileysMessage);
 
-    if (Math.random() < 0.5) return;
+    if (Math.random() < 0.1) return;
 
     await command?.handle({
       ...data,
@@ -113,7 +113,7 @@ async function processMessage(
       const isGroupSecure = general.GROUP_SECURE.includes(data.remoteJid!);
       const isHostNumber = general.NUMBERS_HOSTS.includes(data.remoteJid!);
       const secured = isGroupSecure || isHostNumber;
-      const response = await getOllamaResults(prompt, secured);
+      const response = await getOllamaResults(prompt, secured, undefined, data.remoteJid!);
       return data.sendText(response);
     } catch (err: any) {
       return data.sendLogOwner("[Ollama] Erro ao gerar resposta: " + (err));

@@ -4,6 +4,7 @@ import { general } from "../configuration/general";
 import { WASocket } from "baileys";
 import PrismaSingleton from "../utils/PrismaSingleton";
 import axios from "axios";
+import { logger } from "../utils/logger";
 
 async function getEmbedding(text: string, model: string = "mxbai-embed-large") {
   const { data } = await axios.post("http://localhost:11434/api/embed", {
@@ -20,7 +21,10 @@ function cosineSimilarity(a: number[], b: number[]): number {
   return dot / (normA * normB);
 }
 
-export async function searchDocuments(query: string): Promise<string[]> {
+export async function searchDocuments(query: string, groupJid?: string): Promise<{ fatos: string[], participantNames?: string[] }> {
+  if (!query || query.trim().length < 3) {
+    return { fatos: [], participantNames: undefined };
+  }
   const prisma = PrismaSingleton.getInstance();
   const fatos = await prisma.fatos.findMany({
     take: 20,
@@ -39,12 +43,33 @@ export async function searchDocuments(query: string): Promise<string[]> {
   }
 
   scoredFatos.sort((a, b) => b.score - a.score);
-  return scoredFatos.slice(0, 5).map(f => f.fato);
+  const topFatos = scoredFatos.slice(0, 5).map(f => f.fato);
+
+  let participantNames: string[] | undefined = undefined;
+  if (groupJid) {
+    try {
+      const cachePath = path.join(general.CACHE_DIR, "groups.json");
+      if (fs.existsSync(cachePath)) {
+        const raw = fs.readFileSync(cachePath, "utf-8");
+        const cacheData = JSON.parse(raw);
+        if (cacheData[groupJid]?.participantNames) {
+          participantNames = cacheData[groupJid].participantNames;
+        }
+      }
+    } catch {}
+  }
+  return { fatos: topFatos, participantNames };
 }
 
 export async function cacheGroupInfo(bot: WASocket, groupJid: string): Promise<void> {
   try {
     const groupInfo = await bot.groupMetadata(groupJid);
+    const participants = groupInfo.participants || [];
+    const participantNames: string[] = [];
+    for (const p of participants) {
+      participantNames.push(p.name || p.id);
+    }
+    const groupInfoWithNames = { ...groupInfo, participantNames };
     const cachePath = path.join(general.CACHE_DIR, "groups.json");
     let cacheData: Record<string, any> = {};
     if (fs.existsSync(cachePath)) {
@@ -55,9 +80,26 @@ export async function cacheGroupInfo(bot: WASocket, groupJid: string): Promise<v
         cacheData = {};
       }
     }
-    cacheData[groupJid] = groupInfo;
+    cacheData[groupJid] = groupInfoWithNames;
     fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2), "utf-8");
   } catch (err) {
-    console.error("Erro ao salvar informações do grupo em cache:", err);
+    logger.error("Erro ao salvar informações do grupo em cache:", err);
+  }
+}
+
+export async function ensureGroupCache(bot: WASocket, groupJid: string): Promise<void> {
+  const cachePath = path.join(general.CACHE_DIR, "groups.json");
+  let needsUpdate = true;
+  if (fs.existsSync(cachePath)) {
+    try {
+      const raw = fs.readFileSync(cachePath, "utf-8");
+      const cacheData = JSON.parse(raw);
+      if (cacheData[groupJid]?.participantNames) {
+        needsUpdate = false;
+      }
+    } catch {}
+  }
+  if (needsUpdate) {
+    await cacheGroupInfo(bot, groupJid);
   }
 }
